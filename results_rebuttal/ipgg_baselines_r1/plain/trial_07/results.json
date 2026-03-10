@@ -1,0 +1,1270 @@
+{
+  "total_payoffs": {
+    "Agent_1": 105.19999999999999,
+    "Agent_2": 203.0,
+    "Agent_3": 161.0,
+    "Agent_4": 161.0
+  },
+  "average_payoff": 157.55,
+  "cooperation_rate": 0.0,
+  "cooperation_rounds": 0,
+  "total_rounds": 20,
+  "model_family_averages": {
+    "Mixtral": 105.19999999999999,
+    "Qwen": 203.0,
+    "Llama": 161.0,
+    "DeepSeek": 161.0
+  },
+  "summary": "Cooperation rate: 0.00%, Avg payoff: 157.6",
+  "rounds_played": 10,
+  "cumulative_payoffs": {
+    "Agent_1": [
+      4.399999999999999,
+      29.6,
+      56.0,
+      83.6,
+      95.6,
+      97.19999999999999,
+      97.19999999999999,
+      97.19999999999999,
+      104.39999999999999,
+      105.19999999999999
+    ],
+    "Agent_2": [
+      19.4,
+      31.6,
+      55.0,
+      80.6,
+      99.6,
+      126.19999999999999,
+      141.6,
+      166.0,
+      192.2,
+      203.0
+    ],
+    "Agent_3": [
+      19.4,
+      32.6,
+      48.0,
+      66.6,
+      83.6,
+      102.19999999999999,
+      111.6,
+      127.0,
+      145.2,
+      161.0
+    ],
+    "Agent_4": [
+      19.4,
+      31.6,
+      35.0,
+      39.6,
+      68.6,
+      94.19999999999999,
+      107.6,
+      129.0,
+      157.2,
+      161.0
+    ]
+  },
+  "cooperation_trajectory": [
+    0.75,
+    0.5,
+    0.75,
+    1.0,
+    1.0,
+    1.0,
+    0.75,
+    0.75,
+    1.0,
+    0.25
+  ],
+  "final_cooperation_rate": 0.25,
+  "duration": 473.17446517944336,
+  "rounds_data": [
+    {
+      "round": 1,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 1,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Since this is the first round, there is no past behavior to analyze. The optimal strategy in the first round of an Iterated Public Goods Game without reputation or punishment is to contribute nothing, as this maximizes individual payoff. However, since there is a punishment phase, contributing 0 might be perceived as defection, which could lead to being punished in subsequent rounds, reducing long-term payoff. Therefore, a small contribution is made to signal cooperative intent without sacrificing too much personal gain.",
+          "action": {
+            "type": "contribute",
+            "amount": 1
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Since this is the first round and there is no history of contributions or behavior from other players, it's prudent to start with a moderate contribution to gauge the group's response. Contributing 10 tokens is a balanced approach that shows willingness to cooperate without risking too much.",
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Since this is the first round and there's no past behavior to analyze, a moderate contribution is chosen to encourage cooperation while also considering the potential for free-riding. The goal is to maximize the total score, and contributing a significant portion of the endowment can lead to a higher total payoff if others reciprocate.",
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Since this is the first round and there is no history of contributions, I will contribute a moderate amount to encourage cooperation and observe others' behavior.",
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        }
+      }
+    },
+    {
+      "round": 1,
+      "contributions": {
+        "Agent_1": 1,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "punishments": {
+        "Agent_1": 27
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 3,
+        "Agent_3": 3,
+        "Agent_4": 3
+      },
+      "payoffs": {
+        "Agent_1": 4.399999999999999,
+        "Agent_2": 19.4,
+        "Agent_3": 19.4,
+        "Agent_4": 19.4
+      },
+      "total_pot": 31,
+      "public_payout": 12.4,
+      "avg_contribution": 7.75,
+      "cooperation_rate": 0.75,
+      "summary": "Avg contribution: 7.8, Punishments: 1",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Analyzing the contributions, Player 1 contributed the least, making them the most likely free-rider. However, given the cost ratio and the potential impact on future rounds, it is not cost-effective to punish them as the cost would outweigh the benefit. The other players contributed equally, and there is no evidence of free-riding among them.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 1 contributed only 1 token, which is significantly less than the other players. This behavior could be detrimental if it continues, as it reduces the overall contribution to the public good. Punishing Player 1 might encourage them to contribute more in future rounds. However, the cost of punishment should be considered. Spending 3 tokens to reduce Player 1's payoff by 9 tokens seems reasonable to send a strong message without incurring too high a cost.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Player 1 contributed the least, but given the cost ratio of 1:3, punishing them would be costly and might not yield a significant benefit in terms of changing their behavior in future rounds. However, it's also important to consider the impact on future contributions and the potential for reciprocal behavior. Given that Player 1's contribution is significantly lower than the others, a moderate punishment could serve as a signal without overly diminishing their ability to contribute in the next round.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 1 contributed significantly less (1 token) compared to others (10 tokens each), indicating free-riding behavior. Punishing Player 1 could deter future free-riding and encourage fair contributions. The cost-benefit ratio (1:3) makes punishment worthwhile, as reducing Player 1's payoff by 3 for every token spent can have a meaningful impact.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "round": 2,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 10,
+        "Agent_2": 8,
+        "Agent_3": 12,
+        "Agent_4": 8
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In the first round, the group average contribution was high at 7.8, but I was punished heavily, indicating that my low contribution of 1 was not well-received. To avoid further punishment and to encourage cooperation, I will increase my contribution. However, I will not contribute the full amount, as the punishment last round was quite costly and I need to balance cooperation with self-preservation. I will aim for a contribution that is closer to the group average while still deterring excessive punishment.",
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        },
+        "Agent_2": {
+          "reasoning": "In the first round, the group average contribution was lower than my contribution, which suggests that others are contributing less. However, to encourage higher contributions from others and maintain a cooperative stance, I will slightly reduce my contribution but still aim to support the public good.",
+          "action": {
+            "type": "contribute",
+            "amount": 8
+          }
+        },
+        "Agent_3": {
+          "reasoning": "In Round 1, the group average contribution was 7.8, which is relatively low. Since you contributed 10, which is above the average, it indicates a willingness to cooperate. Given that there are 8 rounds remaining, it's essential to encourage cooperation while also considering the potential for free-riding. A moderate increase in contribution could signal a desire for mutual cooperation and potentially lead to higher group contributions in future rounds.",
+          "action": {
+            "type": "contribute",
+            "amount": 12
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Analyze past contributions, consider reciprocity and group dynamics",
+          "action": {
+            "type": "contribute",
+            "amount": 8
+          }
+        }
+      }
+    },
+    {
+      "round": 2,
+      "contributions": {
+        "Agent_1": 10,
+        "Agent_2": 8,
+        "Agent_3": 12,
+        "Agent_4": 8
+      },
+      "punishments": {
+        "Agent_2": 15,
+        "Agent_4": 15
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 0,
+        "Agent_3": 10,
+        "Agent_4": 0
+      },
+      "payoffs": {
+        "Agent_1": 25.200000000000003,
+        "Agent_2": 12.200000000000003,
+        "Agent_3": 13.200000000000003,
+        "Agent_4": 12.200000000000003
+      },
+      "total_pot": 38,
+      "public_payout": 15.200000000000001,
+      "avg_contribution": 9.5,
+      "cooperation_rate": 0.5,
+      "summary": "Avg contribution: 9.5, Punishments: 2",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "\n  \"punish\": \"analyze who bre-rode and whether punishment is worthwhile,\n  \"action\": {\n    \"type\": \"punish\",\n    \"targets\": []\n  \"targets\": []\n  \"targets\": []\n  \"targets\": []\n  \"targets\": []\n  \"target",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 1 and Player 4 contributed less than the average, which is 9.5 tokens. However, the cost of punishment is high, and it might not be beneficial to spend tokens on punishment in this round. It's better to focus on the collective benefit and consider punishment if the free-riding continues in the next rounds.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Players 2 and 4 contributed the least, but since the cost ratio is 1:3, punishing them could be effective in encouraging higher contributions in future rounds. However, given that Player 1 also contributed less than me and Player 3, it might be strategic to punish Player 1 as well to maintain a balance. Considering the cost-benefit, punishing Players 2 and 4 seems most justified as they contributed the least.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 2,
+                "spend_amount": 5
+              },
+              {
+                "player_id": 4,
+                "spend_amount": 5
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 1 contributed 10 tokens, Player 2 contributed 8 tokens, Player 3 contributed 12 tokens, and Player 4 contributed 8 tokens. Since Player 3 contributed the most and Player 1 contributed more than the average, there is no clear free-rider to punish. Punishing players who contributed equally or more than me would not be beneficial.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        }
+      }
+    },
+    {
+      "round": 3,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 15,
+        "Agent_4": 6
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In Round 1, I contributed minimally and was heavily punished, suggesting that the group values higher contributions. In Round 2, I increased my contribution significantly, which resulted in a high payoff and no punishment. Given that the group average contribution has been relatively high, it is strategic to maintain a similar level of contribution to avoid punishment and encourage cooperation. However, since the punishment in Round 1 was severe, I should be cautious not to contribute too much and risk being exploited by non-contributors.",
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Given the group's fluctuating contributions and the significant punishment I received in the last round, it's important to balance contributing to the public good and protecting my score. Contributing a moderate amount will show cooperation but also prevent me from being exploited.",
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        },
+        "Agent_3": {
+          "reasoning": "In the first two rounds, the group's average contribution increased from 7.8 to 9.5, indicating a trend towards higher cooperation. Given that there are 7 rounds remaining, it's essential to balance individual gain with collective benefit. Contributing a moderate to high amount can encourage others to do the same, potentially leading to higher overall earnings. Considering the cost-benefit analysis and the punishment phase, contributing 15 tokens seems like a reasonable strategy, as it shows commitment to the public good while also keeping some tokens for private gain or potential punishment.",
+          "action": {
+            "type": "contribute",
+            "amount": 15
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Given the group's past behavior, with an average contribution slightly below my own in Round 1 and above in Round 2, and considering the punishment I received in Round 2, it may be strategic to reduce my contribution to avoid being exploited while still maintaining some cooperation.",
+          "action": {
+            "type": "contribute",
+            "amount": 6
+          }
+        }
+      }
+    },
+    {
+      "round": 3,
+      "contributions": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 15,
+        "Agent_4": 6
+      },
+      "punishments": {
+        "Agent_4": 27
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 3,
+        "Agent_3": 6,
+        "Agent_4": 0
+      },
+      "payoffs": {
+        "Agent_1": 26.400000000000002,
+        "Agent_2": 23.400000000000002,
+        "Agent_3": 15.400000000000002,
+        "Agent_4": 3.400000000000002
+      },
+      "total_pot": 41,
+      "public_payout": 16.400000000000002,
+      "avg_contribution": 10.25,
+      "cooperation_rate": 0.75,
+      "summary": "Avg contribution: 10.2, Punishments: 1",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "All players contributed the same or more than the public good payout per token contributed (6.4 tokens per token contributed). Therefore, there are no free-riders in this round. Since no one is free-riding, it is not worthwhile to spend tokens on punishment as it would only reduce the overall welfare without deterring any free-riding behavior.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 4 contributed significantly less than the others, which could be seen as free-riding. Punishing Player 4 might encourage fairer contributions in the future. However, the cost of punishment should be considered against the potential benefit.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 4,
+                "spend_amount": 3
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Player 4 contributed the least, but punishing them might not be cost-effective given the cost ratio. However, to maintain cooperation and deter future free-riding, targeted punishment is necessary. Player 4's contribution is significantly lower than the others, making them the primary target for punishment to encourage higher contributions in future rounds.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 4,
+                "spend_amount": 6
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 4 contributed the least (6 tokens) compared to others, indicating potential free-riding. However, punishing them may not be worthwhile given the cost-benefit ratio and potential impact on future rounds.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        }
+      }
+    },
+    {
+      "round": 4,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 14,
+        "Agent_2": 12,
+        "Agent_3": 18,
+        "Agent_4": 10
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Given the past behavior of the group, they seem to contribute around 70-80% of their endowment. In Round 1, I contributed less and was heavily punished, which suggests that the group values contribution. In Rounds 2 and 3, after increasing my contribution to 10, I was not punished and earned a good return. To maintain cooperation and avoid punishment, I will continue to contribute a significant portion of my endowment, but slightly less than the group average to maximize my points while still contributing to the public good.",
+          "action": {
+            "type": "contribute",
+            "amount": 14
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Given the group's increasing average contribution and the significant punishment I received in Round 2, it seems the group is responsive to high contributions. Contributing a high amount again in this round could reinforce cooperative behavior and maximize the public good return, while also deterring any potential punishment.",
+          "action": {
+            "type": "contribute",
+            "amount": 12
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Analyze past contributions, consider reciprocity and group dynamics. The group's average contribution has been increasing, indicating a potential for cooperation. To encourage further cooperation and maximize the public good, contributing a higher amount than the previous rounds could be beneficial. However, considering the punishment phase and the potential for free-riding, a balance must be struck.",
+          "action": {
+            "type": "contribute",
+            "amount": 18
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Given the group's increasing average contributions and the severe punishment received in previous rounds for contributing less than the average, it is strategic to align more closely with the group average to avoid further punishment and maximize long-term gains.",
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        }
+      }
+    },
+    {
+      "round": 4,
+      "contributions": {
+        "Agent_1": 14,
+        "Agent_2": 12,
+        "Agent_3": 18,
+        "Agent_4": 10
+      },
+      "punishments": {
+        "Agent_4": 27
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 4,
+        "Agent_3": 5,
+        "Agent_4": 0
+      },
+      "payoffs": {
+        "Agent_1": 27.6,
+        "Agent_2": 25.6,
+        "Agent_3": 18.6,
+        "Agent_4": 4.600000000000001
+      },
+      "total_pot": 54,
+      "public_payout": 21.6,
+      "avg_contribution": 13.5,
+      "cooperation_rate": 1.0,
+      "summary": "Avg contribution: 13.5, Punishments: 1",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "\"\n\n  \"punish\": {\n    \"player_id\": <1-4, \"spend_amount\": <integer>\n  }\n}\n\nIf you you100% true, return the JSONCEPT object with the following structure:\n{\n  \"punishments\": [\n    {\n      \"player_id\": <1-",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 4 contributed the least, which is a significant free-riding behavior. Punishing Player 4 might encourage better contribution in the future. The cost of punishment is 1:3, so spending 4 tokens to reduce Player 4's payoff by 12 tokens is a reasonable action.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 4,
+                "spend_amount": 4
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Analyzing the contributions, Player 4 contributed the least with 10 tokens, and Player 2 contributed less than the average. Given the cost ratio of 1:3, punishing could be beneficial if it encourages higher contributions in future rounds. However, considering the potential impact on future cooperation and the cost, it might be more strategic to punish the player who contributed the least to set a precedent without overly discouraging contributions.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 4,
+                "spend_amount": 5
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 1 contributed 14 tokens, Player 2 contributed 12 tokens, Player 3 contributed 18 tokens, and Player 4 contributed 10 tokens. Since Player 4 contributed the least (10 tokens), they could be considered a free-rider. However, punishing Player 4 would cost tokens and may not significantly impact future rounds, as the cost-benefit ratio is 1:3. Given the small difference in contributions and the potential minimal impact on future behavior, it may not be worthwhile to punish anyone this round.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        }
+      }
+    },
+    {
+      "round": 5,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 12,
+        "Agent_2": 11,
+        "Agent_3": 19,
+        "Agent_4": 13
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Given the past behavior of the group, there has been a trend of increasing contributions, with the average contribution rising from 7.8 to 13.5 over the last four rounds. Since the multiplier for the public good is 1.6 and there are 4 players, the break-even point for contribution is 10 tokens (each player gets back 16 tokens, which is 1.6 times the individual contribution of 10). To encourage cooperation and potentially benefit from the public good while also considering the possibility of punishment, a contribution slightly above the average but below the break-even point seems optimal. This should help maintain a high group average contribution while not over-contributing.",
+          "action": {
+            "type": "contribute",
+            "amount": 12
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Given the group's increasing average contribution over time, it seems that contributing more is beneficial. However, I was heavily punished in Round 2, which suggests that there might be a player who is sensitive to lower contributions. To maximize my score while maintaining a cooperative stance, I will contribute a moderate amount that is above the group average but not excessively high.",
+          "action": {
+            "type": "contribute",
+            "amount": 11
+          }
+        },
+        "Agent_3": {
+          "reasoning": "The group's average contribution has been increasing over the rounds, indicating a trend towards more cooperation. In Round 1, the group average was 7.8, in Round 2 it was 9.5, in Round 3 it was 10.2, and in Round 4 it was 13.5. This suggests that the group is learning to cooperate more effectively. Given that there are 5 rounds remaining, it's beneficial to continue this trend of cooperation to maximize the public good and, by extension, individual earnings. Contributing a significant amount will not only increase the public good but also encourage others to do the same in future rounds, potentially leading to higher overall scores for everyone. Considering the increasing trend, contributing 19 tokens would be a strategic move, as it shows commitment to the group's effort while also leaving a small margin for potential punishment or private keeping.",
+          "action": {
+            "type": "contribute",
+            "amount": 19
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Given the group's increasing average contributions and the severe punishment received in previous rounds for contributing less than the average, it is strategic to align contributions with the group average to avoid further punishment and maximize long-term gains.",
+          "action": {
+            "type": "contribute",
+            "amount": 13
+          }
+        }
+      }
+    },
+    {
+      "round": 5,
+      "contributions": {
+        "Agent_1": 12,
+        "Agent_2": 11,
+        "Agent_3": 19,
+        "Agent_4": 13
+      },
+      "punishments": {
+        "Agent_1": 18,
+        "Agent_2": 9
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 3,
+        "Agent_3": 6,
+        "Agent_4": 0
+      },
+      "payoffs": {
+        "Agent_1": 12.0,
+        "Agent_2": 19.0,
+        "Agent_3": 17.0,
+        "Agent_4": 29.0
+      },
+      "total_pot": 55,
+      "public_payout": 22.0,
+      "avg_contribution": 13.75,
+      "cooperation_rate": 1.0,
+      "summary": "Avg contribution: 13.8, Punishments: 2",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "N(p)n(p)n(p)n(p)n(p)n(pn(p)n(p)p(n)p)n(pn(p)n(p)n(p)npn(p)n(p)np(xn(p(xn(p)n(pn(p)n(p)n(p)n(p)n(p(n(p)n(p)n(pnp(xn(p(xn(p(xn(p(n(xn(p)xn(p(xn(p)n(p(n(p(n(p(n-p(n-p{n-ppn-p-n-p{n-p-n-p{n-p{n-p(n-p(n-p{",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 1 and Player 2 contributed less than the average, which is 13.75 tokens. However, the cost of punishment is 1:3, and spending tokens to punish might not be beneficial if it significantly reduces my own payoff. Considering the impact on future rounds, I will punish Player 1 slightly to discourage free-riding without incurring too much cost to myself.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Player 3 contributed the most, while Players 1 and 2 contributed less. Punishing them could encourage higher contributions in future rounds. However, the cost ratio of 1:3 must be considered to ensure punishment is cost-effective. Given the current contributions, punishing Players 1 and 2 could be beneficial, but the amount spent should be minimized to maximize the impact.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              },
+              {
+                "player_id": 2,
+                "spend_amount": 3
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 3 contributed significantly more than others, while Player 2 contributed slightly less than the average. Punishing Player 2 may deter free-riding in future rounds, but the cost-benefit ratio is marginal given the small difference in contributions.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        }
+      }
+    },
+    {
+      "round": 6,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 10,
+        "Agent_2": 12,
+        "Agent_3": 18,
+        "Agent_4": 14
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "a rational game-playing agent.\n\nYou are playing an Iterated Public Goods game with  group of rational players.\n\n### PLAYER_A\n_b_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_c_d_",
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Given the group's increasing average contribution and the significant punishment I received in Round 2, it seems the group is generally cooperative but sensitive to deviations. Contributing a moderate amount that aligns with the group average can help maintain a positive relationship and avoid punishment, while not overly sacrificing my own payoff. With 4 rounds left, maintaining a good standing in the group is also important for potential future cooperation.",
+          "action": {
+            "type": "contribute",
+            "amount": 12
+          }
+        },
+        "Agent_3": {
+          "reasoning": "The group's average contribution has been increasing over the rounds, indicating a trend towards cooperation. Given that there are 4 rounds remaining, it's beneficial to continue contributing at a high level to encourage others to do the same, maximizing the public good and thus individual earnings. However, contributing the maximum amount may not be necessary if others are already contributing significantly. A balance must be struck to ensure the group's overall contribution remains high without overly sacrificing personal gain.",
+          "action": {
+            "type": "contribute",
+            "amount": 18
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Analyzing past contributions, the group average has been relatively high, and I have been punished severely for contributing less than the average. To avoid further punishment and maximize my score, I should contribute close to the group average.",
+          "action": {
+            "type": "contribute",
+            "amount": 14
+          }
+        }
+      }
+    },
+    {
+      "round": 6,
+      "contributions": {
+        "Agent_1": 10,
+        "Agent_2": 12,
+        "Agent_3": 18,
+        "Agent_4": 14
+      },
+      "punishments": {
+        "Agent_1": 30
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 3,
+        "Agent_3": 5,
+        "Agent_4": 2
+      },
+      "payoffs": {
+        "Agent_1": 1.6000000000000014,
+        "Agent_2": 26.6,
+        "Agent_3": 18.6,
+        "Agent_4": 25.6
+      },
+      "total_pot": 54,
+      "public_payout": 21.6,
+      "avg_contribution": 13.5,
+      "cooperation_rate": 1.0,
+      "summary": "Avg contribution: 13.5, Punishments: 1",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Analyzing the contributions this round, Player 1 contributed the least with 10 tokens, which is slightly below the average contribution of 13.5 tokens (excluding my own contribution). Player 2 contributed 12 tokens, which is also below average but closer to it. Player 3 contributed the most with 18 tokens, and Player 4 contributed 14 tokens, both above average. Given the cost-benefit ratio of 1:3 for punishment, it is not worthwhile to punish Player 1 or Player 2 as their contributions are not significantly below average. Punishment would only be beneficial if it deters free-riding in future rounds, but the small deviation from average does not justify the cost. Additionally, punishing could negatively impact my relationship with other players and may not lead to increased contributions in the future. Therefore, I have decided not to punish any players.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 1 contributed the least, which can be considered free-riding. However, the cost of punishment is 1:3, and spending tokens to punish might not be beneficial if it significantly reduces my own payoff. Considering the impact on future rounds, a moderate punishment might serve as a warning without incurring too much cost.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Analyzing the contributions, Player 1 contributed the least with 10 tokens, which is significantly lower than the average contribution. Given the cost ratio of 1:3, punishing Player 1 could be effective in discouraging free-riding in future rounds. However, the potential benefit of punishing must be weighed against the cost. Since my current payoff is substantial and I can spend up to 10 tokens on punishment, I will allocate a portion of my tokens to punish Player 1, aiming to balance the deterrent effect with the cost.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 5
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 1 contributed the least (10 tokens), which is significantly lower than my contribution of 14 tokens. Punishing Player 1 could deter free-riding in future rounds. The cost-benefit ratio of 1:3 makes punishment worthwhile, as spending 1 token reduces their payoff by 3, potentially encouraging higher contributions in the next round.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "round": 7,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 0,
+        "Agent_2": 11,
+        "Agent_3": 17,
+        "Agent_4": 13
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "{\naction}: {\n    \"type\": \"contribute,\n    \"amount\": <integer from the 0 to 20>\n{\naction}: {\n    \"type\": \"contribute,\n    \"amount\": <integer from the 0 to 20>\n the {action}: {\n    \"type}: \"contribute,\n",
+          "action": {
+            "type": "contribute",
+            "amount": 0
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Given the group's history of contributing slightly more than I have, and the significant punishment I received in rounds 2 and 5, it's important to maintain a fair contribution level to avoid further punishment while still benefiting from the public good. Contributing 11 tokens aligns with the group's average and maximizes my potential payoff while minimizing the risk of being punished.",
+          "action": {
+            "type": "contribute",
+            "amount": 11
+          }
+        },
+        "Agent_3": {
+          "reasoning": "The group has shown a trend of increasing contributions over the rounds, with an average contribution of around 12-14 tokens per player in the last few rounds. Given that there are only 3 rounds remaining, it's essential to balance maximizing the public good with ensuring individual contributions are not overly exploited. A moderate to high contribution is likely to encourage others to do the same, maximizing the group's overall score. Considering the past behavior, contributing 17 tokens seems like a reasonable strategy, as it is slightly above the recent group average, encouraging cooperation while also keeping a significant amount for private keeping.",
+          "action": {
+            "type": "contribute",
+            "amount": 17
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Analyze past contributions, consider reciprocity and group dynamics",
+          "action": {
+            "type": "contribute",
+            "amount": 13
+          }
+        }
+      }
+    },
+    {
+      "round": 7,
+      "contributions": {
+        "Agent_1": 0,
+        "Agent_2": 11,
+        "Agent_3": 17,
+        "Agent_4": 13
+      },
+      "punishments": {
+        "Agent_1": 90
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "payoffs": {
+        "Agent_1": 0,
+        "Agent_2": 15.400000000000002,
+        "Agent_3": 9.400000000000002,
+        "Agent_4": 13.400000000000002
+      },
+      "total_pot": 41,
+      "public_payout": 16.400000000000002,
+      "avg_contribution": 10.25,
+      "cooperation_rate": 0.75,
+      "summary": "Avg contribution: 10.2, Punishments: 1",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "\"0\n}\n\n  {\n  \"reasoning\": \"Punishment is a way to enforce social norms and potentially increase contributions to the public good in\n  \"action\": \"punish\",\n  \"target\": {\n    \"player_id\": <1-4>,\n    \"spen",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 1 contributed 0 tokens, which is a clear case of free-riding. Punishing Player 1 could deter free-riding in future rounds. The cost of punishment is 1:3, so spending 10 tokens to reduce Player 1's payoff by 30 tokens is a significant impact.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 10
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Player 1 contributed 0 tokens, making them the most significant free-rider. Given the cost ratio of 1:3, punishing Player 1 could be beneficial as it would reduce their payoff significantly while also sending a signal for future rounds. Players 2 and 4 contributed, but less than me and Player 3, so they are less of a priority for punishment. Since I can spend up to 10 tokens, I will allocate my punishment budget to maximize the impact on the most egregious free-rider, which is Player 1.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 10
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 1 contributed 0 tokens, which is free-riding. Punishing Player 1 could deter future free-riding and improve group cooperation. The cost-benefit ratio of 1:3 makes punishment worthwhile.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 10
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "round": 8,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 5,
+        "Agent_2": 11,
+        "Agent_3": 18,
+        "Agent_4": 12
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Given the history of contributions and the severe punishment in the last round, it seems that the group is retaliatory. To maximize total score, it's important to balance between contributing to the public good and avoiding punishment. Since there are only two rounds left, it's crucial to minimize punishment to ensure a higher score. A lower contribution might be seen as a signal to reduce punishment, while still contributing something to avoid being seen as completely uncooperative.",
+          "action": {
+            "type": "contribute",
+            "amount": 5
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Given the group's history of contributing around 10-13 tokens and the fact that I was punished in Round 5 for contributing less than the average, it's wise to maintain a contribution level that aligns with the group average. This helps in maintaining a positive reputation and avoiding punishment, which is crucial with only two rounds left. Contributing 11 tokens is a balanced approach, as it is slightly above the average and shows a cooperative attitude without over-contributing.",
+          "action": {
+            "type": "contribute",
+            "amount": 11
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Analyze past contributions, consider reciprocity and group dynamics. The group's average contribution has fluctuated, but there's a noticeable drop in Round 7. Given the remaining rounds, it's crucial to balance personal gain with the potential for reciprocal contributions from others. A moderate to high contribution can encourage others to contribute more, maximizing the public good and, by extension, individual scores.",
+          "action": {
+            "type": "contribute",
+            "amount": 18
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Analyzing past contributions, the group average has fluctuated but generally remains around 10-13 tokens. Contributing a similar amount aligns with group behavior and reduces the risk of punishment. Given the remaining rounds, maintaining a moderate contribution strategy balances maximizing individual payoff and avoiding retaliation.",
+          "action": {
+            "type": "contribute",
+            "amount": 12
+          }
+        }
+      }
+    },
+    {
+      "round": 8,
+      "contributions": {
+        "Agent_1": 5,
+        "Agent_2": 11,
+        "Agent_3": 18,
+        "Agent_4": 12
+      },
+      "punishments": {
+        "Agent_1": 39
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 3,
+        "Agent_3": 5,
+        "Agent_4": 5
+      },
+      "payoffs": {
+        "Agent_1": 0,
+        "Agent_2": 24.400000000000002,
+        "Agent_3": 15.400000000000002,
+        "Agent_4": 21.400000000000002
+      },
+      "total_pot": 46,
+      "public_payout": 18.400000000000002,
+      "avg_contribution": 11.5,
+      "cooperation_rate": 0.75,
+      "summary": "Avg contribution: 11.5, Punishments: 1",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "and the cost of the punishment is 10 tokens,\n    \"punish_cost\": 10 tokens,\n    \"punish_cost\": 100,\n    \"punish_cost\": 100,\n    \"punish_cost\": 100,\n    \"punish_cost\": 100,\n    \"punish_cost\": 100,\n    \"",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 1 contributed the least, which is a significant free-riding behavior. Punishing Player 1 might encourage a higher contribution in the next round. The cost of punishment is 1:3, so spending 3 tokens to reduce Player 1's payoff by 9 tokens is a reasonable action.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Player 1 contributed the least, but punishing them might not be effective due to the low payoff reduction. Player 2 and 4 contributed moderately, but not as much as Player 3. Considering the cost-benefit and impact on future rounds, it's reasonable to punish Player 1 to some extent to encourage higher contributions in the next rounds, while also considering the cost ratio of 1:3.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 5
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 1 contributed significantly less (5 tokens) compared to others, indicating free-riding behavior. Punishing Player 1 could deter future free-riding and encourage fair contributions. The cost-benefit ratio (1:3) makes punishment worthwhile.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "round": 9,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 10,
+        "Agent_2": 12,
+        "Agent_3": 18,
+        "Agent_4": 13
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "action": {
+            "type": "contribute",
+            "amount": 10
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Given the group's history of relatively high contributions and the fact that there is only one round left, it is beneficial to maintain a high contribution to encourage similar behavior from others and maximize the public good. Additionally, the high group average in previous rounds suggests that contributing a similar amount will likely result in a fair return. Since this is the second to last round, maintaining a cooperative stance can also prevent potential punishment in the final round.",
+          "action": {
+            "type": "contribute",
+            "amount": 12
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Given the group's inconsistent past behavior, with averages ranging from 10.2 to 13.8, and considering we are in the second to last round, a strategic approach would be to contribute a moderate to high amount to encourage reciprocity while also keeping some tokens for private gain. Since the game is almost over, the focus should be on maximizing the current round's earnings, considering the potential for others to free-ride in the last round.",
+          "action": {
+            "type": "contribute",
+            "amount": 18
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Given the group's past contributions averaging around 12-13 tokens, and considering this is the penultimate round, contributing slightly above the average can help maintain reciprocity and avoid punishment while maximizing collective benefit.",
+          "action": {
+            "type": "contribute",
+            "amount": 13
+          }
+        }
+      }
+    },
+    {
+      "round": 9,
+      "contributions": {
+        "Agent_1": 10,
+        "Agent_2": 12,
+        "Agent_3": 18,
+        "Agent_4": 13
+      },
+      "punishments": {
+        "Agent_1": 24
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 3,
+        "Agent_3": 5,
+        "Agent_4": 0
+      },
+      "payoffs": {
+        "Agent_1": 7.200000000000003,
+        "Agent_2": 26.200000000000003,
+        "Agent_3": 18.200000000000003,
+        "Agent_4": 28.200000000000003
+      },
+      "total_pot": 53,
+      "public_payout": 21.200000000000003,
+      "avg_contribution": 13.25,
+      "cooperation_rate": 1.0,
+      "summary": "Avg contribution: 13.2, Punishments: 1",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Your response is invalid. Please provide a valid JSON object.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 1 contributed the least, which can be considered free-riding. However, the cost of punishment is 1:3, and spending tokens to punish may not be beneficial if it significantly reduces my own payoff. I will punish Player 1 with a small amount to signal disapproval without incurring too much cost.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "Analyzing the contributions, Player 1 contributed the least with 10 tokens, which is significantly lower than the average contribution. Given the cost ratio of 1:3, punishing Player 1 could be effective in discouraging free-riding in future rounds. However, considering the potential impact on future cooperation and the cost, a moderate punishment seems appropriate.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 5
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 1 contributed the least (10 tokens) compared to others, indicating potential free-riding. Punishing Player 1 could deter future free-riding, but the cost-benefit ratio (1:3) must be considered. Spending 1 token reduces Player 1's payoff by 3, which may not significantly impact their behavior. Given the limited impact and the cost, punishment may not be worthwhile.",
+          "action": {
+            "type": "punish",
+            "targets": []
+          }
+        }
+      }
+    },
+    {
+      "round": 10,
+      "stage": "contribution",
+      "contributions": {
+        "Agent_1": 0,
+        "Agent_2": 0,
+        "Agent_3": 0,
+        "Agent_4": 12
+      },
+      "summary": "Contributions collected, entering punishment phase",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Given the history of high contributions by the group and severe punishment for deviating from the norm, it is strategic to contribute close to the average to avoid punishment and maximize the public good. However, since this is the last round, there is no future to consider for reciprocity or reputation. Therefore, contributing 0 tokens might be the best strategy to maximize personal score, assuming others will continue to contribute to the public good.",
+          "action": {
+            "type": "contribute",
+            "amount": 0
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Given that this is the last round and there are no rounds left for future reciprocation or punishment, the optimal strategy is to contribute 0 tokens to maximize private keeping. Past contributions and punishments are irrelevant in this final round.",
+          "action": {
+            "type": "contribute",
+            "amount": 0
+          }
+        },
+        "Agent_3": {
+          "reasoning": "In the final round, maximizing personal gain is key since there are no future rounds to consider reciprocity or group dynamics. Given the group's history, contributing 0 tokens would allow me to keep the most tokens privately, as the public good's benefit is divided equally and the punishment phase's impact is uncertain.",
+          "action": {
+            "type": "contribute",
+            "amount": 0
+          }
+        },
+        "Agent_4": {
+          "reasoning": "This is the final round, so future reciprocity is not a factor. Given the group's past contributions have been relatively high and consistent, contributing a moderate amount aligns with the group's behavior and maximizes potential returns from the public good.",
+          "action": {
+            "type": "contribute",
+            "amount": 12
+          }
+        }
+      }
+    },
+    {
+      "round": 10,
+      "contributions": {
+        "Agent_1": 0,
+        "Agent_2": 0,
+        "Agent_3": 0,
+        "Agent_4": 12
+      },
+      "punishments": {
+        "Agent_1": 24,
+        "Agent_2": 9,
+        "Agent_3": 9
+      },
+      "punishment_costs": {
+        "Agent_1": 0,
+        "Agent_2": 5,
+        "Agent_3": 0,
+        "Agent_4": 9
+      },
+      "payoffs": {
+        "Agent_1": 0.8000000000000007,
+        "Agent_2": 10.8,
+        "Agent_3": 15.8,
+        "Agent_4": 3.8000000000000007
+      },
+      "total_pot": 12,
+      "public_payout": 4.800000000000001,
+      "avg_contribution": 3.0,
+      "cooperation_rate": 0.25,
+      "summary": "Avg contribution: 3.0, Punishments: 3",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "All players except Player 4 contributed 0 tokens, indicating they are free-riders. Since I also contributed 0 tokens, I am also a free-rider. However, since I have the option to punish, I will consider the impact of punishment on future rounds and the cost-benefit ratio. Punishing all free-riders might be too costly and could lead to retaliation or a breakdown of cooperation in future rounds. Therefore, I will punish only Player 1 to set an example and minimize my own costs, while still sending a message that free-riding will not be tolerated without penalty.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 1
+              }
+            ]
+          }
+        },
+        "Agent_2": {
+          "reasoning": "Player 4 contributed 12 tokens, which is a significant contribution, while Players 1, 2, and 3 contributed nothing. Punishing the free-riders might encourage them to contribute in the future, but it is also important to consider the cost of punishment. Given the cost ratio of 1:3, spending 10 tokens to punish each free-rider would reduce their payoff by 30 tokens, which could be a strong deterrent. However, I will focus on the two most significant free-riders to balance the cost and impact.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 5
+              },
+              {
+                "player_id": 2,
+                "spend_amount": 5
+              }
+            ]
+          }
+        },
+        "Agent_3": {
+          "reasoning": "All players except Player 4 free-rode, but since the cost ratio is 1:3, punishing could be beneficial if it deters future free-riding. However, given that everyone except one player free-rode, it might be more strategic to punish the least contributors to maximize the deterrent effect while conserving tokens. Since all but one player contributed nothing, the focus should be on whether punishing any of them is cost-effective. Given the current payoff and the potential to reduce others' payoffs significantly, it's worth considering punishment to encourage contributions in future rounds.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 0
+              },
+              {
+                "player_id": 2,
+                "spend_amount": 0
+              },
+              {
+                "player_id": 3,
+                "spend_amount": 0
+              }
+            ]
+          }
+        },
+        "Agent_4": {
+          "reasoning": "Player 1, Player 2, and Player 3 contributed 0 tokens, while I contributed 12 tokens. Punishing them could deter free-riding in future rounds. The cost-benefit ratio (1:3) makes punishment effective.",
+          "action": {
+            "type": "punish",
+            "targets": [
+              {
+                "player_id": 1,
+                "spend_amount": 3
+              },
+              {
+                "player_id": 2,
+                "spend_amount": 3
+              },
+              {
+                "player_id": 3,
+                "spend_amount": 3
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "condition": "plain",
+    "trial": 7,
+    "timestamp": "2025-11-21T15:06:52.452697",
+    "agents": [
+      {
+        "name": "Agent_1",
+        "model": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+        "model_family": "Mixtral"
+      },
+      {
+        "name": "Agent_2",
+        "model": "Qwen/Qwen2.5-72B-Instruct",
+        "model_family": "Qwen"
+      },
+      {
+        "name": "Agent_3",
+        "model": "meta-llama/Llama-3.3-70B-Instruct",
+        "model_family": "Llama"
+      },
+      {
+        "name": "Agent_4",
+        "model": "deepseek-ai/DeepSeek-V3",
+        "model_family": "DeepSeek"
+      }
+    ],
+    "rounds": 10
+  }
+}

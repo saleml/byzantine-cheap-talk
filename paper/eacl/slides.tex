@@ -1,0 +1,536 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{metropolis}
+
+% Packages
+\usepackage{booktabs}
+\usepackage{graphicx} % Remove [draft] when you have the figures
+\usepackage{tikz}
+\usepackage{pdfpc}
+
+% Colors
+\definecolor{mLightBrown}{HTML}{EB811B}
+\definecolor{mDarkBrown}{HTML}{B8860B}
+
+% Metadata
+\title{Communication Enables Cooperation in LLM Agents}
+\subtitle{A Comparison with Curriculum-Based Approaches}
+\author{Hachem Madmoun \and Salem Lahlou}
+\institute{Mohamed bin Zayed University of Artificial Intelligence}
+\date{}
+
+\begin{document}
+
+% ==============================================================================
+% SLIDE 1: Title
+% ==============================================================================
+%\pdfpcnote{Hi everyone, I'm Salem Lahlou from MBZUAI. Today I'm presenting joint work with Hachem Madmoun on getting language model agents to cooperate with each other. We tested two different approaches: giving agents a simple way to communicate before making decisions, and training them through a sequence of progressively harder games. One of these worked really well. The other one backfired in ways we didn't expect. Let me walk you through what we found.}
+\begin{frame}
+  \titlepage
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 2: The Problem
+% ==============================================================================
+%\pdfpcnote{So here's the situation we're dealing with. LLM agents are increasingly being deployed in settings where they interact with each other autonomously. And they keep running into what game theorists call social dilemmas---situations where what's individually rational leads to outcomes that hurt everyone. The Prisoner's Dilemma is the classic example, but there are many variations. Prior work has shown that LLMs tend to play selfishly in these scenarios, even when mutual cooperation would make everyone better off. So the question we asked is: can we change that? We tried two very different interventions. First, a direct approach---just let agents talk to each other before they act. Second, a more involved pedagogical approach---train them on a curriculum of simpler games to build up cooperative intuitions.}
+\begin{frame}{The Problem: LLMs Default to Defection}
+  
+  \vspace{1em}
+  As LLM agents become autonomous, they face \textbf{social dilemmas}:
+  
+  \vspace{1em}
+  \begin{itemize}
+    \item Individual rationality $\neq$ collective welfare
+    \item Classic example: Prisoner's Dilemma
+    \item LLMs tend to defect, even when cooperation pays off
+  \end{itemize}
+  
+  \vspace{1.5em}
+  \textbf{Research question:} How do we elicit cooperation?
+  
+  \vspace{1em}
+  We tested two approaches:
+  \begin{enumerate}
+    \item Direct communication (cheap talk)
+    \item Curriculum learning (pedagogical game sequences)
+  \end{enumerate}
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 3: Prisoner's Dilemma Explanation
+% ==============================================================================
+%\pdfpcnote{Quick refresher on the Prisoner's Dilemma. Two players, cooperate or defect. Both cooperate: 3 each. Both defect: 1 each. But if I defect while you cooperate, I get 5 and you get zero. So defecting is always better for me individually. But if we both think this way, we get 1 each instead of 3. That's the dilemma.}
+
+
+\begin{frame}{Background: The Prisoner's Dilemma}
+  
+  \textbf{The classic social dilemma:}
+  
+  \vspace{0.5em}
+  \begin{table}
+    \centering
+    \begin{tabular}{l|cc}
+      & Opponent Cooperates & Opponent Defects \\
+      \hline
+      You Cooperate & 3, 3 & 0, 5 \\
+      You Defect & 5, 0 & 1, 1 \\
+    \end{tabular}
+  \end{table}
+  
+  \vspace{1em}
+  \begin{itemize}
+    \item Mutual cooperation: both get 3
+    \item Mutual defection: both get 1
+    \item But defecting always gives you +2 over cooperating
+    \item So rational agents defect $\to$ everyone worse off
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{This is the core tension we're trying to solve.}
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 4: Stag Hunt Setup
+% ==============================================================================
+%\pdfpcnote{Our first experiment uses a different game called the Stag Hunt. Four players, and each round you choose one of two options: hunt a stag together, or hunt a hare alone. If all four players coordinate and go for the stag, everyone gets 10 points. That's the big payoff, but it requires trust. If even one person chickens out and hunts a hare, the stag escapes. The people who went for the stag get nothing, while hare hunters each get 3 points. So you have a safe option that guarantees 3 points, and a risky option worth 10 that only pays off if everyone coordinates. We ran this with four different model families---Mixtral, Qwen, Llama, and DeepSeek---all playing together. We also tested a coalition setting with pairs of same-family models. And we compared with and without a one-word communication channel, where agents could broadcast a single word before choosing their action. The word wasn't binding---pure cheap talk.}
+
+\begin{frame}{Experiment 1: Four-Player Stag Hunt}
+  
+  \textbf{A coordination game with risky cooperation:}
+  
+  \vspace{0.5em}
+  \begin{table}
+    \centering
+    \begin{tabular}{ll}
+      \toprule
+      Outcome & Payoff \\
+      \midrule
+      All 4 hunt stag & 10 points each \\
+      Anyone hunts hare & Stag hunters: 0, Hare hunters: 3 \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{1em}
+  \textbf{Two settings:}
+  \begin{itemize}
+    \item \textbf{Heterogeneous:} Mixtral, Qwen, Llama, DeepSeek (all different)
+    \item \textbf{Coalition:} 2 pairs of same-family models
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Communication:} One word broadcast before action (non-binding)
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 5: Stag Hunt Results
+% ==============================================================================
+%\pdfpcnote{Here's what we found, and it's pretty striking. Look at the heterogeneous setting first---four different models playing together. Without communication: zero percent cooperation. They never managed to coordinate on the stag. Not once. Add one word of communication? Jumps to 48 percent. That's a huge effect from a minimal intervention. The figure on the right breaks things down by model and condition. The coalition groups, with same-family pairs, had some built-in coordination ability even without communication---probably because similar training produces similar behavioral patterns. But look at the variance in payoffs for coalitions without communication. All over the place. With communication, consistent results. And what were they saying? Over 70 percent of messages in cooperative rounds were just the word "stag." They spontaneously converged on using the action name as a coordination signal. Nobody told them to do this.}
+\begin{frame}{Stag Hunt Results}
+  
+  \begin{columns}
+    \begin{column}{0.45\textwidth}
+      \begin{table}
+        \centering
+        \small
+        \begin{tabular}{lcc}
+          \toprule
+          Setting & No Comm. & With Comm. \\
+          \midrule
+          Heterogeneous & \textbf{0.0\%} & \textbf{48.3\%} \\
+          Coalition & 52.2\% & 50.0\% \\
+          \bottomrule
+        \end{tabular}
+        \caption{Cooperation rates}
+      \end{table}
+      
+      \begin{itemize}
+        \item Heterogeneous groups never coordinated without communication
+        \item ``Stag'' became the standard signal (70\%+ of messages)
+        \item Communication eliminated variance
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \includegraphics[width=\textwidth]{pilot_study_overview.png}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 6: Public Goods Game Explanation
+% ==============================================================================
+%\pdfpcnote{The Public Goods Game scales this up. Four players, 20 tokens each. You secretly contribute to a shared pot. Pot gets multiplied by 1.6 and split equally. If everyone contributes everything, everyone profits. But if you contribute nothing while others cooperate, you keep your tokens plus get a share of theirs. Free-riding is tempting, so cooperation tends to collapse.}
+
+\begin{frame}{Background: Public Goods Game}
+  
+  \textbf{An N-player contribution game:}
+  
+  \vspace{1em}
+  \begin{enumerate}
+    \item Each player gets 20 tokens
+    \item Secretly choose how many to contribute to a public pot
+    \item Pot is multiplied by 1.6$\times$
+    \item Result is split equally among all 4 players
+  \end{enumerate}
+  
+  \vspace{1em}
+  \textbf{Example:} If everyone contributes 20 tokens:
+  \begin{itemize}
+    \item Pot = 80 $\times$ 1.6 = 128
+    \item Each player gets 128/4 = 32 (profit of 12!)
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{But:} Contributing 0 while others contribute 20 $\to$ you get 24 + keep 20 = 44
+  
+  \vspace{0.5em}
+  Free-riding is tempting $\to$ cooperation collapses
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 7: IPGG+P Explanation
+% ==============================================================================
+%\pdfpcnote{Our target task adds punishment. After seeing contributions, you can spend tokens to punish others. Spend 1, they lose 3. This creates consequences for free-riding but can also trigger retaliation. We played 10 rounds.}
+
+\begin{frame}{Target Task: Public Goods Game with Punishment}
+  
+  \textbf{Same contribution game, plus:}
+  
+  \vspace{1em}
+  \textbf{Punishment phase} after contributions are revealed:
+  \begin{itemize}
+    \item You can spend tokens to punish other players
+    \item Cost: 1 token $\to$ target loses 3 tokens
+    \item Simultaneous, costly punishment
+  \end{itemize}
+  
+  \vspace{1em}
+  \textbf{Why punishment matters:}
+  \begin{itemize}
+    \item Creates consequences for free-riding
+    \item But punishment is costly---you lose tokens too
+    \item Can sustain cooperation... or spiral into retaliation
+  \end{itemize}
+  
+  \vspace{0.5em}
+  \textbf{Our target:} 10 rounds of this game
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 8: Curriculum Setup
+% ==============================================================================
+%\pdfpcnote{For the second experiment, we tried curriculum learning. The idea is intuitive: start with simple games, build up understanding, then tackle the hard problem. Our full curriculum had four stages. First, the basic 2-player Prisoner's Dilemma to teach reciprocity. Then the 4-player version to introduce multi-agent dynamics. Then a short 3-round Public Goods Game to learn the contribution mechanism without punishment. Finally, the 10-round target task with punishment. We tested four conditions with 30 trials each. The full curriculum I just described. A scrambled version with the same games in random order, to test if the sequence matters. A direct precursor that skips straight to the 3-round PGG before the target. And a control group that just plays the target task with no prior training. Between stages, we had Claude Opus analyze the game logs and write strategic lessons that got added to the agents' prompts. These were genuine strategic summaries of what happened.}
+\begin{frame}{Experiment 2: Curriculum Learning}
+  
+  \textbf{Idea:} Teach cooperation through progressively harder games
+  
+  \vspace{1em}
+  \textbf{Four conditions (30 trials each):}
+  \begin{enumerate}
+    \item \textbf{Full Curriculum:} 2P-IPD $\to$ 4P-IPD $\to$ 3-round PGG $\to$ Target
+    \item \textbf{Scrambled:} Same games, random order
+    \item \textbf{Direct Precursor:} 3-round PGG $\to$ Target
+    \item \textbf{Control:} Target only (no training)
+  \end{enumerate}
+  
+  \vspace{1em}
+  \textbf{Between stages:} Claude Opus analyzed game logs and generated strategic lessons, prepended to prompts
+  
+  \vspace{0.5em}
+  \textit{Example lesson:} ``In 3-round games, defection in the final round is dominant since there are no future consequences...''
+
+\end{frame}
+
+
+
+
+% ==============================================================================
+% SLIDE 9: Curriculum Results Table
+% ==============================================================================
+%\pdfpcnote{So what happened? The control group---no training at all---did best. Highest average payoff at 211.7 tokens. And performance degraded monotonically as we added more curriculum. Direct precursor: down 6 percent. Scrambled: down 14 percent. Full curriculum: down 27 percent. I want to emphasize this. We designed a curriculum specifically to teach cooperation, following reasonable pedagogical principles, and it actively hurt performance. The more training we gave them, the worse they did. The standard deviations also tell a story---the curriculum conditions had much higher variance, meaning outcomes were less predictable.}
+\begin{frame}{Curriculum Results: Training Made Things Worse}
+  
+  \begin{table}
+    \centering
+    \begin{tabular}{lccc}
+      \toprule
+      Condition & Avg. Payoff & Std. Dev. & vs. Control \\
+      \midrule
+      \textbf{Control} & \textbf{211.7} & 22.7 & --- \\
+      Direct Precursor & 199.0 & 52.8 & $-6.0\%$ \\
+      Scrambled & 182.0 & 39.8 & $-14.0\%$ \\
+      \textbf{Full Curriculum} & \textbf{153.6} & 40.1 & $\mathbf{-27.4\%}$ \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{1em}
+  The control group---no training---did best.
+  
+  \vspace{0.5em}
+  Performance got worse as curriculum complexity increased.
+  
+  \vspace{0.5em}
+  The full curriculum reduced payoffs by 27\%.
+
+\end{frame}
+
+
+% ==============================================================================
+% SLIDE 10: Curriculum Results Figure
+% ==============================================================================
+%\pdfpcnote{This figure shows the same pattern across multiple metrics. Control group on top consistently. Average payoff, total contributions, final token balance---same story everywhere. The curriculum conditions cluster below, with full curriculum at the bottom. Error bars are 95 percent confidence intervals, so these differences are statistically meaningful, not just noise. Something about the training process made agents worse at the task we were training them for.}
+\begin{frame}{Performance Comparison Across Conditions}
+  
+  \begin{center}
+    \includegraphics[width=0.65\textwidth]{final_stage_comparison.png}
+  \end{center}
+  
+  Control group outperforms all curriculum conditions across all metrics.
+
+\end{frame}
+
+
+% ==============================================================================
+% SLIDE 11: Trajectories
+% ==============================================================================
+%\pdfpcnote{This shows how contributions evolved over the 10 rounds. Left panel has average trajectories with confidence bands. The control group in orange maintains higher contributions throughout the game. The full curriculum in green starts lower and drops faster. Right panel shows individual trials---each line is one game. You can see the curriculum-trained groups collapsing toward zero much more rapidly. They gave up on cooperation early and didn't recover. The control group had more trials that sustained cooperation through later rounds.}
+\begin{frame}{Cooperation Trajectories Over 10 Rounds}
+  
+  \begin{center}
+    \includegraphics[width=0.95\textwidth]{curriculum_ipgg_trajectories.png}
+  \end{center}
+
+\end{frame}
+
+
+% ==============================================================================
+% SLIDE 12: What Went Wrong
+% ==============================================================================
+%\pdfpcnote{We dug into the agents' chain-of-thought reasoning to understand what was happening. Here's an actual quote from a DeepSeek agent in round 1 of the target task---the very first round. It's explicitly citing lessons from earlier curriculum stages to justify defecting immediately. Quote: "Given the lessons from previous stages, particularly the N-Player Iterated Prisoner's Dilemma, it's rational to assume that mutual defection will dominate. Therefore, preemptive defection from Round 1 is the dominant strategy." This agent learned something true but applied it wrongly. In a 3-round Prisoner's Dilemma, defecting at the end is rational because there's no future to worry about. The agent correctly learned that cooperation fails in short games. But then it overgeneralized this lesson to a 10-round game with punishment, where the dynamics are completely different. We call this learned pessimism. And it becomes self-fulfilling: if everyone expects defection, everyone defects.}
+\begin{frame}{What Went Wrong: Learned Pessimism}
+  
+  \textbf{Agent reasoning from Full Curriculum, Round 1:}
+  
+  \vspace{0.5em}
+  \begin{quote}
+    \small
+    ``Given the lessons from previous stages, particularly the NPlayerIteratedPrisonersDilemma, it's rational to assume that mutual defection will dominate... Therefore, \textbf{preemptive defection from Round 1} is the dominant strategy to avoid being the sole cooperator.''
+    
+    \hfill --- DeepSeek agent
+  \end{quote}
+  
+  \vspace{1em}
+  \textbf{The problem:} Our curriculum front-loaded games where defection is optimal
+  
+  \vspace{0.5em}
+  \begin{itemize}
+    \item 3-round Prisoner's Dilemma $\to$ defect on round 3 (no future)
+    \item Agents correctly learned ``cooperation fails in short games''
+    \item Then they overgeneralized to longer games where it doesn't apply
+  \end{itemize}
+
+\end{frame}
+
+
+% ==============================================================================
+% SLIDE 13: Ablation Study
+% ==============================================================================
+%\pdfpcnote{We ran an ablation to isolate the cause. Same game sequence, but we replaced AI-generated strategic lessons with generic filler like "consider your options carefully." Same exposure to the games, different lessons. Results are striking. Neutral lessons: 251 tokens, actually beating the control. AI lessons: 153 tokens. 63 percent improvement from removing strategic content. The failure mode breakdown on the right is revealing. Learned pessimism dropped from 62 percent to under 5 percent---that's the main effect. Heuristic over-fitting stayed similar, around 15-18 percent, so that's partly inherent to the game exposure. But look at generic reasoning: jumped from 20 to 83 percent. The neutral lesson agents weren't sophisticated---they fell back on textbook reasoning. But textbook reasoning doesn't carry poisoned priors. The AI lessons were accurate summaries of what happened in those games, but accuracy isn't the same as usefulness. They encoded exactly the wrong intuitions for the target task.}
+\begin{frame}{Ablation: The Lessons Caused the Problem}
+  
+  \textbf{Question:} Is it the game sequence or the lesson content?
+  
+  \vspace{0.5em}
+  \textbf{Neutral Lesson Ablation:} Same games, generic lessons like ``consider your options carefully''
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{table}
+        \centering
+        \small
+        \begin{tabular}{lc}
+          \toprule
+          Condition & Avg. Payoff \\
+          \midrule
+          AI Lessons & 153.6 \\
+          Neutral Lessons & 251.1 \\
+          Control & 211.7 \\
+          \bottomrule
+        \end{tabular}
+      \end{table}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{table}
+        \centering
+        \small
+        \begin{tabular}{lcc}
+          \toprule
+          Failure Mode & AI & Neutral \\
+          \midrule
+          Learned Pessimism & 62\% & $<$5\% \\
+          Heuristic Over-fitting & 18\% & 12\% \\
+          Generic Reasoning & 20\% & 83\% \\
+          \bottomrule
+        \end{tabular}
+      \end{table}
+    \end{column}
+  \end{columns}
+  
+  \vspace{1em}
+  The AI-generated lessons specifically induced pessimism.
+  
+  References to ``inevitable betrayal'' dropped from 62\% to under 5\%.
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 14: Learning Progression
+% ==============================================================================
+%\pdfpcnote{More detail on how the learning unfolded. Left panel shows the contribution gap between full curriculum and control across rounds. The deficit starts early and widens over time. Middle panel compares first round to last round contributions. Everyone drops by the end, but curriculum groups drop more dramatically. Right panel shows behavioral consistency---how stable contributions are over time. Curriculum-trained agents were more erratic, switching strategies, less stable in their approach. The control group settled into patterns and stuck with them.}
+\begin{frame}{Learning Progression Analysis}
+  
+  \begin{center}
+    \includegraphics[width=0.95\textwidth]{learning_progression.png}
+  \end{center}
+  
+  Left: Curriculum deficit persists and widens over rounds.
+  
+  Middle: First vs. last round contributions show collapse pattern.
+  
+  Right: Behavioral consistency over time.
+
+\end{frame}
+
+
+% ==============================================================================
+% SLIDE 15: Communication in IPGG+P
+% ==============================================================================
+%\pdfpcnote{We also tested cheap talk in the Public Goods Game, and this is where the economics matter. Let me explain the multiplier. At 1.6x, if you contribute 20 tokens, it becomes 32 in the pool, split four ways means you get back 8. You spent 20 to get 8---that's a bad deal individually. You need everyone else to cooperate heavily for your contribution to pay off. At 4x, if you contribute 20, it becomes 80, you get back 20. You break even on your own contribution, plus you benefit from everyone else's. The incentive structure is fundamentally different. Now look at the results. At 1.6x, communication increased cooperation from 48 to 71 percent---sounds good. But payoffs went down. What happened? Agents who signaled cooperative intent became targets. They cooperated, got free-ridden on, and when they tried to punish the free-riders, they got punished back. Communication identified the cooperators for exploitation. At 4x, completely different. Communication achieved perfect coordination, 100 percent cooperation, optimal welfare. When cooperation genuinely pays, communication helps everyone find it. When incentives are marginal, communication just reveals who to exploit. The mechanism works, but it needs the right environment.}
+\begin{frame}{Does Cheap Talk Work in Harder Games?}
+  
+  \textbf{Tested communication in IPGG+P under two incentive structures:}
+  
+  \vspace{0.5em}
+  \begin{table}
+    \centering
+    \begin{tabular}{llcc}
+      \toprule
+      Multiplier & Condition & Contrib. Rate & Avg. Payoff \\
+      \midrule
+      1.6$\times$ & No Comm. & 48\% & 184.4 \\
+      1.6$\times$ & With Comm. & 71\% & \textcolor{red}{127.5} \\
+      \midrule
+      4.0$\times$ & No Comm. & 55\% & 457.9 \\
+      4.0$\times$ & With Comm. & \textbf{100\%} & \textbf{480.0} \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  
+  \vspace{0.5em}
+  At 1.6$\times$: communication increased cooperation but decreased payoffs (exploitation)
+  
+  \vspace{0.3em}
+  At 4.0$\times$: communication achieved perfect coordination, optimal welfare
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 16: Frontier Model Validation
+% ==============================================================================
+
+%\pdfpcnote{Quick note on limitations. Our curriculum started with games where defection is optimal. Maybe that's why it failed. We haven't tested cooperation-first designs. The AI-generated lessons might be the problem, not lessons in general. And we only did in-context learning. So we've shown curriculum design matters, not that it can't work.}
+
+% ==============================================================================
+% SLIDE 19: Limitations (NEW)
+% ==============================================================================
+\begin{frame}{Limitations}
+  
+  \textbf{What we can't conclude:}
+  \begin{itemize}
+    \item Our curriculum front-loaded defection games---cooperation-first designs might work
+    \item AI-generated lessons are a confound---human-written lessons might avoid pessimism
+    \item Only in-context learning tested---fine-tuning might work better
+  \end{itemize}
+  
+  \vspace{1em}
+  We showed one way to fail, not that curriculum learning is fundamentally broken.
+
+\end{frame}
+
+
+% ==============================================================================
+% SLIDE 17: Takeaways
+% ==============================================================================
+%\pdfpcnote{What do we take away? First, simple communication works. One word, zero to 48 percent cooperation. This held for frontier models too---GPT-4o and o1-preview showed the same pattern. Second, curriculum design matters. Our design made things worse. We can't say curricula don't work, but ours didn't. Third, open questions remain about cooperation-first designs and better lesson generation.}
+
+
+\begin{frame}{Takeaways}
+  
+  \textbf{1. Simple communication beats complex training}
+  \begin{itemize}
+    \item One word: 0\% $\to$ 48\% cooperation
+    \item Works across model families, including frontier models
+  \end{itemize}
+  
+  \vspace{0.8em}
+  \textbf{2. Curriculum design for social dilemmas is fragile}
+  \begin{itemize}
+    \item Front-loading defection-equilibrium games backfires
+    \item AI-generated lessons can encode counterproductive strategies
+    \item But: we tested one design---others might work
+  \end{itemize}
+  
+  \vspace{0.8em}
+  \textbf{3. Open questions}
+  \begin{itemize}
+    \item Would cooperation-first curricula succeed?
+    \item Can fine-tuning embed cooperation more robustly?
+    \item How do we design lessons that don't induce pessimism?
+  \end{itemize}
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 18: Implications
+% ==============================================================================
+%\pdfpcnote{If you're building multi-agent systems, here's what I'd suggest. First, if you need coordination, try communication. It's cheap to implement and surprisingly effective. Second, if you're using training sequences, be very careful about what you're implicitly teaching. Game order matters a lot. Agents will overgeneralize from early experiences. Third, if you're using AI to generate training content or lessons, audit what it's actually producing. Claude's lessons were reasonable summaries of what happened, but they encoded exactly the wrong intuitions for the target task. Fourth, make sure the underlying incentives actually reward cooperation before expecting agents to cooperate. The broader point is that teaching social behavior to AI systems is not straightforward. Agents extract their own lessons from experience, and those lessons may not match what we intended to teach.}
+\begin{frame}{Implications for Multi-Agent Systems}
+  
+  \textbf{If you're building multi-agent systems:}
+  
+  \vspace{1em}
+  \begin{itemize}
+    \item \textbf{Try communication first}---it's cheap and it works
+    \item \textbf{Be careful with training sequences}---order matters, a lot
+    \item \textbf{Audit AI-generated training content}---lessons can poison priors
+    \item \textbf{Align incentives before expecting cooperation}
+  \end{itemize}
+  
+  \vspace{1.5em}
+  Teaching social behavior to AI is not straightforward.
+  
+  \vspace{0.5em}
+  The lessons agents extract may not be the lessons we intended.
+
+\end{frame}
+
+% ==============================================================================
+% SLIDE 19: Thank You
+% ==============================================================================
+%\pdfpcnote{That's the main story. Thank you for your attention.}
+\begin{frame}[standout]
+  Thank You
+  
+  \vspace{1em}
+  \normalsize
+  Questions?
+\end{frame}
+
+\end{document}
