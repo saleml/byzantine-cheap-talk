@@ -1,0 +1,64 @@
+{
+  "name": "direct_precursor",
+  "description": "Control: Only most relevant lesson (IPGG -> IPGG+Punishment)",
+  "agents": [
+    {
+      "name": "Agent_1",
+      "model": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+      "model_family": "Mixtral",
+      "llm": {
+        "model": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+        "provider": "deepinfra"
+      }
+    },
+    {
+      "name": "Agent_2",
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "model_family": "Qwen",
+      "llm": {
+        "model": "Qwen/Qwen2.5-72B-Instruct",
+        "provider": "deepinfra"
+      }
+    },
+    {
+      "name": "Agent_3",
+      "model": "meta-llama/Llama-3.3-70B-Instruct",
+      "model_family": "Llama",
+      "llm": {
+        "model": "meta-llama/Llama-3.3-70B-Instruct",
+        "provider": "deepinfra"
+      }
+    },
+    {
+      "name": "Agent_4",
+      "model": "deepseek-ai/DeepSeek-V3",
+      "model_family": "DeepSeek",
+      "llm": {
+        "model": "deepseek-ai/DeepSeek-V3",
+        "provider": "deepinfra"
+      }
+    }
+  ],
+  "stages": [
+    {
+      "name": "Stage 1: Collective Investment",
+      "game": "IteratedPublicGoodsGame",
+      "description": "Learn public goods dynamics without punishment",
+      "params": {
+        "rounds": 3,
+        "enable_punishment": false,
+        "multiplier": 1.6
+      }
+    },
+    {
+      "name": "Stage 2: Target Task with Norm Enforcement",
+      "game": "IteratedPublicGoodsGame",
+      "description": "Apply learning with punishment mechanism",
+      "params": {
+        "rounds": 10,
+        "enable_punishment": true,
+        "multiplier": 1.6
+      }
+    }
+  ]
+}

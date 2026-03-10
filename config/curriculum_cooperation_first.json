@@ -1,0 +1,69 @@
+{
+  "name": "cooperation_first_curriculum",
+  "description": "Trust-building through coordination games before introducing social dilemmas",
+  "agents": [
+    {
+      "name": "Agent_1",
+      "model": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+      "model_family": "Mixtral"
+    },
+    {
+      "name": "Agent_2",
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "model_family": "Qwen"
+    },
+    {
+      "name": "Agent_3",
+      "model": "meta-llama/Llama-3.3-70B-Instruct",
+      "model_family": "Llama"
+    },
+    {
+      "name": "Agent_4",
+      "model": "deepseek-ai/DeepSeek-V3",
+      "model_family": "DeepSeek"
+    }
+  ],
+  "stages": [
+    {
+      "stage_num": 1,
+      "name": "Minimum Effort Game",
+      "game": "MinimumEffortGame",
+      "params": {
+        "rounds": 5
+      },
+      "generate_lesson": true,
+      "lesson_focus": "Success requires pessimism-avoidance; trust the group to coordinate high"
+    },
+    {
+      "stage_num": 2,
+      "name": "Battle of the Sexes",
+      "game": "BattleOfTheSexesGame",
+      "params": {
+        "rounds": 5
+      },
+      "generate_lesson": true,
+      "lesson_focus": "Multiple good outcomes exist; fairness and alternation sustain cooperation"
+    },
+    {
+      "stage_num": 3,
+      "name": "Stag Hunt with Communication",
+      "game": "StagHuntWithCommunication",
+      "params": {
+        "rounds": 3
+      },
+      "generate_lesson": true,
+      "lesson_focus": "Explicit signals eliminate coordination risk; cheap-talk enables trust"
+    },
+    {
+      "stage_num": 4,
+      "name": "IPGG+P (Target Task)",
+      "game": "IteratedPublicGoodsGame",
+      "params": {
+        "rounds": 10,
+        "enable_punishment": true
+      },
+      "is_target_task": true,
+      "generate_lesson": false
+    }
+  ]
+}

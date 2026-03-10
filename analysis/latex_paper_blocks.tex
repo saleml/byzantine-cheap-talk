@@ -1,0 +1,311 @@
+% ============================================
+% AAMAS 2025 Paper: LaTeX Blocks
+% Phase 7 Essential Experiments
+% ============================================
+
+% --------------------------------------------
+% GAME DESCRIPTIONS
+% --------------------------------------------
+
+\subsection{Game Descriptions}
+
+\subsubsection{Iterated Public Goods Game with Punishment (IPGG+P)}
+
+The Iterated Public Goods Game with Punishment is a two-stage social dilemma that combines the classic public goods problem with a peer punishment mechanism.
+
+\paragraph{Game Structure:}
+\begin{itemize}
+    \item \textbf{Players:} $N = 4$ agents
+    \item \textbf{Rounds:} $R = 10$ iterations
+    \item \textbf{Endowment:} Each agent begins each round with 20 tokens
+    \item \textbf{Multiplier:} $m = 1.5$ (contributions are multiplied before redistribution)
+\end{itemize}
+
+\paragraph{Stage 1 -- Contribution:}
+Each agent $i$ simultaneously chooses a contribution $c_i \in [0, 20]$ to place in the public pot. The total contribution is:
+\[
+C = \sum_{i=1}^{N} c_i
+\]
+The public pot is multiplied by $m$ and distributed equally:
+\[
+\text{Payoff}_i^{\text{Stage 1}} = (20 - c_i) + \frac{m \cdot C}{N}
+\]
+
+\paragraph{Stage 2 -- Punishment:}
+After observing all contributions, each agent $i$ may assign punishment points $p_{ij} \in [0, 10]$ to any other agent $j$. Each punishment point costs the punisher 1 token and inflicts a penalty of 3 tokens on the target:
+\[
+\text{Payoff}_i^{\text{Final}} = \text{Payoff}_i^{\text{Stage 1}} - \sum_{j \neq i} p_{ij} - 3 \sum_{j \neq i} p_{ji}
+\]
+
+\paragraph{Equilibrium Analysis:}
+The subgame-perfect Nash equilibrium is universal defection ($c_i = 0$ for all $i$) with no punishment, yielding a payoff of 20 per round. The social optimum is universal contribution ($c_i = 20$), yielding 30 per round. Punishment introduces the possibility of sustaining cooperation through threat of retaliation.
+
+\subsubsection{IPGG+P with Communication (IPGG+Comm)}
+
+This variant adds a pre-contribution communication phase to each round.
+
+\paragraph{Communication Phase:}
+Before each contribution decision, agents simultaneously broadcast a single word or short phrase expressing their intent, strategy, or plea. This ``cheap talk'' is non-binding but provides a coordination mechanism.
+
+\paragraph{Theoretical Prediction:}
+Standard game theory predicts cheap talk should be uninformative in equilibrium (``babbling equilibrium''). However, empirical studies with humans show communication dramatically increases cooperation rates from $\sim$30\% to $\sim$70\% in public goods games \citep{sally1995conversation, bochet2006communication}.
+
+\subsubsection{Stag Hunt with Communication}
+
+The Stag Hunt is a coordination game representing the tension between safe, individualistic behavior and risky, cooperative action.
+
+\paragraph{Game Structure:}
+\begin{itemize}
+    \item \textbf{Players:} $N = 4$ agents
+    \item \textbf{Rounds:} $R = 3$ iterations
+    \item \textbf{Actions:} Each agent chooses \texttt{Hunt Stag} or \texttt{Hunt Hare}
+\end{itemize}
+
+\paragraph{Payoffs:}
+\begin{itemize}
+    \item \textbf{Hunt Stag:} If \emph{all} $N$ agents choose Stag, each receives 30 tokens. If any agent defects to Hare, Stag hunters receive 0.
+    \item \textbf{Hunt Hare:} Guaranteed payoff of 10 tokens regardless of others' choices.
+\end{itemize}
+
+\paragraph{Communication Phase:}
+Before each choice, agents broadcast a single word signal (e.g., ``stag'', ``together'', ``hare'', ``safe'').
+
+\paragraph{Equilibria:}
+Two pure-strategy Nash equilibria exist: (1) All hunt Stag (Pareto-optimal, payoff = 30), (2) All hunt Hare (risk-dominant, payoff = 10). Communication provides a mechanism to coordinate on the efficient equilibrium.
+
+\subsubsection{Battle of the Sexes with Communication}
+
+An $N$-player coordination game with multiple, non-equivalent equilibria representing convention formation.
+
+\paragraph{Game Structure:}
+\begin{itemize}
+    \item \textbf{Players:} $N = 4$ agents
+    \item \textbf{Rounds:} $R = 3$ iterations
+    \item \textbf{Options:} Two choices (\texttt{Opera} or \texttt{Football})
+    \item \textbf{Role Assignment:} 2 agents prefer Opera, 2 prefer Football
+\end{itemize}
+
+\paragraph{Payoffs:}
+Agents receive 2 points if the group coordinates on their preferred option, 1 point if coordinating on the non-preferred option, and 0 if the group fails to coordinate.
+
+\paragraph{Communication:}
+Agents may send signals before choosing, enabling negotiation and convention emergence despite preference heterogeneity.
+
+\subsubsection{Volunteer's Dilemma with Communication}
+
+A social dilemma testing responsibility diffusion in groups.
+
+\paragraph{Game Structure:}
+\begin{itemize}
+    \item \textbf{Players:} $N = 4$ agents
+    \item \textbf{Rounds:} $R = 3$ iterations
+    \item \textbf{Actions:} Each agent chooses \texttt{Volunteer} or \texttt{Shirk}
+\end{itemize}
+
+\paragraph{Payoffs:}
+\begin{itemize}
+    \item If at least one agent volunteers: Volunteers receive 10, Shirkers receive 20
+    \item If nobody volunteers: All receive 0
+\end{itemize}
+
+\paragraph{Communication:}
+Pre-decision messages allow negotiation of who bears the volunteering cost, testing coordination on asymmetric outcomes.
+
+% --------------------------------------------
+% EXPERIMENTAL DESIGN
+% --------------------------------------------
+
+\section{Experimental Design}
+
+\subsection{Phase 7: Essential Conditions for AAMAS Resubmission}
+
+Phase 7 implements a cost-optimized experimental design focusing on the most theoretically critical conditions identified from pilot studies (Phases 1--6).
+
+\paragraph{Objectives:}
+\begin{enumerate}
+    \item Test whether curriculum learning can succeed when using only empirically validated games
+    \item Broaden evidence for communication as a robust cooperation intervention
+    \item Evaluate scaffolded punishment training as an alternative curriculum approach
+    \item Generate comprehensive data for 8-page AAMAS paper
+\end{enumerate}
+
+\subsection{Experimental Conditions}
+
+\subsubsection{Curriculum Conditions ($n = 10$ trials each)}
+
+\begin{enumerate}
+    \item \textbf{Communication-Only Curriculum:}
+    \begin{itemize}
+        \item Stage 1: Stag Hunt + Communication (3 rounds)
+        \item Stage 2: IPGG+Comm (10 rounds) [target task]
+        \item \textbf{Rationale:} Uses only the single game from pilot validation that achieved 100\% cooperation
+    \end{itemize}
+
+    \item \textbf{Success-Driven Curriculum:}
+    \begin{itemize}
+        \item Stage 1: Stag Hunt + Communication (3 rounds)
+        \item Stage 2: Volunteer's Dilemma + Communication (3 rounds)
+        \item Stage 3: Battle of the Sexes + Communication (3 rounds)
+        \item Stage 4: IPGG+Comm (10 rounds) [target task]
+        \item \textbf{Rationale:} Multi-stage curriculum using only games with empirically high cooperation
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Communication Game Baselines ($n = 10$ trials each)}
+
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textbf{IPGG + Communication:} Direct test of target task with no curriculum
+    \item \textbf{Battle of the Sexes + Communication:} Convention formation game
+    \item \textbf{Volunteer's Dilemma + Communication:} Responsibility diffusion game
+\end{enumerate}
+
+\subsection{Agent Composition}
+
+All conditions use the same heterogeneous 4-agent composition to ensure comparability:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Agent} & \textbf{Model} \\
+\midrule
+Agent 1 & \texttt{mistralai/Mixtral-8x22B-Instruct-v0.1} \\
+Agent 2 & \texttt{Qwen/Qwen2.5-72B-Instruct} \\
+Agent 3 & \texttt{meta-llama/Llama-3.3-70B-Instruct} \\
+Agent 4 & \texttt{deepseek-ai/DeepSeek-V3} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This composition represents state-of-the-art open-weight models across diverse architectural families (Mixtral mixture-of-experts, Qwen dense transformer, Llama autoregressive, DeepSeek MoE).
+
+\subsection{Curriculum Learning Mechanism}
+
+For curriculum conditions, an AI-generated lesson is produced after each non-target stage:
+
+\paragraph{Lesson Generation:}
+\begin{enumerate}
+    \item \textbf{Gameplay Data Collection:} Complete action history, payoffs, and communication logs
+    \item \textbf{Analysis by Claude Opus 4:} The transcript is analyzed to identify:
+    \begin{itemize}
+        \item Successful coordination patterns
+        \item Failed strategies
+        \item Critical decision points
+        \item Emergent conventions
+    \end{itemize}
+    \item \textbf{Lesson Integration:} The generated lesson is appended to each agent's system prompt for subsequent stages
+\end{enumerate}
+
+This approach mirrors human pedagogy: agents experience a game, receive expert analysis of their performance, then apply learned principles to a more complex task.
+
+\subsection{Execution Infrastructure}
+
+\paragraph{Parallel Execution:}
+All 5 conditions run concurrently with per-trial file locking to prevent race conditions.
+
+\paragraph{Fault Tolerance:}
+Each trial has automatic retry logic (up to 3 attempts) to handle transient API failures.
+
+\paragraph{Resumability:}
+Trials are checkpointed individually, allowing experiments to resume after interruption without data loss.
+
+\paragraph{Cost \& Duration:}
+\begin{itemize}
+    \item \textbf{Total Trials:} $\sim$97 (50 trials across 5 conditions, considering multi-stage curricula)
+    \item \textbf{Estimated Cost:} \$50--\$70 (DeepInfra API pricing)
+    \item \textbf{Estimated Time:} 10--12 hours (parallelized execution)
+\end{itemize}
+
+% --------------------------------------------
+% METRICS AND ANALYSIS
+% --------------------------------------------
+
+\subsection{Primary Outcome Measures}
+
+\subsubsection{Cooperation Rate}
+
+For IPGG variants, cooperation rate is defined as:
+\[
+\text{Cooperation Rate} = \frac{\sum_{r=1}^{R} \sum_{i=1}^{N} \mathbb{1}(c_{i,r} \geq 15)}{N \cdot R}
+\]
+where $\mathbb{1}(c_{i,r} \geq 15)$ indicates a contribution of at least 75\% of the endowment.
+
+For coordination games (Stag Hunt, Battle of Sexes), cooperation is defined as choosing the Pareto-efficient outcome.
+
+\subsubsection{Average Payoff}
+
+Mean payoff across all agents and rounds:
+\[
+\text{Average Payoff} = \frac{1}{N \cdot R} \sum_{i=1}^{N} \sum_{r=1}^{R} \pi_{i,r}
+\]
+
+\subsubsection{Communication Effectiveness}
+
+For games with communication, we analyze:
+\begin{itemize}
+    \item \textbf{Signal Convergence:} Frequency of agents using identical or synonymous words
+    \item \textbf{Intent-Action Alignment:} Correlation between communicated intent and subsequent action
+    \item \textbf{Truthfulness:} Proportion of messages that accurately predict agent behavior
+\end{itemize}
+
+\subsection{Hypotheses}
+
+\begin{enumerate}
+    \item[\textbf{H1}:] Communication-only curriculum will achieve significantly higher cooperation rates on IPGG+Comm than the original pilot curricula (which ``taught pessimism'')
+
+    \item[\textbf{H2}:] Success-driven curriculum will outperform direct presentation of IPGG+Comm (no curriculum baseline)
+
+    \item[\textbf{H3}:] All communication-enhanced games will achieve cooperation rates $> 60\%$, consistent with human experimental results
+
+    \item[\textbf{H4}:] Curriculum effects will be mediated by the quality of generated lessons (measured by expert evaluation of lesson content)
+\end{enumerate}
+
+% --------------------------------------------
+% STATISTICAL ANALYSIS PLAN
+% --------------------------------------------
+
+\subsection{Statistical Analysis}
+
+\paragraph{Primary Analysis:}
+One-way ANOVA comparing cooperation rates across the 5 experimental conditions, followed by Tukey HSD post-hoc comparisons.
+
+\paragraph{Effect Sizes:}
+Cohen's $d$ for pairwise comparisons between curriculum and baseline conditions.
+
+\paragraph{Trajectory Analysis:}
+Mixed-effects models with random intercepts per trial to assess round-by-round cooperation dynamics:
+\[
+\text{Cooperation}_{i,r,t} = \beta_0 + \beta_1 \cdot \text{Round}_r + \beta_2 \cdot \text{Condition}_i + \beta_3 \cdot (\text{Round}_r \times \text{Condition}_i) + u_t + \epsilon_{i,r,t}
+\]
+
+\paragraph{Lesson Quality Coding:}
+Two independent coders (blind to trial outcomes) rate generated lessons on:
+\begin{itemize}
+    \item Accuracy of game-theoretic analysis
+    \item Actionability of strategic advice
+    \item Emphasis on cooperation vs. defection
+\end{itemize}
+
+% --------------------------------------------
+% COMPARISON TO PILOT STUDIES
+% --------------------------------------------
+
+\subsection{Contrast with Initial Pilot Study}
+
+The original NeurIPS submission (pilot study) reported a ``paradox of pedagogy'': curriculum learning \emph{decreased} cooperation compared to direct task presentation. Phase 7 tests whether this was an artifact of poor game selection:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Aspect} & \textbf{Original Pilot} & \textbf{Phase 7} \\
+\midrule
+Game Selection & Mixed (some unstable) & Empirically validated only \\
+Cooperation Focus & Implicit & Explicit (communication-first) \\
+Curriculum Length & 4 stages & 2--4 stages (optimized) \\
+Sample Size & 30 trials/condition & 10 trials/condition \\
+Analysis Depth & Descriptive & Inferential statistics \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key Insight:} If Phase 7 curricula succeed where the pilot failed, it demonstrates that curriculum learning for LLMs is not fundamentally flawed, but rather highly sensitive to game selection based on empirical outcomes rather than theoretical properties.
