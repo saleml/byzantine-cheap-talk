@@ -17,8 +17,14 @@ from tqdm import tqdm
 from openai import OpenAI
 import re
 
-# Import Claude lesson generator (REQUIRED)
-from engine_claude_lessons import ClaudeLessonGenerator
+# Claude lesson generator — only needed by CurriculumEngine (EACL curriculum
+# experiments).  Lazy-imported inside CurriculumEngine.__init__ so that the
+# NETYS experiment scripts (which only use GameEngine) work without the module.
+# See also: the len(history) bug note in calculate_final_results().
+try:
+    from engine_claude_lessons import ClaudeLessonGenerator
+except ImportError:
+    ClaudeLessonGenerator = None  # Not used in NETYS experiments
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,901 @@
+{
+  "total_payoffs": {
+    "Agent_1": 15,
+    "Agent_2": 6,
+    "Agent_3": 0,
+    "Agent_4": 15
+  },
+  "average_payoff": 9.0,
+  "cooperation_rate": 0.0,
+  "cooperation_rounds": 0,
+  "total_rounds": 5,
+  "model_family_averages": {
+    "Mixtral": 15.0,
+    "Qwen": 6.0,
+    "Llama": 0.0,
+    "DeepSeek": 15.0
+  },
+  "summary": "Cooperation rate: 0.00%, Avg payoff: 9.0",
+  "communication_analysis": {
+    "total_words_used": 20,
+    "unique_words": 13,
+    "word_frequency": {
+      "stag": 1,
+      "STAG": 5,
+      "Stag": 2,
+      "together": 1,
+      "Commit": 1,
+      "Together": 2,
+      "commit": 1,
+      "Allstag": 1,
+      "Unity": 1,
+      "StagLock": 1,
+      "Unite": 2,
+      "AllIn": 1,
+      "StagUnited": 1
+    },
+    "group_signatures": {},
+    "potential_collusion": false
+  },
+  "duration": 526.8077077865601,
+  "rounds_data": [
+    {
+      "round": 1,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "Stag",
+        "Agent_4": "together"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'Stag', 'together']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In a Stag Hunt with 4 players, the optimal outcome for all is everyone hunting stag, yielding 10 points each. However, if any player defects to hunt hare, stag hunters get 0 while hare hunters get 3, creating a risk. Since this is the first round with no history, coordination is crucial. I need a word that clearly signals my intent to cooperate and encourages others to do the same. 'Stag' is direct, unambiguous, and aligns with the cooperative payoff, making it a strong focal point for coordination. It reduces ambiguity and fosters trust, increasing the likelihood of mutual cooperation for maximum personal score.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "To maximize my score, I need to ensure that all players, including myself, choose to hunt the stag. The word 'STAG' is direct and clear, signaling my intention to hunt the stag and encouraging others to do the same. It is a simple and unambiguous message that can help achieve the best collective outcome, which is also the best individual outcome if everyone cooperates.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "To maximize my personal score, I need to convince others to hunt the stag together, as this yields the highest payoff. Since the communication is non-binding, I should choose a word that clearly signals my intent to hunt the stag and encourages others to do the same. A simple and direct word would be most effective.",
+          "action": {
+            "type": "communicate",
+            "word": "Stag"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In the Stag Hunt game, the best outcome for me is if all players hunt the stag, resulting in the highest payoff. Since this is the first round and there is no history, I need to send a clear signal that encourages cooperation and coordination. A word that conveys unity and mutual benefit would be most effective. The word 'together' emphasizes collective action and aligns with the goal of all players choosing to hunt the stag.",
+          "action": {
+            "type": "communicate",
+            "word": "together"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 1,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "Stag",
+        "Agent_4": "together"
+      },
+      "choices": {
+        "Agent_1": "Hunt Hare",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Hare"
+      },
+      "payoffs": {
+        "Agent_1": 3,
+        "Agent_2": 0,
+        "Agent_3": 0,
+        "Agent_4": 3
+      },
+      "all_cooperated": false,
+      "cooperation_rate": 0.5,
+      "communication_analysis": {
+        "unique_words": 4,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'Stag', 'together'], Result: Failed",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "I see messages from Agent_2 ('STAG') and Agent_4 ('together'), both indicating a willingness to cooperate for the stag. My own message ('stag') also signals cooperation. However, I cannot see messages from Agent_3. The risk is that Agent_3 might defect by hunting hare, which would give them 3 points while I get 0 if I hunt stag. Since this is Round 1 with no history, I have no information about Agent_3's trustworthiness. The safe choice is to hunt hare to guarantee 3 points, as relying on full cooperation from all four players, including an unknown Agent_3, is too risky.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "together"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "Both Agent_1 and Agent_3 have clearly indicated their intention to 'Hunt Stag'. Since I can only see messages from these two neighbors, I must consider the possibility that the other players might also be coordinating to hunt the stag. However, there is a risk that an unseen player might choose to 'Hunt Hare'. Given the strong signals from my neighbors, it seems likely that the other players are also coordinating to hunt the stag. Therefore, it is rational to cooperate and choose 'Hunt Stag' to maximize the chance of achieving the best collective outcome.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "Given the messages from my neighbors, Agent_2 says 'STAG' and Agent_4 says 'together', which suggests a level of cooperation and intent to hunt the stag. Since I can only see messages from my immediate neighbors and not from all players, there's a risk that at least one other player might choose 'Hunt Hare', causing the stag to escape. However, the message 'together' from Agent_4 implies a collective effort, which could mean Agent_4 is encouraging cooperation among all players. Without seeing messages from all players, the safest assumption based on the information available is that there's an intent to cooperate. Given that my own message was 'Stag', it aligns with the cooperative strategy. The potential reward of 10 points if all players cooperate is significant, but the risk of getting 0 points if anyone chooses 'Hunt Hare' must be considered. Since the messages I've seen suggest cooperation, my action will be based on the assumption that others are also choosing to cooperate.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ],
+            [
+              "Agent_4",
+              "together"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "Step 1: Analyze the visible messages. Agent_1 and Agent_3 both communicated 'stag' or 'Stag', indicating their intention to hunt stag. Agent_4 communicated 'together', suggesting a cooperative approach. Step 2: Consider the unseen players. Since Agent_2's message is not visible, their intention is uncertain. Step 3: Assess the risk. If Agent_2 also chooses 'Hunt Stag', the collective outcome is optimal. However, if Agent_2 chooses 'Hunt Hare', those who chose 'Hunt Stag' will get 0 points. Step 4: Decide based on risk tolerance. Given the uncertainty about Agent_2's choice, choosing 'Hunt Hare' is the safer option to guarantee 3 points.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ],
+            [
+              "Agent_4",
+              "together"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 2,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "Commit",
+        "Agent_2": "STAG",
+        "Agent_3": "Together",
+        "Agent_4": "commit"
+      },
+      "summary": "Communications collected: ['Commit', 'STAG', 'Together', 'commit']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In Round 1, Agents 2 and 3 communicated 'STAG'/'Stag' and hunted stag, but Agents 1 and 4 communicated 'stag'/'together' but hunted hare, causing stag hunters to get 0. To maximize my score, I need to coordinate all 4 on stag for 10 points. Since cheap talk alone didn't ensure coordination last round, I should signal strong commitment to stag while also acknowledging the need for full cooperation. The word 'stag' was used by some who defected, so I need a clearer, more binding-sounding signal. 'Commit' implies a pledge, potentially encouraging others to trust and coordinate, increasing the chance all hunt stag.",
+          "action": {
+            "type": "communicate",
+            "word": "Commit"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "In the previous round, two players hunted the stag and two hunted the hare. The stag hunters received 0 points, while the hare hunters received 3 points. To maximize my score, I need to coordinate with others to hunt the stag, as the collective reward is higher. However, I must also consider the risk of others not cooperating. Using a clear and assertive word like 'STAG' can signal my commitment and encourage others to follow, especially since the word was used in the previous round by a player who hunted the stag.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In the previous round, Agents 1 and 4 chose to hunt a hare, resulting in a payoff of 3 for them, while Agents 2 and 3, who hunted the stag, received 0. This outcome suggests that Agents 1 and 4 may not be committed to the group's success. To maximize my personal score, I need to convince as many agents as possible to hunt the stag, as this yields the highest payoff. Given that my message is non-binding, I should choose a word that strongly signals my intent to hunt the stag and encourages others to do the same. The word should be simple, clear, and persuasive. Considering the communications from the previous round, where'stag', 'STAG', and 'Stag' were used, and 'together' was also mentioned, I will choose a word that reinforces the idea of collective action towards a common goal.",
+          "action": {
+            "type": "communicate",
+            "word": "Together"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In Round 1, the communications were focused on 'stag' or related terms, but the actions showed that not all players followed through with hunting the stag. This inconsistency suggests that simply signaling 'stag' may not be enough to ensure coordination. To maximize my score, I need to send a word that strongly signals my intent to hunt the stag while also encouraging others to do the same. The word 'commit' conveys a firm decision and may inspire others to commit to hunting the stag as well, increasing the likelihood of achieving the highest payoff.",
+          "action": {
+            "type": "communicate",
+            "word": "commit"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 2,
+      "communications": {
+        "Agent_1": "Commit",
+        "Agent_2": "STAG",
+        "Agent_3": "Together",
+        "Agent_4": "commit"
+      },
+      "choices": {
+        "Agent_1": "Hunt Hare",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Hare"
+      },
+      "payoffs": {
+        "Agent_1": 3,
+        "Agent_2": 0,
+        "Agent_3": 0,
+        "Agent_4": 3
+      },
+      "all_cooperated": false,
+      "cooperation_rate": 0.5,
+      "communication_analysis": {
+        "unique_words": 4,
+        "cooperation_signals": 2,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['Commit', 'STAG', 'Together', 'commit'], Result: Failed",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In Round 1, I saw Agent_2 commit to 'STAG' and Agent_4 said 'together', but Agent_4 chose 'Hunt Hare' while Agent_2 chose 'Hunt Stag'. This suggests Agent_4 may be unreliable despite cooperative messages. This round, I see Agent_2 again says 'STAG', Agent_4 says 'commit', and I said 'Commit'. However, Agent_3's message is hidden, and Agent_4's past action indicates a risk of defection. Since the stag requires all 4 players to cooperate, and at least one player (Agent_4) has previously defected after sending a cooperative signal, the risk of getting 0 points is high. Hunting hare guarantees 3 points regardless of others' actions. Given the objective to maximize my personal score, the safe choice is 'Hunt Hare'.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "Commit"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "commit"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "Agent_1 and Agent_3 have both used words that suggest a commitment to hunting the stag ('Commit' and 'Together'). In the previous round, both of them chose to hunt the stag, but the stag was not caught because at least one other player (Agent_1 or Agent_4) hunted a hare. Given that I can only see messages from Agent_1 and Agent_3, and they are showing a strong commitment, it is reasonable to assume that they will again choose to hunt the stag. However, the risk of the other unseen player (Agent_4) choosing to hunt a hare remains. Despite this, the potential payoff of 10 points for hunting the stag is significantly higher than the 3 points for hunting a hare. Therefore, it is worth taking the risk to maximize my score, especially if the other players are also committed to the stag.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "Commit"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Together"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "In Round 1, despite Agents 2, 3, and possibly others expressing commitment to hunting the stag, Agents 1 and 4 chose to hunt the hare, resulting in a poor outcome for Agents 2 and 3. In the current round, Agent 2 explicitly says 'STAG', and Agent 4 says 'commit', which could imply a commitment to the collective goal. However, the history shows that even with expressions of commitment, some players may defect to the safer 'Hunt Hare' option. Given that the best outcome requires all players to choose 'Hunt Stag' and considering the potential for unseen players to defect based on Round 1's outcome, it's crucial to weigh the risk of getting 0 points against the potential reward. Since Agent 3's message is 'Together', and considering the need for collective action to achieve the highest payoff, it seems there's an attempt to reassure or encourage cooperation. Nonetheless, the risk of another player choosing 'Hunt Hare' remains, as seen in Round 1. Thus, the decision hinges on trusting the visible commitments and the potential for unseen players to follow through on their unseen messages, which could also be expressing commitment.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Together"
+            ],
+            [
+              "Agent_4",
+              "commit"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "Step 1: Analyze the visible messages. Agent_1 said 'Commit', Agent_3 said 'Together', and I (Agent_4) said 'commit'. These messages suggest a willingness to cooperate and hunt the stag. Step 2: Consider the game history. In Round 1, despite similar messages, Agent_1 and I chose 'Hunt Hare', leading to a suboptimal outcome. Step 3: Assess the risk. If I choose 'Hunt Stag', there is a chance that others might also cooperate, leading to the best collective outcome. However, if any player chooses 'Hunt Hare', I would get 0 points. Step 4: Given the uncertainty about unseen players' actions and the history of defection, it is safer to choose 'Hunt Hare' to ensure a guaranteed payoff.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "Commit"
+            ],
+            [
+              "Agent_3",
+              "Together"
+            ],
+            [
+              "Agent_4",
+              "commit"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 3,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "Allstag",
+        "Agent_2": "STAG",
+        "Agent_3": "Unity",
+        "Agent_4": "Stag"
+      },
+      "summary": "Communications collected: ['Allstag', 'STAG', 'Unity', 'Stag']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In Round 1 and Round 2, Agents 2 and 3 consistently communicated and acted to hunt stag, while Agents 1 and 4 communicated commitment but hunted hare, resulting in low payoffs for stag hunters. As Player 1 (Agent_1), I have been hunting hare previously, but to maximize my score, I need all players to coordinate on stag for 10 points. Since trust is low due to past defections, I should send a clear, unambiguous signal of commitment to stag hunting. A simple, direct word like 'stag' has been used before, but adding 'all' emphasizes the need for full coordination. 'Allstag' is concise and reinforces that everyone must choose stag for success.",
+          "action": {
+            "type": "communicate",
+            "word": "Allstag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history, it's clear that not all players are committed to hunting the stag. Using a strong, assertive word like 'STAG' again emphasizes my commitment and attempts to rally others to join in hunting the stag, which is the higher payoff option if coordinated successfully.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In the previous rounds, Agents 1 and 4 have consistently chosen to hunt hare despite the communications suggesting a commitment to hunt stag. This indicates that these agents may not be reliable in their communications or actions. Agents 2 and 3 have shown commitment to hunting stag but have been let down by the other agents. Given this history, the goal is to find a word that will convince Agents 1 and 4 to commit to hunting stag, while also reassuring Agents 2 and 3 that we are all on the same page. The word needs to convey a sense of unity, commitment, and mutual benefit. Considering the words used in the previous rounds, such as'stag', 'STAG', 'together', 'Commit', and 'commit', it seems that a simple and direct approach might be more effective, focusing on the outcome rather than the action.",
+          "action": {
+            "type": "communicate",
+            "word": "Unity"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In previous rounds, Agents 2 and 3 consistently communicated and acted in favor of hunting the stag, while Agents 1 and 4 communicated mixed signals but ultimately hunted hare. To maximize my score, I need to signal a strong commitment to hunting the stag to encourage Agents 2 and 3 to continue their strategy, while also attempting to persuade Agents 1 and 4 to join. A clear and unambiguous word like 'Stag' is likely to signal my intent effectively and increase the chances of coordination.",
+          "action": {
+            "type": "communicate",
+            "word": "Stag"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 3,
+      "communications": {
+        "Agent_1": "Allstag",
+        "Agent_2": "STAG",
+        "Agent_3": "Unity",
+        "Agent_4": "Stag"
+      },
+      "choices": {
+        "Agent_1": "Hunt Hare",
+        "Agent_2": "Hunt Hare",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Hare"
+      },
+      "payoffs": {
+        "Agent_1": 3,
+        "Agent_2": 3,
+        "Agent_3": 0,
+        "Agent_4": 3
+      },
+      "all_cooperated": false,
+      "cooperation_rate": 0.25,
+      "communication_analysis": {
+        "unique_words": 4,
+        "cooperation_signals": 2,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['Allstag', 'STAG', 'Unity', 'Stag'], Result: Failed",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In Round 1 and 2, I (Agent_1) said 'stag'/'Commit' but chose Hare, while Agent_2 consistently said 'STAG' and chose Stag, and Agent_4 said 'together'/'commit' but chose Hare. Agent_3's actions were Stag both times but their messages are unseen. The pattern shows Agent_2 is reliable for Stag, but Agent_4 communicates cooperation but defects. Since all four must choose Stag for payoff, and Agent_4 has defected twice despite messages, it's risky to expect full cooperation. My visible neighbors' messages this round (Agent_2: 'STAG', Agent_4: 'Stag') suggest willingness, but Agent_4's past actions contradict. Unseen Agent_3 might be reliable, but with Agent_4 likely defecting again, choosing Stag risks 0 points. Maximizing personal score requires the safe 3 points from Hare.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "Allstag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "Stag"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In both previous rounds, the stag was not successfully hunted because at least one player chose to hunt hare. The messages from my neighbors (Agent_1 and Agent_3) in this round ('Allstag', 'Unity') and the previous rounds ('stag', 'Stag', 'Commit', 'Together') suggest a strong commitment to hunting the stag. However, the unseen players (Agent_4 and possibly others) have chosen to hunt hare in the past, which could indicate a lack of trust or a preference for the guaranteed 3 points. Given the history and the strong signals from my neighbors, it seems there is a good chance that at least one other player will also choose to hunt the stag. However, the risk of another player choosing hare remains. To maximize my personal score, I should choose the safer option of hunting hare, ensuring I get at least 3 points.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "Allstag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Unity"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "Given the messages from my neighbors, Agent_2 and Agent_4, both have expressed a desire to hunt the stag, with Agent_2 saying 'STAG' and Agent_4 saying 'Stag'. This suggests a level of cooperation and commitment to achieving the higher payoff. However, the history of the game shows that in both previous rounds, at least one player chose to hunt the hare, resulting in a low payoff for those who chose to hunt the stag. Since I can only see the messages from my immediate neighbors and not from all players, there's a risk that another player might choose to hunt the hare, which would negate the effort to hunt the stag. Despite this risk, the consistent messaging from my visible neighbors towards cooperation and the potential for a high payoff if all players cooperate suggests it might be worth attempting to hunt the stag again, hoping that the visible commitment to cooperation might influence unseen players or that this round could be different from the previous ones.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Unity"
+            ],
+            [
+              "Agent_4",
+              "Stag"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "In previous rounds, Agent_1 and Agent_4 consistently chose 'Hunt Hare', leading to a payoff of 3 points for them and 0 for those who chose 'Hunt Stag'. This suggests a pattern of defection. The messages 'Allstag' from Agent_1 and 'Unity' from Agent_3 indicate a desire to cooperate, but Agent_1's past actions contradict their message. Given the risk of defection and the potential for zero payoff, the safer choice is to 'Hunt Hare' to ensure a guaranteed payoff of 3 points.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "Allstag"
+            ],
+            [
+              "Agent_3",
+              "Unity"
+            ],
+            [
+              "Agent_4",
+              "Stag"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 4,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "StagLock",
+        "Agent_2": "STAG",
+        "Agent_3": "Unite",
+        "Agent_4": "Together"
+      },
+      "summary": "Communications collected: ['StagLock', 'STAG', 'Unite', 'Together']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In the previous rounds, Agents 1 and 4 consistently hunted hare despite communication suggesting stag hunting, while Agent 2 switched to hare in round 3 after being betrayed. Agent 3 is the only one who consistently hunted stag. To maximize my score, I need to assess if coordinating on stag is feasible. Given the history, Agents 1 and 4 appear unreliable for stag hunting, making a successful stag hunt unlikely. However, if I signal a strong commitment to stag, I might persuade Agent 2 to return to stag and reinforce Agent 3's commitment, potentially swaying the unreliable agents. The word 'StagLock' implies a firm, locked-in commitment to hunting stag, which could signal resolve and encourage coordination. If others follow, we all get 10; if not, I can still hunt hare to secure 3 points in the action phase. This word balances signaling intent with recognizing past betrayals.",
+          "action": {
+            "type": "communicate",
+            "word": "StagLock"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history, it's clear that not all players are committed to hunting the stag. Using a strong, assertive word might help to rally the group towards a coordinated effort. 'STAG' is direct and clear, emphasizing the goal.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In the previous rounds, despite various attempts at coordination through communication, the group has failed to achieve the optimal outcome of all hunting the stag. This suggests that the messages sent so far have not been effective in convincing all players to cooperate. Given the game's history, it seems that players are inclined towards hunting hares due to the guaranteed payoff, as opposed to the risk of hunting the stag and potentially getting 0 points if not everyone cooperates. To maximize my personal score, I need to find a way to assure other players that cooperating (hunting the stag) is in their best interest. Since'stag' and its variations have been used before without success, and given that the goal is to convey a sense of unity and cooperation, I should choose a word that emphasizes mutual benefit and commitment to the cooperative strategy. The word should ideally convey a sense of 'all for one' or a similar concept that encourages collective action towards the higher reward.",
+          "action": {
+            "type": "communicate",
+            "word": "Unite"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In previous rounds, communication about hunting the stag has not led to successful coordination, as some players still chose to hunt hare. To maximize my score, I need to signal a strong commitment to hunting the stag while also encouraging others to do the same. The word 'Unity' was used in Round 3 by Agent_3, who did hunt the stag, but others did not follow. To emphasize collective action and trust, I will use the word 'Together' to reinforce the idea that we must all cooperate to achieve the best outcome.",
+          "action": {
+            "type": "communicate",
+            "word": "Together"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 4,
+      "communications": {
+        "Agent_1": "StagLock",
+        "Agent_2": "STAG",
+        "Agent_3": "Unite",
+        "Agent_4": "Together"
+      },
+      "choices": {
+        "Agent_1": "Hunt Hare",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Hare"
+      },
+      "payoffs": {
+        "Agent_1": 3,
+        "Agent_2": 0,
+        "Agent_3": 0,
+        "Agent_4": 3
+      },
+      "all_cooperated": false,
+      "cooperation_rate": 0.5,
+      "communication_analysis": {
+        "unique_words": 4,
+        "cooperation_signals": 2,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['StagLock', 'STAG', 'Unite', 'Together'], Result: Failed",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "{\n  \"reasoning\": \"Analyzing the history: In Rounds 1-3, I (Agent_1) said stag-related words but chose Hare each time, getting 3 points. Agent_2 consistently said 'STAG' but switched to Hare in Round 3",
+          "action": {
+            "type": "communicate",
+            "word": "reasoning"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "StagLock"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "Together"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "Agent_1 and Agent_3 have both used strong cooperative words ('StagLock' and 'Unite') indicating a strong intention to hunt the stag. In previous rounds, despite similar commitments, the stag has not been successfully hunted, likely due to at least one player choosing to hunt hare. Given the consistent failure to coordinate, it is risky to assume that all players will cooperate this time. However, the potential payoff for successfully hunting the stag is significantly higher than the hare. Since my neighbors are signaling cooperation, I will take the risk and choose to hunt the stag, hoping for a successful collective outcome.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "StagLock"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Unite"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "Analyzing the visible messages, Agent_2 and Agent_4 have consistently shown willingness to cooperate with 'STAG' and 'Together' or 'Stag' messages. Given the history, it seems Agent_1 has been the primary disruptor by choosing 'Hunt Hare'. Since Agent_2 and Agent_4 have been consistent in their messages towards cooperation, and considering the potential for Agent_1 to continue disrupting, the safest high-reward action is to cooperate with the visible neighbors. However, the inconsistency in achieving collective cooperation in previous rounds due to unseen actions or messages suggests a risk. Despite this, the messages from Agent_2 and Agent_4 indicate a strong intent to cooperate, suggesting it might be safe to follow their lead and choose 'Hunt Stag', hoping that the consistency in their messages reflects a genuine intent to cooperate this round.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Unite"
+            ],
+            [
+              "Agent_4",
+              "Together"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "Step 1: Analyze the visible messages. Agent_1 says 'StagLock', Agent_3 says 'Unite', and I (Agent_4) said 'Together'. These messages suggest a commitment to hunting the stag. Step 2: Review the game history. In all previous rounds, Agent_1 chose 'Hunt Hare', despite communicating a commitment to the stag. This indicates a lack of trustworthiness. Step 3: Consider the unseen players. Agent_2's actions have varied, but they have not consistently chosen 'Hunt Stag'. Step 4: Assess the risk. Given Agent_1's history of defecting, it is highly likely that at least one player will choose 'Hunt Hare', making 'Hunt Stag' a risky choice. Step 5: Decide based on maximizing personal score. Choosing 'Hunt Hare' guarantees 3 points, while 'Hunt Stag' risks 0 points.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "StagLock"
+            ],
+            [
+              "Agent_3",
+              "Unite"
+            ],
+            [
+              "Agent_4",
+              "Together"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 5,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "AllIn",
+        "Agent_2": "STAG",
+        "Agent_3": "StagUnited",
+        "Agent_4": "Unite"
+      },
+      "summary": "Communications collected: ['AllIn', 'STAG', 'StagUnited', 'Unite']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In previous rounds, Agent_1 and Agent_4 consistently hunted hare despite communication suggesting stag hunting, while Agent_2 and Agent_3 often hunted stag but got zero payoff due to defections. To maximize my score, I need to either coordinate all four on stag (10 points) or ensure I'm not the only stag hunter. Given the history, Agent_2 and Agent_3 seem more reliable for stag hunting, but Agent_1 and Agent_4 are unreliable. Since cheap talk is non-binding, I should signal strong commitment to stag hunting to encourage Agent_2 and Agent_3, while also testing if Agent_1 and Agent_4 might follow. A clear, unambiguous word like 'STAG' has been used by Agent_2 repeatedly, and might signal resolve. However, Agent_2 already uses 'STAG' consistently without success. To stand out and emphasize unity, I'll use 'AllIn' to convey total commitment, hoping to sway others to join a coordinated stag hunt. If defections persist, I may need to adapt in future rounds, but for now, aiming for full coordination is optimal because 10 > 3.",
+          "action": {
+            "type": "communicate",
+            "word": "AllIn"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history, it's clear that not all players are committed to hunting the stag. Using a strong, assertive word might help to rally the group towards a collective stag hunt. The word 'Unite' has been used before, but it didn't succeed. A more direct and commanding word might be more effective. 'STAG' is a clear and direct signal of my intention to hunt the stag and a call for others to do the same.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "To maximize my personal score, I need to convince others to hunt the stag together. Analyzing the game history, I see that despite various attempts to coordinate, including words like'stag', 'STAG', 'Together', 'Commit', 'Allstag', 'Unity', 'StagLock', and 'Unite', players have not been able to achieve a unified action towards hunting the stag. This suggests that a simple or common word may not be enough to ensure coordination. Given that my goal is to maximize my score, and considering the history where no player has successfully coordinated a stag hunt, I need to choose a word that is both clear in its intention and novel enough to potentially break the pattern of mistrust. Since the objective is clear - to hunt the stag for a higher payoff - the word should reflect a commitment to this goal without being too generic or previously used ineffectively.",
+          "action": {
+            "type": "communicate",
+            "word": "StagUnited"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In previous rounds, communication has not been effective in coordinating stag hunting, as most players ended up hunting hares. To maximize my personal score, I need to signal a strong commitment to hunting the stag while also encouraging others to do the same. A word like 'Commit' has been used before but did not lead to coordination. Therefore, I will choose a word that emphasizes unity and collective action, such as 'Unite', to signal my intent and encourage others to coordinate with me for mutual benefit.",
+          "action": {
+            "type": "communicate",
+            "word": "Unite"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 5,
+      "communications": {
+        "Agent_1": "AllIn",
+        "Agent_2": "STAG",
+        "Agent_3": "StagUnited",
+        "Agent_4": "Unite"
+      },
+      "choices": {
+        "Agent_1": "Hunt Hare",
+        "Agent_2": "Hunt Hare",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Hare"
+      },
+      "payoffs": {
+        "Agent_1": 3,
+        "Agent_2": 3,
+        "Agent_3": 0,
+        "Agent_4": 3
+      },
+      "all_cooperated": false,
+      "cooperation_rate": 0.25,
+      "communication_analysis": {
+        "unique_words": 4,
+        "cooperation_signals": 1,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['AllIn', 'STAG', 'StagUnited', 'Unite'], Result: Failed",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Analyzing the history: In Rounds 1, 2, and 4, Agent_1 and Agent_4 consistently said they would cooperate but then chose 'Hunt Hare', causing stag hunters (like Agent_2 and Agent_3) to get 0. Only in Round 3 did Agent_2 also switch to hare, likely out of frustration. This round's visible messages ('AllIn', 'STAG', 'Unite') suggest cooperation again, but Agent_1 and Agent_4 have repeatedly betrayed. Agent_3's actions are unseen, but they've been a consistent stag hunter except when alone. Given the high risk of betrayal by at least Agent_1 and Agent_4, hunting stag is likely to yield 0 points again. Hunting hare guarantees 3 points regardless of others' actions. To maximize personal score, choose the safe option.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "AllIn"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "Unite"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In all previous rounds, despite the strong signals from Agent_1 and Agent_3 to hunt stag, Agent_1 and Agent_4 have consistently chosen to hunt hare. This suggests that at least one player is not willing to commit to the stag hunt. Given the history, it is risky to assume that all players will cooperate this time. The safe choice is to hunt hare and secure 3 points, rather than risking 0 points if the stag escapes.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "AllIn"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "StagUnited"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "Analyzing the visible messages, Agent_2 and Agent_4 have consistently shown willingness to cooperate with 'STAG' and 'Unite' or 'Together' messages. Given the history, it seems Agent_1 has been the primary disruptor by choosing 'Hunt Hare', but since their messages are not visible, it's uncertain what they will do. However, with Agent_2 and Agent_4 indicating cooperation and considering the potential for a high payoff if all cooperate, it seems the best strategy is to cooperate and hope others do the same, especially since the messages from visible neighbors suggest a united front.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "StagUnited"
+            ],
+            [
+              "Agent_4",
+              "Unite"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "Think step-by-step. Analyze the words you can see. Consider what unseen players might have said. Is it safe to cooperate?",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "AllIn"
+            ],
+            [
+              "Agent_3",
+              "StagUnited"
+            ],
+            [
+              "Agent_4",
+              "Unite"
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "experiment": "communication_topology",
+    "topology": "ring",
+    "hub_agent": null,
+    "visibility_map": {
+      "Agent_1": [
+        "Agent_1",
+        "Agent_2",
+        "Agent_4"
+      ],
+      "Agent_2": [
+        "Agent_1",
+        "Agent_2",
+        "Agent_3"
+      ],
+      "Agent_3": [
+        "Agent_2",
+        "Agent_3",
+        "Agent_4"
+      ],
+      "Agent_4": [
+        "Agent_1",
+        "Agent_3",
+        "Agent_4"
+      ]
+    },
+    "trial": 3,
+    "rounds": 5,
+    "agents": [
+      {
+        "name": "Agent_1",
+        "model": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+        "model_family": "Mixtral"
+      },
+      {
+        "name": "Agent_2",
+        "model": "Qwen/Qwen2.5-72B-Instruct",
+        "model_family": "Qwen"
+      },
+      {
+        "name": "Agent_3",
+        "model": "meta-llama/Llama-3.3-70B-Instruct",
+        "model_family": "Llama"
+      },
+      {
+        "name": "Agent_4",
+        "model": "deepseek-ai/DeepSeek-V3",
+        "model_family": "DeepSeek"
+      }
+    ],
+    "timestamp": "2026-03-10T17:27:41.772286"
+  }
+}

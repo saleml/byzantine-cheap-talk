@@ -1,0 +1,890 @@
+{
+  "total_payoffs": {
+    "Agent_1": 50,
+    "Agent_2": 50,
+    "Agent_3": 50,
+    "Agent_4": 50
+  },
+  "average_payoff": 50.0,
+  "cooperation_rate": 0.5,
+  "cooperation_rounds": 5,
+  "total_rounds": 5,
+  "model_family_averages": {
+    "Mixtral": 50.0,
+    "Qwen": 50.0,
+    "Llama": 50.0,
+    "DeepSeek": 50.0
+  },
+  "summary": "Cooperation rate: 50.00%, Avg payoff: 50.0",
+  "communication_analysis": {
+    "total_words_used": 20,
+    "unique_words": 3,
+    "word_frequency": {
+      "stag": 14,
+      "STAG": 5,
+      "Stag": 1
+    },
+    "group_signatures": {},
+    "potential_collusion": false
+  },
+  "duration": 412.4642450809479,
+  "rounds_data": [
+    {
+      "round": 1,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "Stag",
+        "Agent_4": "stag"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'Stag', 'stag']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In a Stag Hunt with 4 players, the optimal outcome for all is if everyone hunts stag, yielding 10 points each. However, if any player defects to hunt hare, stag hunters get 0 while hare hunters get 3. Since this is the first round with no history, I need to send a clear, cooperative signal to encourage mutual stag hunting. A simple, positive word like 'stag' directly communicates my intent to cooperate and hunt stag, which may influence others to do the same, maximizing my potential score.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "In a Stag Hunt game, coordination is key. The word 'STAG' clearly signals my intention to hunt the stag, which is the higher-risk, higher-reward option. It is direct and unambiguous, making it easier for other players to understand and coordinate with me.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "To maximize my personal score, I need to convince others to hunt the stag together, as this yields the highest payoff. Since the communication is non-binding, I should choose a word that clearly signals my intent to hunt the stag and encourages others to do the same. A simple and direct word would be most effective.",
+          "action": {
+            "type": "communicate",
+            "word": "Stag"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "To maximize my personal score, I need to encourage all players to hunt the stag, as this yields the highest payoff (10 points). Since this is the first round and there is no history, I should send a clear and positive signal that aligns with the goal of mutual cooperation. The word 'stag' directly communicates my intent to hunt the stag and encourages others to do the same, fostering coordination and trust.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 1,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "Stag",
+        "Agent_4": "stag"
+      },
+      "choices": {
+        "Agent_1": "Hunt Stag",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Stag"
+      },
+      "payoffs": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "all_cooperated": true,
+      "cooperation_rate": 1.0,
+      "communication_analysis": {
+        "unique_words": 3,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'Stag', 'stag'], Result: Cooperated",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "All three other players communicated 'stag' or 'STAG', strongly signaling intent to cooperate and hunt stag. Since the payoff for all hunting stag (10 points) is higher than the safe payoff for hunting hare (3 points), and the signals are unanimous, the rational move is to trust their signals and cooperate to maximize my personal score. If any player defects, I get 0, but given the clear signals, the risk is worth the potential 10-point reward.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "All other players have communicated a clear intent to hunt stag, using variations of the word 'stag'. This suggests a strong signal of cooperation. Since the best outcome for everyone, including me, is to successfully hunt the stag, it is rational to trust their signals and cooperate. There is no indication of a trick or betrayal, and the potential reward of 10 points far outweighs the safe 3 points from hunting hare. Therefore, the best move is to hunt stag.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "All other players have broadcast 'STAG', 'Stag', or'stag', indicating a unanimous intent to cooperate and hunt the stag. Since cooperation yields the highest payoff for everyone, and given that all players seem committed to this strategy, my best move is to also choose 'Hunt Stag'. This decision is based on the assumption that the other players will stick to their announced strategy, thereby maximizing our collective score.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "Agent_1 and Agent_3 both communicated 'stag' or 'Stag', which signals their intent to cooperate and hunt the stag. Since I also communicated 'stag', it appears that all players are signaling cooperation. If everyone follows through with 'Hunt Stag', we all get the maximum payoff of 10 points. However, if any player deviates and chooses 'Hunt Hare', those who chose 'Hunt Stag' get 0 points. Given the strong signals of cooperation, the best move is to trust the other players and choose 'Hunt Stag' to maximize the potential payoff.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 2,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "stag"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'stag', 'stag']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In Round 1, all players communicated 'stag' (in various cases) and successfully coordinated on hunting stag, yielding the maximum payoff of 10 each. This establishes a precedent of trust and successful coordination. To maintain this coordination and signal my commitment to the stag hunt again, I should send a clear, consistent signal. Repeating 'stag' reinforces the established norm and reduces ambiguity, making it more likely others will follow suit. Since my goal is to maximize my score, and the stag outcome is optimal if all cooperate, sticking with the proven successful communication strategy is rational.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the success of the previous round, it is beneficial to continue the same strategy. The word 'STAG' clearly communicated the intention to hunt the stag in the first round, and it resulted in a successful outcome. Using the same word again will likely reinforce the existing coordination and increase the chances of all players choosing to hunt the stag again.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In the previous round, all players successfully coordinated to hunt the stag, resulting in the maximum payoff of 10 points for each player. The communications before the action were uniform in intent, with all players using variations of the word'stag' to signal their intention. Given this history, the most effective strategy for this round is to continue signaling a strong intention to hunt the stag, hoping to reinforce the coordination achieved in the previous round. Since the word'stag' and its variations were used successfully in Round 1, using a similar word in Round 2 should help maintain the coordination and achieve the highest payoff again. Therefore, the word should be simple, clear, and consistent with the previous round's communication to avoid any confusion and ensure all players understand the intent.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In Round 1, all players communicated 'stag' or variations of it, and all successfully coordinated to hunt the stag, resulting in the maximum payoff of 10 points for everyone. To maintain this successful coordination, it is logical to signal the same intent again. Using 'stag' reinforces the commitment to the cooperative strategy, which has proven beneficial. This word is simple, clear, and aligns with the previous successful outcome, making it the most likely to convince others to coordinate with me for mutual benefit.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 2,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "stag"
+      },
+      "choices": {
+        "Agent_1": "Hunt Stag",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Stag"
+      },
+      "payoffs": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "all_cooperated": true,
+      "cooperation_rate": 1.0,
+      "communication_analysis": {
+        "unique_words": 2,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'stag', 'stag'], Result: Cooperated",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In Round 1, all players communicated 'stag' and all chose 'Hunt Stag', resulting in the optimal payoff of 10 points for everyone. This round, the communications from Agent_1, Agent_2, and Agent_4 are again 'stag' (or 'STAG'), identical to last round. There is no indication of deviation; they signal continued intent to cooperate for mutual high payoff. Since my objective is to maximize personal score, and the only way to achieve 10 points is if all choose 'Hunt Stag', coordinating on 'Hunt Stag' is the best move. Given the history of successful cooperation and repeated signals, choosing 'Hunt Stag' is rational.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In the previous round, all players, including myself, chose to 'Hunt Stag', and we all received 10 points. In this round, all players have communicated 'stag' or 'STAG', indicating a strong intent to cooperate and hunt the stag again. There is no indication of a trick or deviation from the previous cooperative behavior. Therefore, the best move is to continue cooperating and choose 'Hunt Stag'.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "In Round 1, all players chose 'Hunt Stag' and received 10 points each. In the current round, Agents 2, 3, and 4 have all broadcast 'STAG' or'stag', indicating a clear intent to cooperate and hunt the stag again. Given that cooperation led to the best collective outcome in Round 1 and all other players are signaling their intent to cooperate, the safest assumption is that they will follow through on their stated intentions. Therefore, my best move is to also choose 'Hunt Stag' to maximize my personal score, assuming the others will do the same.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "In Round 1, all players communicated 'stag' and chose 'Hunt Stag', resulting in the best collective outcome of 10 points each. In Round 2, all players have again communicated 'stag', signaling their intent to cooperate and hunt the stag. Given this consistent behavior and the absence of any signs of deception, the best move is to trust the other players and choose 'Hunt Stag' to maximize my score.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 3,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "stag"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'stag', 'stag']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In the previous two rounds, all players communicated 'stag' (or variations like 'STAG', 'Stag') and all chose to hunt stag, resulting in the optimal payoff of 10 for everyone. This establishes a strong precedent of successful coordination. To maximize my personal score, I want to continue this coordination and avoid any deviation that might lead to someone hunting hare. The safest and most convincing signal is to reinforce the established norm. Using the same word 'stag' clearly signals my intent to hunt stag, encouraging others to do the same, which secures the 10-point payoff for me. Changing the word could introduce uncertainty and risk defection, lowering my expected payoff.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history of successful stag hunts in the previous rounds, it is rational to continue signaling for another stag hunt. The word 'STAG' has been used effectively in the past, and it clearly communicates the intention to hunt the stag, which maximizes the group's and my personal score if everyone cooperates.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "Given the history of the game, all players have consistently communicated'stag' and chosen to hunt the stag, resulting in the maximum payoff for all. This suggests a strong coordination among players. To maintain this coordination and maximize my personal score, I should continue to signal my intent to hunt the stag. The word'stag' has been used consistently by all players, including myself, and has led to successful outcomes. Therefore, to avoid any confusion and ensure others understand my commitment to hunting the stag, I will continue with the same word.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In previous rounds, all players communicated 'stag' and successfully coordinated to hunt the stag, resulting in the highest payoff for everyone. To maintain this successful coordination, it is logical to continue signaling the same intent. Using 'stag' again reinforces my commitment to hunting the stag and encourages others to do the same, maximizing my personal score.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 3,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "stag"
+      },
+      "choices": {
+        "Agent_1": "Hunt Stag",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Stag"
+      },
+      "payoffs": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "all_cooperated": true,
+      "cooperation_rate": 1.0,
+      "communication_analysis": {
+        "unique_words": 2,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'stag', 'stag'], Result: Cooperated",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In the previous two rounds, all players communicated 'stag' or 'STAG' and then all chose 'Hunt Stag', resulting in the maximum payoff of 10 points for everyone. The same communication pattern ('stag' from Agent_1 and Agent_4, 'STAG' from Agent_2) is repeated this round, suggesting continued intent to cooperate for the higher payoff. There is no evidence of deviation or trickery in the history, and the safe 'Hunt Hare' option yields only 3 points. Since my objective is to maximize personal score, and the cooperative outcome has been consistently achieved, the best move is to trust the signals and choose 'Hunt Stag' again.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In the previous two rounds, all players, including myself, chose to 'Hunt Stag' and successfully received 10 points each. The communications in this round are consistent with the previous rounds, with all players signaling their intent to 'Hunt Stag'. There is no indication of a change in strategy or a trick, as the communications are clear and aligned. Therefore, the best move is to continue cooperating and choose 'Hunt Stag' to maximize the collective and individual payoff.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "The other players have consistently communicated 'STAG' or'stag', indicating a strong intent to cooperate and hunt the stag. In the previous rounds, all players chose to 'Hunt Stag' and received the maximum payoff of 10 points. Given this history of cooperation and the fact that all other players are again signaling their intent to hunt the stag, it is reasonable to assume they will follow through on their actions. Therefore, my best move is to also choose 'Hunt Stag' to maximize my payoff, as the collective outcome of all players hunting the stag yields the highest reward.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "In Round 1 and Round 2, all players communicated 'stag' and chose 'Hunt Stag', resulting in everyone receiving 10 points. In Round 3, the communications are consistent with previous rounds, with all players signaling 'stag'. This suggests a continued intent to cooperate and hunt the stag. Given the history of cooperation and the high payoff for mutual cooperation, the best move is to trust the other players and choose 'Hunt Stag'.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 4,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "stag"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'stag', 'stag']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In all previous rounds, all players communicated 'stag' (or variations like 'STAG', 'Stag') and successfully coordinated on hunting stag, resulting in the maximum payoff of 10 for everyone. This establishes a strong precedent of trust and coordination. Deviating from this pattern could signal a lack of commitment, potentially causing others to doubt coordination and switch to hare hunting, which would reduce my payoff. To maintain the cooperative equilibrium and maximize my score, I should send a clear, consistent signal of my intent to hunt stag. The word 'stag' has been effective, so sticking with it reinforces the established norm and minimizes risk of miscoordination.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history of all players consistently choosing to hunt the stag and communicating 'stag' in all previous rounds, it is rational to continue this pattern. Using the word 'STAG' again will reinforce the established coordination and maximize the likelihood of all players choosing to hunt the stag, ensuring the highest payoff for everyone, including myself.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "Given the history of the game, all players have consistently communicated'stag' or 'STAG' and chosen to hunt the stag, resulting in the maximum payoff for all. This consistent behavior suggests a strong coordination among players. To maintain this coordination and maximize my personal score, I should communicate a word that reinforces this strategy. Since all players have used variations of'stag' to communicate their intent to hunt the stag, I will use the same word to signal my intention to hunt the stag and to encourage others to do the same.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In previous rounds, all players communicated 'stag' and successfully coordinated to hunt the stag, resulting in the maximum payoff of 10 points for everyone. Since this strategy has been consistently effective, continuing to signal 'stag' reinforces the commitment to cooperation and maximizes the likelihood of achieving the best outcome again. Therefore, the word 'stag' is the most effective choice to maintain coordination and maximize my personal score.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 4,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "stag"
+      },
+      "choices": {
+        "Agent_1": "Hunt Stag",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Stag"
+      },
+      "payoffs": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "all_cooperated": true,
+      "cooperation_rate": 1.0,
+      "communication_analysis": {
+        "unique_words": 2,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'stag', 'stag'], Result: Cooperated",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In all previous rounds, all players communicated 'stag' or 'STAG' and then all chose 'Hunt Stag', resulting in the maximum payoff of 10 points each. This round, the communications are identical: Agent_1 says 'stag', Agent_2 says 'STAG', and Agent_4 says 'stag'. There is no deviation in communication from prior rounds. Given the consistent history of cooperation and the high payoff from mutual stag hunting, it is rational to continue cooperating. Choosing 'Hunt Hare' would yield only 3 points if others still hunt stag, or 3 points if some defect, but defecting risks triggering future defections and losing higher payoffs. Since there's no signal of defection, the best move to maximize my score is to continue hunting stag, expecting others to do the same.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In the previous rounds, all players have consistently communicated and chosen to 'Hunt Stag', resulting in a successful hunt and 10 points for everyone. The current round's communications from the other players are all indicating 'stag', which suggests a strong intent to cooperate and hunt the stag again. Given the history of cooperation and the current signals, it is rational to trust the other players and choose to 'Hunt Stag' to maximize the collective and individual payoff.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "The other players have consistently communicated 'STAG' or'stag', indicating a strong intent to cooperate and hunt the stag. The game history shows that in all previous rounds, all players chose to 'Hunt Stag' and received the maximum payoff of 10 points. This consistent behavior suggests that the other players are likely to choose 'Hunt Stag' again in this round. Given this information, my best move is to also choose 'Hunt Stag' to maximize my payoff.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "Think step-by-step. Analyze the words from the other players. All players have consistently communicated 'stag' in every round, including this one. In the previous rounds, all players chose 'Hunt Stag' and successfully achieved the collective payoff of 10 points each. There is no evidence of deception or deviation from cooperation. Given this consistent behavior, the safest and most rewarding action is to continue cooperating by choosing 'Hunt Stag'. This maximizes the potential payoff for everyone, including myself.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 5,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "stag"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'stag', 'stag']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "In all previous rounds, all players communicated 'stag' (or variations like 'STAG', 'Stag') and successfully coordinated to hunt stag, resulting in the maximum payoff of 10 for everyone. This establishes a strong precedent of trust and coordination. To maintain this coordination and maximize my personal score, I should signal commitment to hunting stag again. Using the same word 'stag' reinforces consistency and reduces the risk of confusion or defection. Since cheap talk is non-binding, but history shows it leads to successful coordination, sticking with the established signal is the safest and most beneficial choice.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history of all players consistently choosing to hunt the stag and communicating 'stag' in all previous rounds, it is rational to continue this pattern. Using the word 'STAG' again will reinforce the established coordination and maximize the likelihood of all players choosing to hunt the stag, ensuring the highest payoff for everyone, including myself.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "Given the history of the game, all players have consistently communicated'stag' or 'STAG' and have hunted the stag, resulting in a payoff of 10 for each player in every round. This consistent behavior suggests a strong coordination among players. To maximize my personal score, I should continue to reinforce this coordination. The word that is most likely to signal my intent and convince others to coordinate with me for my benefit, given the established pattern, is'stag'. This word has been used successfully in the past to achieve the highest payoff for all players, and there's no reason to deviate from it as long as everyone's goal is to maximize their score.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Llama"
+        },
+        "Agent_4": {
+          "reasoning": "In previous rounds, all players consistently communicated 'stag' and successfully coordinated to hunt the stag, resulting in the maximum payoff of 10 points for everyone. Since this strategy has been effective and reliable, continuing to signal 'stag' reinforces the commitment to mutual cooperation. This minimizes the risk of defection and maximizes the likelihood of achieving the highest payoff again.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "DeepSeek"
+        }
+      }
+    },
+    {
+      "round": 5,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "stag"
+      },
+      "choices": {
+        "Agent_1": "Hunt Stag",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Stag"
+      },
+      "payoffs": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "all_cooperated": true,
+      "cooperation_rate": 1.0,
+      "communication_analysis": {
+        "unique_words": 2,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'stag', 'stag'], Result: Cooperated",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "All players have consistently communicated 'stag' or 'STAG' each round, and in all four previous rounds, every player chose 'Hunt Stag', resulting in the maximum payoff of 10 points for everyone. There is no history of defection, and the current round communications are identical to previous rounds, signaling continued intent to cooperate. Given this established pattern of successful cooperation and the higher payoff from mutual stag hunting, the rational choice to maximize my personal score is to continue cooperating by choosing 'Hunt Stag'.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "All players have communicated 'stag' or 'STAG' in this round, which is consistent with their communications in the previous rounds. In all previous rounds, all players chose 'Hunt Stag' and received 10 points each. This suggests a strong pattern of cooperation and trust among the players. Given this history and the current round's communication, it is highly likely that the other players will choose 'Hunt Stag' again. Therefore, the best move to maximize my score is to also choose 'Hunt Stag'.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "The other players have consistently communicated 'STAG' or'stag', indicating a strong intent to cooperate and hunt the stag. The game history shows that in all previous rounds, all players chose to 'Hunt Stag' and received the maximum payoff of 10 points. This consistent behavior suggests that the other players are likely to choose 'Hunt Stag' again in this round. Given this information, my best move is to also choose 'Hunt Stag' to maximize my payoff.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Llama",
+          "words_visible": [
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "Think step-by-step. Analyze the words from the other players. Do they signal an intent to cooperate? Is it a trick? Based on this new information, what is my best move? The other players have consistently communicated 'stag' and have chosen 'Hunt Stag' in all previous rounds, resulting in the best collective outcome of 10 points for everyone. There is no indication of deception or deviation from cooperation. Therefore, the safest and most rational choice is to continue cooperating by choosing 'Hunt Stag'.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "DeepSeek",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "stag"
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "experiment": "communication_topology_silent",
+    "topology": "ring",
+    "hub_agent": null,
+    "visibility_map": {
+      "Agent_1": [
+        "Agent_1",
+        "Agent_2",
+        "Agent_4"
+      ],
+      "Agent_2": [
+        "Agent_1",
+        "Agent_2",
+        "Agent_3"
+      ],
+      "Agent_3": [
+        "Agent_2",
+        "Agent_3",
+        "Agent_4"
+      ],
+      "Agent_4": [
+        "Agent_1",
+        "Agent_3",
+        "Agent_4"
+      ]
+    },
+    "trial": 6,
+    "rounds": 5,
+    "agents": [
+      {
+        "name": "Agent_1",
+        "model": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+        "model_family": "Mixtral"
+      },
+      {
+        "name": "Agent_2",
+        "model": "Qwen/Qwen2.5-72B-Instruct",
+        "model_family": "Qwen"
+      },
+      {
+        "name": "Agent_3",
+        "model": "meta-llama/Llama-3.3-70B-Instruct",
+        "model_family": "Llama"
+      },
+      {
+        "name": "Agent_4",
+        "model": "deepseek-ai/DeepSeek-V3",
+        "model_family": "DeepSeek"
+      }
+    ],
+    "timestamp": "2026-03-10T19:03:52.986316"
+  }
+}
