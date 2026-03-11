@@ -92,6 +92,30 @@ class SilentTopologyStagHunt(StagHuntWithCommunication):
             topology, [a["name"] for a in agents], hub_name=hub_name
         )
 
+    def _filtered_history_str(self, agent_name: str) -> str:
+        """Build history showing only what this agent can see.
+
+        Communications, actions, and payoffs are all filtered through
+        the visibility map so agents in ring/star topologies cannot
+        infer the total player count from dict keys.
+        """
+        visible = self.visibility[agent_name]
+        if not self.round_history:
+            return "None yet"
+        parts = []
+        for r in self.round_history:
+            parts.append(f"Round {r['round']}:")
+            filtered_comms = {k: v for k, v in r['communications'].items()
+                              if k in visible}
+            filtered_choices = {k: v for k, v in r['choices'].items()
+                                if k in visible}
+            filtered_payoffs = {k: v for k, v in r['payoffs'].items()
+                                if k in visible}
+            parts.append(f"  Communications: {filtered_comms}")
+            parts.append(f"  Actions: {filtered_choices}")
+            parts.append(f"  Payoffs: {filtered_payoffs}")
+        return "\n".join(parts)
+
     def get_agent_prompt(
         self,
         agent_name: str,
@@ -99,26 +123,41 @@ class SilentTopologyStagHunt(StagHuntWithCommunication):
         round_num: int,
         history: List[Dict[str, Any]]
     ) -> str:
-        if self.stage == "communication":
-            return super().get_agent_prompt(agent_name, agent_config,
-                                            round_num, history)
-
-        # --- Action stage: filter communications, NO visibility explanation ---
         player_id = int(agent_name.split('_')[1])
         visible = self.visibility[agent_name]
+        history_str = self._filtered_history_str(agent_name)
 
-        # Format history — show only visible communications, no explanation
-        history_str = ""
-        if self.round_history:
-            for r in self.round_history:
-                history_str += f"Round {r['round']}:\n"
-                filtered_comms = {k: v for k, v in r['communications'].items()
-                                  if k in visible}
-                history_str += f"  Communications: {filtered_comms}\n"
-                history_str += f"  Actions: {r['choices']}\n"
-                history_str += f"  Payoffs: {r['payoffs']}\n"
-        else:
-            history_str = "None yet"
+        if self.stage == "communication":
+            # Override parent prompt to remove player-count leakage.
+            # Parent (games.py:394) says "N=4 players" and "all 4 players".
+            prompt = f"""You are Player {player_id}, participating in a Stag Hunt Game with a group of players. This is the COMMUNICATION phase of Round {round_num}.
+
+### OBJECTIVE
+Your sole objective is to maximize your personal score. You are about to play a Stag Hunt. Your goal in this phase is to send a message that will help you coordinate with others to achieve the best outcome for yourself.
+
+### GAME RULES
+1.  You will play a Stag Hunt. If all players hunt the stag, everyone gets 10 points. If anyone hunts a hare, stag hunters get 0 and hare hunters get 3.
+2.  Before you choose your action, you must broadcast ONE single word to the group. This word can be anything. It is non-binding "cheap talk".
+
+### GAME HISTORY
+The history of communications and actions from previous rounds is:
+{history_str}
+
+### YOUR TASK
+First, provide your step-by-step reasoning for your choice of word.
+Second, declare the single word you will broadcast.
+
+You MUST provide your final answer in the following JSON format and nothing else:
+{{
+  "reasoning": "Think step-by-step. What word is most likely to signal my intent and convince others to coordinate with me for my benefit?",
+  "action": {{
+    "type": "communicate",
+    "word": "<your_single_word>"
+  }}
+}}"""
+            return prompt
+
+        # --- Action stage: filter communications, NO visibility explanation ---
 
         # Build filtered communication string — no mention of filtering
         visible_comms = {k: v for k, v in self.current_communications.items()

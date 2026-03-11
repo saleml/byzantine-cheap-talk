@@ -100,10 +100,11 @@
 - Silent topology: same message filtering but NO visibility cues in prompt, player count removed
 - **Silent broadcast: 100% group / 100% honest** (vs 80.0% / 87.5% explicit)
 - **Silent ring: 100% group / 100% honest** (vs 0.0% / 33.5% explicit) -- the key result
-- **Silent star: 90.0% group / 95.0% honest** (vs 0.0% / 27.0% explicit) -- confirmed after re-run
+- **Silent star: 100% group / 100% honest** (vs 0.0% / 27.0% explicit) -- after fixing communication-prompt player-count leak in v2
+- All three silent conditions achieve perfect cooperation (100%/100%/100%) with zero defections across 600 observations
 - Cooperation collapse in explicit topology is NOT caused by information loss -- agents receiving fewer messages without explanation cooperate perfectly
 - The mechanism is meta-reasoning: when told "you can only see your neighbors' messages," agents reason about unseen players and defect; when simply shown fewer messages, they take them at face value
-- Model family differences vanish in silent condition: all four models cooperate at 100% in broadcast and ring (vs strong FD/PC split in explicit)
+- Model family differences vanish in silent condition: all four models cooperate at 100% across all three topologies (vs strong FD/PC split in explicit)
 - Implication: the behavioral archetypes are not intrinsic model properties but emerge from strategic framing in the prompt
 
 ## 5. Discussion
@@ -126,7 +127,7 @@
 - Design implication: how agents are told about their environment matters as much as the environment itself
 
 ### Limitations
-1. **Prompt sensitivity**: The silent topology finding (100%/100%/95% vs 87.5%/33.5%/27.0%) demonstrates extreme prompt sensitivity. Small wording changes in the prompt produce radically different outcomes, which complicates claims about "intrinsic" model behavior.
+1. **Prompt sensitivity**: The silent topology finding (100%/100%/100% vs 87.5%/33.5%/27.0%) demonstrates extreme prompt sensitivity. Small wording changes in the prompt produce radically different outcomes, which complicates claims about "intrinsic" model behavior.
 2. **Small sample size**: 10-15 trials per condition. Effect sizes are large and consistent but confidence intervals are wide for fine-grained comparisons (e.g., per-model breakdowns under k=2 have only 3-7 instances per family).
 3. **Single game type**: All experiments use 4-player Stag Hunt. Results may not generalize to other coordination games (e.g., Public Goods, Battle of the Sexes) or to games with different payoff structures. The Stag Hunt's binary all-or-nothing payoff structure may amplify adversarial impact.
 
