@@ -1,4 +1,6 @@
-# Byzantine Cheap Talk and Communication Topology in LLM-Mediated Coordination Games
+# Byzantine Cheap Talk: Adversarial Resilience and Topology Effects in LLM Coordination Games
+
+Multi-agent LLM systems increasingly rely on communication protocols for coordination, yet their robustness under adversarial and structural constraints remains poorly understood. Building on prior work showing that cheap-talk channels enable cooperation in LLM coordination games, we investigate two distinct vulnerability classes in a 4-player Stag Hunt. First, Byzantine agents — who signal cooperation but defect — can eliminate group-level cooperation entirely, with honest agents detecting betrayal within one round but unable to recover coordination due to the game's all-or-nothing payoff structure; probabilistic adversaries partially preserve cooperation but extract the full cooperation surplus. Second, explicitly restricting communication topology collapses cooperation, while identical restrictions applied silently preserve near-perfect cooperation — establishing that the mechanism is agents' meta-reasoning about hidden information, not information loss itself. Finally, we document persistent behavioral archetypes across model families: models that defect rationally upon detecting betrayal vastly outperform models that persistently attempt cooperation under adversarial conditions, a gap that compresses under probabilistic deception. Together, these findings have direct implications for the design of robust networked multi-agent AI systems.
 
 ## 1. Introduction
 
