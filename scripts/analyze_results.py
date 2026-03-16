@@ -36,6 +36,7 @@ BYZANTINE_CSV = RESULTS / "byzantine" / "all_results.csv"
 SOFT_CSV = RESULTS / "byzantine_soft" / "all_results.csv"
 TOPO_CSV = RESULTS / "topology" / "all_results.csv"
 TOPO_SILENT_CSV = RESULTS / "topology_silent" / "all_results.csv"
+BYZ_STAR_CSV = RESULTS / "byzantine_star" / "all_results.csv"
 
 # ---------- reuse helpers from generate_summary_figures ----------
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -366,6 +367,74 @@ def print_summary_table(byz_data, soft_data, topo_data, topo_silent_data):
 
 
 # =====================================================================
+# (f) Byzantine × Star Topology
+# =====================================================================
+def analyze_byzantine_star(byz_star_data):
+    print_separator("(f) Byzantine × Star Topology")
+
+    byz_star_by_cond = defaultdict(list)
+    for r in byz_star_data:
+        byz_star_by_cond[r["condition"]].append(r)
+
+    conditions = [
+        ("Hub is adversary", "hub_is_adversary"),
+        ("Hub is honest",    "hub_is_honest"),
+    ]
+
+    print(f"  {'Condition':<22} {'Trials':>7} {'Group%':>8} "
+          f"{'Honest%':>9} {'AvgPay':>8}")
+    print(f"  {'-'*22} {'-'*7} {'-'*8} {'-'*9} {'-'*8}")
+
+    for label, cond_key in conditions:
+        cond_rows = byz_star_by_cond[cond_key]
+        h_rows = honest_rows(cond_rows)
+        n_trials = len(set(r["trial_id"] for r in cond_rows))
+        gcr = group_coop_rate(cond_rows) * 100
+        hcr = coop_rate(h_rows) * 100
+        avg_pay = avg_payoff_per_round(h_rows)
+        print(f"  {label:<22} {n_trials:>7} {gcr:>7.1f}% "
+              f"{hcr:>8.1f}% {avg_pay:>8.2f}")
+    print()
+
+    # FD vs PC breakdown per condition
+    print(f"  --- FD vs PC payoff breakdown ---\n")
+    print(f"  {'Condition':<22} {'Group':>8} {'Avg Pay/Rnd':>12} "
+          f"{'Coop %':>10}")
+    print(f"  {'-'*22} {'-'*8} {'-'*12} {'-'*10}")
+
+    for label, cond_key in conditions:
+        h_rows = honest_rows(byz_star_by_cond[cond_key])
+        fd = [r for r in h_rows if family_of(r) in FD_FAMILIES]
+        pc = [r for r in h_rows if family_of(r) in PC_FAMILIES]
+        fd_avg = avg_payoff_per_round(fd)
+        pc_avg = avg_payoff_per_round(pc)
+        fd_coop = coop_rate(fd) * 100
+        pc_coop = coop_rate(pc) * 100
+        ratio = fd_avg / pc_avg if pc_avg > 0 else float('inf')
+        print(f"  {label:<22} {'FD':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
+        print(f"  {label:<22} {'PC':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
+        print(f"  {label:<22} {'ratio':>8} {ratio:>12.1f}x")
+        print()
+
+    # Round-by-round honest cooperation
+    print(f"  --- Round-by-round honest cooperation ---\n")
+    rounds_range = range(1, 6)
+    header = f"  {'Condition':<22}" + "".join(f"{'R'+str(r):>8}" for r in rounds_range)
+    print(header)
+    print(f"  {'-'*22}" + "".join(f"{'-'*8}" for _ in rounds_range))
+
+    for label, cond_key in conditions:
+        h_rows = honest_rows(byz_star_by_cond[cond_key])
+        rates = []
+        for rnd in rounds_range:
+            rnd_rows = [r for r in h_rows if int(r["round"]) == rnd]
+            rates.append(coop_rate(rnd_rows) * 100)
+        vals = "".join(f"{v:>7.1f}%" for v in rates)
+        print(f"  {label:<22}{vals}")
+    print()
+
+
+# =====================================================================
 # main
 # =====================================================================
 def main():
@@ -382,12 +451,19 @@ def main():
     topo_data = load_csv(TOPO_CSV)
     topo_silent_data = load_csv(TOPO_SILENT_CSV)
 
+    byz_star_data = None
+    if BYZ_STAR_CSV.exists():
+        byz_star_data = load_csv(BYZ_STAR_CSV)
+
     # Run all analyses
     analyze_archetypes(byz_data)
     analyze_payoff_breakdown(byz_data, soft_data)
     analyze_soft_by_defections(soft_data)
     analyze_round_by_round(byz_data, soft_data, topo_data, topo_silent_data)
     print_summary_table(byz_data, soft_data, topo_data, topo_silent_data)
+
+    if byz_star_data:
+        analyze_byzantine_star(byz_star_data)
 
     # Save to file
     sys.stdout = tee.stdout
