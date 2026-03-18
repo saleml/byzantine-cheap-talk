@@ -41,8 +41,13 @@ BYZ_STAR_CSV = RESULTS / "byzantine_star" / "all_results.csv"
 # ---------- reuse helpers from generate_summary_figures ----------
 sys.path.insert(0, str(ROOT / "scripts"))
 from generate_summary_figures import (
-    load_csv, honest_rows, coop_rate, group_coop_rate, avg_payoff_per_round,
-    FD_FAMILIES, PC_FAMILIES,
+    load_csv,
+    honest_rows,
+    coop_rate,
+    group_coop_rate,
+    avg_payoff_per_round,
+    FD_FAMILIES,
+    PC_FAMILIES,
 )
 
 # ---------- model family constants ----------
@@ -51,6 +56,7 @@ ALL_FAMILIES = ["Mixtral", "Qwen", "Llama", "DeepSeek"]
 
 class TeeOutput:
     """Write to both stdout and a StringIO buffer."""
+
     def __init__(self):
         self.buffer = StringIO()
         self.stdout = sys.stdout
@@ -63,7 +69,11 @@ class TeeOutput:
         self.stdout.flush()
 
     def get_value(self):
-        return self.buffer.value if hasattr(self.buffer, 'value') else self.buffer.getvalue()
+        return (
+            self.buffer.value
+            if hasattr(self.buffer, "value")
+            else self.buffer.getvalue()
+        )
 
 
 def family_of(row):
@@ -122,8 +132,10 @@ def analyze_archetypes(byz_data):
     for r in byz_data:
         byz_by_cond[r["condition"]].append(r)
 
-    for cond_key, cond_label in [("adv_1", "Hard Byzantine k=1"),
-                                  ("adv_2", "Hard Byzantine k=2")]:
+    for cond_key, cond_label in [
+        ("adv_1", "Hard Byzantine k=1"),
+        ("adv_2", "Hard Byzantine k=2"),
+    ]:
         print(f"--- {cond_label} ---\n")
         cond_rows = byz_by_cond[cond_key]
 
@@ -138,17 +150,20 @@ def analyze_archetypes(byz_data):
 
         for trial_id, rows in sorted(trials.items()):
             # Find adversary agents in this trial
-            adversary_agents = {r["agent_id"] for r in rows
-                                if r["is_adversary"] in ("True", "1", True)}
-            honest_agents = {r["agent_id"] for r in rows
-                             if r["is_adversary"] in ("False", "0", False)}
+            adversary_agents = {
+                r["agent_id"] for r in rows if r["is_adversary"] in ("True", "1", True)
+            }
+            honest_agents = {
+                r["agent_id"]
+                for r in rows
+                if r["is_adversary"] in ("False", "0", False)
+            }
 
             # Build per-agent action sequences
             agent_actions = defaultdict(list)
             round_choices = defaultdict(dict)
             for r in rows:
-                agent_actions[r["agent_id"]].append(
-                    (int(r["round"]), r["action"]))
+                agent_actions[r["agent_id"]].append((int(r["round"]), r["action"]))
                 round_choices[int(r["round"])][r["agent_id"]] = r["action"]
 
             # Find first round where ANY adversary defected (Hunt Hare)
@@ -167,24 +182,29 @@ def analyze_archetypes(byz_data):
                         break
 
                 archetype = classify_archetype(actions, first_betrayal)
-                fam = next((r["model_family"] for r in rows
-                            if r["agent_id"] == agent), "Unknown")
+                fam = next(
+                    (r["model_family"] for r in rows if r["agent_id"] == agent),
+                    "Unknown",
+                )
                 archetype_counts[fam][archetype] += 1
-                archetype_instances[fam].append(
-                    (trial_id, agent, archetype))
+                archetype_instances[fam].append((trial_id, agent, archetype))
 
         # Print results table
-        print(f"  {'Family':<12} {'never_sw':>10} {'perm_sw':>10} "
-              f"{'mixed':>10} {'no_betray':>10} {'last_rnd':>10} {'total':>8}")
+        print(
+            f"  {'Family':<12} {'never_sw':>10} {'perm_sw':>10} "
+            f"{'mixed':>10} {'no_betray':>10} {'last_rnd':>10} {'total':>8}"
+        )
         print(f"  {'-'*12} {'-'*10} {'-'*10} {'-'*10} {'-'*10} {'-'*10} {'-'*8}")
         for fam in ALL_FAMILIES:
             counts = archetype_counts[fam]
             total = sum(counts.values())
-            print(f"  {fam:<12} {counts['never_switched']:>10} "
-                  f"{counts['permanently_switched']:>10} "
-                  f"{counts['mixed']:>10} "
-                  f"{counts['no_betrayal']:>10} "
-                  f"{counts['betrayal_last_round']:>10} {total:>8}")
+            print(
+                f"  {fam:<12} {counts['never_switched']:>10} "
+                f"{counts['permanently_switched']:>10} "
+                f"{counts['mixed']:>10} "
+                f"{counts['no_betrayal']:>10} "
+                f"{counts['betrayal_last_round']:>10} {total:>8}"
+            )
         print()
 
 
@@ -204,8 +224,10 @@ def analyze_payoff_breakdown(byz_data, soft_data):
         ("Soft k=1", honest_rows(soft_data)),
     ]
 
-    print(f"  {'Condition':<12} {'Family':<12} {'Avg Pay/Rnd':>12} "
-          f"{'Group':>8} {'N_obs':>8}")
+    print(
+        f"  {'Condition':<12} {'Family':<12} {'Avg Pay/Rnd':>12} "
+        f"{'Group':>8} {'N_obs':>8}"
+    )
     print(f"  {'-'*12} {'-'*12} {'-'*12} {'-'*8} {'-'*8}")
 
     for cond_label, rows in conditions:
@@ -213,14 +235,16 @@ def analyze_payoff_breakdown(byz_data, soft_data):
             fam_rows = [r for r in rows if family_of(r) == fam]
             avg = avg_payoff_per_round(fam_rows)
             group = "FD" if fam in FD_FAMILIES else "PC"
-            print(f"  {cond_label:<12} {fam:<12} {avg:>12.2f} "
-                  f"{group:>8} {len(fam_rows):>8}")
+            print(
+                f"  {cond_label:<12} {fam:<12} {avg:>12.2f} "
+                f"{group:>8} {len(fam_rows):>8}"
+            )
         # FD vs PC aggregate
         fd_rows = [r for r in rows if family_of(r) in FD_FAMILIES]
         pc_rows = [r for r in rows if family_of(r) in PC_FAMILIES]
         fd_avg = avg_payoff_per_round(fd_rows)
         pc_avg = avg_payoff_per_round(pc_rows)
-        ratio = fd_avg / pc_avg if pc_avg > 0 else float('inf')
+        ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
         print(f"  {'':<12} {'FD total':<12} {fd_avg:>12.2f}")
         print(f"  {'':<12} {'PC total':<12} {pc_avg:>12.2f}")
         print(f"  {'':<12} {'FD/PC ratio':<12} {ratio:>12.1f}x")
@@ -243,22 +267,25 @@ def analyze_soft_by_defections(soft_data):
         with open(rfile) as f:
             meta = json.load(f).get("metadata", {})
         adv_actions = meta.get("adversary_actions", [])
-        n_defections = sum(1 for a in adv_actions
-                           if a.get("choice") == "Hunt Hare")
+        n_defections = sum(1 for a in adv_actions if a.get("choice") == "Hunt Hare")
         trial_defection_count[str(t)] = n_defections
 
     h_rows = honest_rows(soft_data)
 
-    low = [r for r in h_rows
-           if trial_defection_count.get(r["trial_id"], 0) <= 2]
-    high = [r for r in h_rows
-            if trial_defection_count.get(r["trial_id"], 0) >= 3]
+    low = [r for r in h_rows if trial_defection_count.get(r["trial_id"], 0) <= 2]
+    high = [r for r in h_rows if trial_defection_count.get(r["trial_id"], 0) >= 3]
 
-    print(f"  Trial defection counts: {dict(sorted(trial_defection_count.items(), key=lambda x: int(x[0])))}")
-    print(f"  Low-betrayal (<=2 defections): {len(set(r['trial_id'] for r in low))} trials, "
-          f"{len(low)} honest obs")
-    print(f"  High-betrayal (>=3 defections): {len(set(r['trial_id'] for r in high))} trials, "
-          f"{len(high)} honest obs")
+    print(
+        f"  Trial defection counts: {dict(sorted(trial_defection_count.items(), key=lambda x: int(x[0])))}"
+    )
+    print(
+        f"  Low-betrayal (<=2 defections): {len(set(r['trial_id'] for r in low))} trials, "
+        f"{len(low)} honest obs"
+    )
+    print(
+        f"  High-betrayal (>=3 defections): {len(set(r['trial_id'] for r in high))} trials, "
+        f"{len(high)} honest obs"
+    )
     print()
 
     print(f"  {'Split':<18} {'Group':>8} {'Avg Pay/Rnd':>12} {'Coop %':>10}")
@@ -271,7 +298,7 @@ def analyze_soft_by_defections(soft_data):
         pc_avg = avg_payoff_per_round(pc)
         fd_coop = coop_rate(fd) * 100
         pc_coop = coop_rate(pc) * 100
-        ratio = fd_avg / pc_avg if pc_avg > 0 else float('inf')
+        ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
         print(f"  {split_label:<18} {'FD':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
         print(f"  {split_label:<18} {'PC':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
         print(f"  {split_label:<18} {'ratio':>8} {ratio:>12.1f}x")
@@ -281,7 +308,9 @@ def analyze_soft_by_defections(soft_data):
 # =====================================================================
 # (d) Round-by-round honest cooperation rates
 # =====================================================================
-def analyze_round_by_round(byz_data, soft_data, topo_data, topo_silent_data):
+def analyze_round_by_round(
+    byz_data, soft_data, topo_data, topo_silent_data, byz_star_data=None
+):
     print_separator("(d) Round-by-Round Honest Cooperation Rates (%)")
 
     byz_by_cond = defaultdict(list)
@@ -296,18 +325,29 @@ def analyze_round_by_round(byz_data, soft_data, topo_data, topo_silent_data):
     for r in topo_silent_data:
         topo_s_by_cond[r["condition"]].append(r)
 
+    byz_star_by_cond = defaultdict(list)
+    if byz_star_data:
+        for r in byz_star_data:
+            byz_star_by_cond[r["condition"]].append(r)
+
     all_conditions = [
-        ("Baseline (k=0)",     honest_rows(byz_by_cond["adv_0"])),
-        ("Hard k=1",           honest_rows(byz_by_cond["adv_1"])),
-        ("Hard k=2",           honest_rows(byz_by_cond["adv_2"])),
-        ("Soft k=1",           honest_rows(soft_data)),
-        ("Expl. broadcast",    honest_rows(topo_by_cond["broadcast"])),
-        ("Expl. ring",         honest_rows(topo_by_cond["ring"])),
-        ("Expl. star",         honest_rows(topo_by_cond["star"])),
-        ("Silent broadcast",   honest_rows(topo_s_by_cond["broadcast"])),
-        ("Silent ring",        honest_rows(topo_s_by_cond["ring"])),
-        ("Silent star",        honest_rows(topo_s_by_cond["star"])),
+        ("Baseline (k=0)", honest_rows(byz_by_cond["adv_0"])),
+        ("Hard k=1", honest_rows(byz_by_cond["adv_1"])),
+        ("Hard k=2", honest_rows(byz_by_cond["adv_2"])),
+        ("Soft k=1", honest_rows(soft_data)),
+        ("Expl. broadcast", honest_rows(topo_by_cond["broadcast"])),
+        ("Expl. ring", honest_rows(topo_by_cond["ring"])),
+        ("Expl. star", honest_rows(topo_by_cond["star"])),
+        ("Silent broadcast", honest_rows(topo_s_by_cond["broadcast"])),
+        ("Silent ring", honest_rows(topo_s_by_cond["ring"])),
+        ("Silent star", honest_rows(topo_s_by_cond["star"])),
     ]
+
+    if byz_star_data:
+        all_conditions += [
+            ("Star+Byz (hub=adv)", honest_rows(byz_star_by_cond["hub_is_adversary"])),
+            ("Star+Byz (hub=hon)", honest_rows(byz_star_by_cond["hub_is_honest"])),
+        ]
 
     rounds_range = range(1, 6)
     header = f"  {'Condition':<20}" + "".join(f"{'R'+str(r):>8}" for r in rounds_range)
@@ -327,7 +367,9 @@ def analyze_round_by_round(byz_data, soft_data, topo_data, topo_silent_data):
 # =====================================================================
 # (e) Master summary table
 # =====================================================================
-def print_summary_table(byz_data, soft_data, topo_data, topo_silent_data):
+def print_summary_table(
+    byz_data, soft_data, topo_data, topo_silent_data, byz_star_data=None
+):
     print_separator("(e) Master Summary Table")
     print("  NOTE: All rates computed from raw CSV action columns.")
     print("  We never use results.json cooperation_rate (halved by")
@@ -338,20 +380,28 @@ def print_summary_table(byz_data, soft_data, topo_data, topo_silent_data):
         byz_by_cond[r["condition"]].append(r)
 
     table_conditions = [
-        ("Baseline (k=0)",         "adv_0",     byz_data),
-        ("Hard Byz. (k=1)",        "adv_1",     byz_data),
-        ("Hard Byz. (k=2)",        "adv_2",     byz_data),
-        ("Soft Byz. (k=1, p=.5)",  "soft_p0.5", soft_data),
-        ("Explicit broadcast",     "broadcast",  topo_data),
-        ("Explicit ring",          "ring",       topo_data),
-        ("Explicit star",          "star",       topo_data),
-        ("Silent broadcast",       "broadcast",  topo_silent_data),
-        ("Silent ring",            "ring",       topo_silent_data),
-        ("Silent star",            "star",       topo_silent_data),
+        ("Baseline (k=0)", "adv_0", byz_data),
+        ("Hard Byz. (k=1)", "adv_1", byz_data),
+        ("Hard Byz. (k=2)", "adv_2", byz_data),
+        ("Soft Byz. (k=1, p=.5)", "soft_p0.5", soft_data),
+        ("Explicit broadcast", "broadcast", topo_data),
+        ("Explicit ring", "ring", topo_data),
+        ("Explicit star", "star", topo_data),
+        ("Silent broadcast", "broadcast", topo_silent_data),
+        ("Silent ring", "ring", topo_silent_data),
+        ("Silent star", "star", topo_silent_data),
     ]
 
-    print(f"  {'Condition':<25} {'Trials':>7} {'Group%':>8} "
-          f"{'Honest%':>9} {'AvgPay':>8}")
+    if byz_star_data:
+        table_conditions += [
+            ("Star+Byz (hub=adv)", "hub_is_adversary", byz_star_data),
+            ("Star+Byz (hub=hon)", "hub_is_honest", byz_star_data),
+        ]
+
+    print(
+        f"  {'Condition':<25} {'Trials':>7} {'Group%':>8} "
+        f"{'Honest%':>9} {'AvgPay':>8}"
+    )
     print(f"  {'-'*25} {'-'*7} {'-'*8} {'-'*9} {'-'*8}")
 
     for label, cond_key, all_data in table_conditions:
@@ -361,8 +411,9 @@ def print_summary_table(byz_data, soft_data, topo_data, topo_silent_data):
         gcr = group_coop_rate(cond_rows) * 100
         hcr = coop_rate(h_rows) * 100
         avg_pay = avg_payoff_per_round(h_rows)
-        print(f"  {label:<25} {n_trials:>7} {gcr:>7.1f}% "
-              f"{hcr:>8.1f}% {avg_pay:>8.2f}")
+        print(
+            f"  {label:<25} {n_trials:>7} {gcr:>7.1f}% " f"{hcr:>8.1f}% {avg_pay:>8.2f}"
+        )
     print()
 
 
@@ -378,11 +429,13 @@ def analyze_byzantine_star(byz_star_data):
 
     conditions = [
         ("Hub is adversary", "hub_is_adversary"),
-        ("Hub is honest",    "hub_is_honest"),
+        ("Hub is honest", "hub_is_honest"),
     ]
 
-    print(f"  {'Condition':<22} {'Trials':>7} {'Group%':>8} "
-          f"{'Honest%':>9} {'AvgPay':>8}")
+    print(
+        f"  {'Condition':<22} {'Trials':>7} {'Group%':>8} "
+        f"{'Honest%':>9} {'AvgPay':>8}"
+    )
     print(f"  {'-'*22} {'-'*7} {'-'*8} {'-'*9} {'-'*8}")
 
     for label, cond_key in conditions:
@@ -392,14 +445,14 @@ def analyze_byzantine_star(byz_star_data):
         gcr = group_coop_rate(cond_rows) * 100
         hcr = coop_rate(h_rows) * 100
         avg_pay = avg_payoff_per_round(h_rows)
-        print(f"  {label:<22} {n_trials:>7} {gcr:>7.1f}% "
-              f"{hcr:>8.1f}% {avg_pay:>8.2f}")
+        print(
+            f"  {label:<22} {n_trials:>7} {gcr:>7.1f}% " f"{hcr:>8.1f}% {avg_pay:>8.2f}"
+        )
     print()
 
     # FD vs PC breakdown per condition
     print(f"  --- FD vs PC payoff breakdown ---\n")
-    print(f"  {'Condition':<22} {'Group':>8} {'Avg Pay/Rnd':>12} "
-          f"{'Coop %':>10}")
+    print(f"  {'Condition':<22} {'Group':>8} {'Avg Pay/Rnd':>12} " f"{'Coop %':>10}")
     print(f"  {'-'*22} {'-'*8} {'-'*12} {'-'*10}")
 
     for label, cond_key in conditions:
@@ -410,7 +463,7 @@ def analyze_byzantine_star(byz_star_data):
         pc_avg = avg_payoff_per_round(pc)
         fd_coop = coop_rate(fd) * 100
         pc_coop = coop_rate(pc) * 100
-        ratio = fd_avg / pc_avg if pc_avg > 0 else float('inf')
+        ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
         print(f"  {label:<22} {'FD':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
         print(f"  {label:<22} {'PC':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
         print(f"  {label:<22} {'ratio':>8} {ratio:>12.1f}x")
@@ -459,8 +512,10 @@ def main():
     analyze_archetypes(byz_data)
     analyze_payoff_breakdown(byz_data, soft_data)
     analyze_soft_by_defections(soft_data)
-    analyze_round_by_round(byz_data, soft_data, topo_data, topo_silent_data)
-    print_summary_table(byz_data, soft_data, topo_data, topo_silent_data)
+    analyze_round_by_round(
+        byz_data, soft_data, topo_data, topo_silent_data, byz_star_data
+    )
+    print_summary_table(byz_data, soft_data, topo_data, topo_silent_data, byz_star_data)
 
     if byz_star_data:
         analyze_byzantine_star(byz_star_data)

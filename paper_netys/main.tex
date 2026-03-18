@@ -12,6 +12,7 @@
 \begin{document}
 
 \title{Byzantine Cheap Talk: Adversarial Resilience and\\Topology Effects in LLM Coordination Games}
+\titlerunning{Byzantine Cheap Talk in LLM Coordination Games}
 
 \author{Author~1\inst{1} \and Author~2\inst{1} \and Author~3\inst{1}}
 \authorrunning{Author 1 et al.}
@@ -36,7 +37,7 @@ Together, these findings have direct implications for the design of robust netwo
 
 Large language models are increasingly deployed as autonomous agents in multi-agent systems where coordination is essential~\cite{wooldridge2009introduction,park2023generative}.
 In classical game theory, \emph{cheap talk}---costless, non-binding pre-play communication---can resolve coordination dilemmas by establishing focal points~\cite{crawford1982strategic,farrell1987cheap}.
-Recent work confirmed this for LLM agents: adding a single-word broadcast to a 4-player Stag Hunt raised cooperation from 0\% to 96.7\%~\cite{madmoun2025communication}.
+Recent work confirmed this for LLM agents: adding a single-word broadcast to a 4-player Stag Hunt raised cooperation from 0\% to 96.7\%~\cite{madmoun2026communication}.
 However, this assumes honest signaling and unrestricted communication---conditions rarely met in practice.
 
 We investigate two vulnerability classes.
@@ -62,7 +63,7 @@ We adapt this framework to multi-agent AI: a Byzantine agent signals cooperation
 \paragraph{LLM multi-agent coordination.}
 Game-theoretic evaluation of LLM agents is a growing area~\cite{sun2025survey}, with benchmarks revealing systematic behavioral patterns influenced by game framing~\cite{montrealethics_framing,huang2025gama_bench,guo2024investigation}.
 Particularly relevant is the finding that contextual framing shifts LLM behavior between cooperative and competitive strategies~\cite{montrealethics_framing}---a theme recurring in our topology experiments.
-We build directly on~\cite{madmoun2025communication}, who showed cheap talk raises Stag Hunt cooperation from 0\% to 96.7\% (corrected from initially reported 48.3\%).
+We build directly on~\cite{madmoun2026communication}, who showed cheap talk raises Stag Hunt cooperation from 0\% to 96.7\% (corrected from initially reported 48.3\%).
 
 \paragraph{Communication topology.}
 Network structure fundamentally affects coordination in multi-agent systems~\cite{jackson2008social}.
@@ -73,7 +74,7 @@ We test whether LLM agents are robust to topology restrictions, and whether \emp
 %===================================================================
 
 \paragraph{Game.}
-We use a 4-player Stag Hunt with cheap talk~\cite{madmoun2025communication}.
+We use a 4-player Stag Hunt with cheap talk~\cite{madmoun2026communication}.
 Each of 5 rounds has two stages: (1)~agents simultaneously broadcast one word (non-binding cheap talk), then (2)~each chooses \tsc{Hunt~Stag} or \tsc{Hunt~Hare}.
 The payoff for agent~$i$ is:
 \begin{equation}\label{eq:payoff}
@@ -86,13 +87,11 @@ u_i = \begin{cases}
 Agents observe the full history of prior rounds (all messages, actions, and payoffs).
 
 \paragraph{Prompt structure.}
-Each agent receives a system prompt specifying the game rules, its player identity, and the payoff structure.
-At the communication stage, agents are instructed: ``\emph{Before you choose your action, you must broadcast ONE single word to the group. This word can be anything. It is non-binding cheap talk.}''
-At the action stage, agents see all broadcast words and are asked to reason step-by-step before choosing, outputting structured JSON with a \texttt{reasoning} field and an \texttt{action} field.
-\todo{Add GPT-4o prompt variant when available.}
+Each agent receives a system prompt with game rules, player identity, and payoffs.
+At the communication stage, agents broadcast ``ONE single word\ldots non-binding cheap talk''; at the action stage, they see all visible words and produce chain-of-thought reasoning with a final action in structured JSON.
 
 \paragraph{Models.}
-Four heterogeneous LLMs via DeepInfra API (temperature~0.7):
+Four heterogeneous LLMs via DeepInfra API (temperature~0.0):
 Mixtral-8x22B-Instruct~\cite{jiang2024mixtral},
 Qwen2.5-72B-Instruct~\cite{qwen2024qwen25},
 Llama-3.3-70B-Instruct~\cite{grattafiori2024llama},
@@ -127,55 +126,49 @@ A hard Byzantine agent broadcasts ``stag'' but deterministically chooses \tsc{Ha
 \toprule
 Condition & Group\% & Honest\% & Avg.\ payoff \\
 \midrule
-Baseline ($k{=}0$)              & \todo{92.0} & \todo{95.0} & \todo{9.35} \\
-Hard Byzantine ($k{=}1$)        & \todo{0.0}  & \todo{60.0} & \todo{1.20} \\
-Hard Byzantine ($k{=}2$)        & \todo{0.0}  & \todo{37.0} & \todo{1.89} \\
-Star + Byz.\ (hub{=}adversary)  & \todo{0.0}  & \todo{13.3} & \todo{2.60} \\
-Star + Byz.\ (hub{=}honest)     & \todo{0.0}  & \todo{27.3} & \todo{2.18} \\
+Baseline ($k{=}0$)              & 92.0 & 95.0 & 9.35 \\
+Hard Byzantine ($k{=}1$)        & 0.0  & 60.0 & 1.20 \\
+Hard Byzantine ($k{=}2$)        & 0.0  & 37.0 & 1.89 \\
+Star + Byz.\ (hub{=}adversary)  & 0.0  & 13.3 & 2.60 \\
+Star + Byz.\ (hub{=}honest)     & 0.0  & 27.3 & 2.18 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 While group cooperation drops to 0\% with a single adversary (Table~\ref{tab:byzantine}), 60\% of honest agents continue choosing \tsc{Stag} under $k{=}1$.
-Chain-of-thought analysis confirms agents detect the message--action mismatch within one round, but cannot recover: the all-or-nothing payoff structure means even one defector renders cooperation futile.
-Under $k{=}1$, honest cooperation starts at 100\% in round~1 (agents trust the initial cheap-talk signals), drops sharply to 53\% in round~2 after observing the first betrayal, then stabilizes near 50\% for the remaining rounds.
-Under $k{=}2$, initial cooperation (95\%) collapses to 20\% by round~2 and remains there---a faster and more complete erosion, as agents face two simultaneous sources of deception.
+Agents' reasoning traces suggest they detect the message--action mismatch within one round (see Appendix~\ref{app:trace} for an example), but cannot recover: the all-or-nothing payoff structure means even one defector renders cooperation futile.
+Honest cooperation drops from 100\% to 53\% by round~2 under $k{=}1$, and from 95\% to 20\% under $k{=}2$.
 
 \paragraph{Behavioral archetypes.}
 Two model-family-stable patterns emerge under $k{=}1$.
 \emph{Fast Defectors} (FD: Mixtral, DeepSeek) permanently switch to \tsc{Hare} after one betrayal---all 14 instances switched after round~1.
 \emph{Persistent Cooperators} (PC: Qwen, Llama) continue choosing \tsc{Stag} despite exploitation---12/16 instances never switched.
-\todo{RESULTS: Insert switching behavior breakdown by model and $k$.}
-
-The payoff gap is stark: FD agents earn \todo{2.40}/round vs.\ PC agents' \todo{0.15}/round (16$\times$).
-Every FD instance earns exactly 12 points (0 from the betrayed first round, then $3{\times}4$ from hare-hunting).
+The payoff gap is stark: FD agents earn 2.40/round vs.\ PC agents' 0.15/round (16$\times$).
 Fast defection is individually rational but collectively destructive.
+We observe a robust correlation between model family and archetype, but cannot identify a causal mechanism: RLHF training data, model scale, and instruction-following style are all confounded with family identity.
+\todo{AYA: Report GPT-4o/Claude Sonnet archetype replication (Sonnet=FD, Qwen=PC, GPT-4o=bimodal).}
 
 %-------------------------------------------------------------------
 \subsection{Soft Byzantine: Probabilistic Deception}\label{sec:byz-soft}
 %-------------------------------------------------------------------
 
 A soft adversary ($p{=}0.5$) creates intermittent rather than systematic betrayal.
-Group cooperation partially survives at \todo{21.3\%} (vs.\ 0\% hard), because the adversary sometimes cooperates.
-Honest cooperation reaches \todo{71.1\%}, decaying gradually from \todo{97.8\%} in round~1 to \todo{51.1\%} in round~5 but never collapsing.
-The adversary earns \todo{3.65}/round vs.\ honest agents' \todo{3.00}/round---a 22\% premium, extracting the cooperation surplus.
+Group cooperation partially survives at 21.3\% (vs.\ 0\% hard), because the adversary sometimes cooperates.
+Honest cooperation reaches 71.1\%, decaying gradually from 97.8\% in round~1 to 51.1\% in round~5 but never collapsing.
+The adversary earns 3.65/round vs.\ honest agents' 3.00/round---a 22\% premium, extracting the cooperation surplus.
 
-Critically, the FD/PC payoff gap compresses from 16$\times$ (hard) to 1.9$\times$ (soft).
-When betrayal is intermittent, persistent cooperators occasionally achieve group success (earning 10 rather than 0), while fast defectors forfeit these windfalls by committing to hare-hunting.
-The adversary's advantage is structural: by always signaling ``stag,'' it free-rides on rounds when it cooperates (sharing the 10-point stag payoff) while capturing the 3-point hare floor when it defects---honest agents cannot distinguish genuine cooperation from a lucky coin flip.
+The FD/PC payoff gap compresses from 16$\times$ (hard) to 1.9$\times$ (soft): intermittent betrayal lets persistent cooperators occasionally earn the stag payoff, while the adversary free-rides by always signaling ``stag'' regardless of its action.
 
 %-------------------------------------------------------------------
 \subsection{Topology $\times$ Adversary Interaction}\label{sec:byz-star}
 %-------------------------------------------------------------------
 
-To test whether Byzantine deception and topology restriction interact, we place one hard adversary in a star topology under two conditions: the adversary is assigned as the hub (visible to all spokes) or as a spoke (visible only to the hub).
-Both conditions yield 0\% group cooperation, but honest cooperation diverges sharply: \todo{13.3\%} when the adversary is the hub vs.\ \todo{27.3\%} when honest (Table~\ref{tab:byzantine}).
-Hub position amplifies adversarial influence because the hub's ``stag'' signal reaches all spokes, and spokes---seeing only the hub---cannot cross-validate against other players' messages.
-Cooperation collapses almost instantly when the adversary is hub (46.7\% in round~1, 0\% by round~2), while an honest hub sustains higher initial trust (73.3\% in round~1, decaying to 16.7\% by round~5).
-
-Compared to broadcast Byzantine ($k{=}1$), where honest cooperation is 60\%, the star topology compounds adversarial damage to 13--27\%---the two vulnerability classes interact multiplicatively rather than independently.
-The FD/PC payoff gap compresses further to 1.4--1.7$\times$, as star topology suppresses cooperation so heavily that archetype differences are muted.
-\todo{Validate with GPT-4o and Claude Sonnet.}
+To test whether the two vulnerability classes interact, we place one hard adversary in a star topology as either the hub or a spoke.
+Both conditions yield 0\% group cooperation, but honest cooperation diverges: 13.3\% (hub=adversary) vs.\ 27.3\% (hub=honest), as shown in Table~\ref{tab:byzantine}.
+A central adversary's ``stag'' signal reaches all spokes who cannot cross-validate, collapsing cooperation to 0\% by round~2; an honest hub sustains 73.3\% initial trust decaying to 16.7\%.
+Compared to broadcast Byzantine (60\% honest cooperation), star topology compounds adversarial damage to 13--27\%---the two classes interact multiplicatively.
+The FD/PC gap compresses to 1.4--1.7$\times$, as topology suppresses cooperation regardless of archetype.
+\todo{AYA: GPT-4o/Claude Sonnet star+Byzantine rates here.}
 
 %===================================================================
 \section{Communication Topology}\label{sec:topology}
@@ -189,7 +182,7 @@ We test three topologies---broadcast (all-to-all), ring (two neighbors), star (c
 
 \begin{table}[t]
 \centering
-\caption{Topology results (10 trials per condition, 5 rounds each). Silent conditions use leak-fixed v2 prompts.}\label{tab:topology}
+\caption{Topology results (10 trials per condition, 5 rounds each). Silent conditions use prompts without explicit player count or topology cues.}\label{tab:topology}
 \smallskip
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
@@ -197,9 +190,9 @@ We test three topologies---broadcast (all-to-all), ring (two neighbors), star (c
 \cmidrule(lr){2-4} \cmidrule(lr){5-7}
 & Broadcast & Ring & Star & Broadcast & Ring & Star \\
 \midrule
-Group coop.   & \todo{80\%}  & \todo{0\%}  & \todo{0\%}  & \todo{100\%} & \todo{100\%} & \todo{100\%} \\
-Agent coop.   & \todo{87.5\%} & \todo{33.5\%} & \todo{27\%} & \todo{100\%} & \todo{100\%} & \todo{100\%} \\
-Avg.\ payoff  & \todo{8.38}  & \todo{2.00} & \todo{2.19} & \todo{10.0} & \todo{10.0} & \todo{10.0} \\
+Group coop.   & 80\%  & 0\%  & 0\%  & 100\% & 100\% & 100\% \\
+Agent coop.   & 87.5\% & 33.5\% & 27\% & 100\% & 100\% & 100\% \\
+Avg.\ payoff  & 8.38  & 2.00 & 2.19 & 10.0 & 10.0 & 10.0 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -207,45 +200,29 @@ Avg.\ payoff  & \todo{8.38}  & \todo{2.00} & \todo{2.19} & \todo{10.0} & \todo{1
 Explicit ring and star collapse cooperation to 0\% group rate (Table~\ref{tab:topology}), matching hard Byzantine severity despite no adversary being present.
 The FD/PC archetype split reappears in explicit topologies: in the ring, Llama cooperates at 72\% and Qwen at 56\%, while Mixtral (2\%) and DeepSeek (4\%) defect almost universally---the same model-family alignment as under Byzantine conditions.
 
-The silent conditions produce a strikingly different outcome: all three topologies achieve perfect cooperation (100\% group, 100\% individual) with zero defections across 600 total agent-round observations.
-The FD/PC split vanishes entirely---all four model families cooperate at 100\% across all three topologies.
-Note that in the silent ring, each agent sees only two of three co-players' messages, yet cooperates as reliably as under broadcast.
-This rules out information loss as the driver of the explicit topology collapse.
+The silent conditions produce a strikingly different outcome: all three topologies achieve perfect cooperation (100\%/100\%) with zero defections across 600 agent-round observations, and the FD/PC split vanishes entirely.
+Since silent-ring agents see only two of three co-players' messages yet cooperate perfectly, information loss alone cannot explain the explicit collapse.
 
-%-------------------------------------------------------------------
-\subsection{Meta-Reasoning as the Mechanism}\label{sec:topo-mechanism}
-%-------------------------------------------------------------------
-
-The explicit--silent contrast establishes that cooperation collapse is not caused by information loss---agents receiving fewer messages cooperate perfectly when unaware of the restriction.
-The mechanism is \emph{meta-reasoning}: told ``you can only see messages from your neighbors,'' agents infer unseen players with unknown intentions, triggering strategic uncertainty.
-Without such framing, agents take messages at face value.
-This parallels the framing effects documented by Lor\`e and Heydari~\cite{montrealethics_framing}: the same game-theoretic situation produces opposite outcomes depending on how information is presented.
-It also reveals that the FD/PC archetypes are not intrinsic model properties but are \emph{elicited by strategic framing}---they emerge only when agents are prompted to reason about incomplete information, and disappear entirely when that prompt cue is absent.
+The mechanism is \emph{meta-reasoning}: told ``you can only see messages from your neighbors,'' agents infer unseen players with unknown intentions, triggering strategic uncertainty; without such framing, they take messages at face value.
+This parallels framing effects in LLM game play~\cite{montrealethics_framing} and reveals that the FD/PC archetypes are \emph{prompt-elicited}, not intrinsic---they vanish when strategic framing is removed.
 
 %===================================================================
 \section{Discussion and Conclusion}\label{sec:discussion}
 %===================================================================
 
-Cheap-talk coordination among LLM agents, while effective under benign conditions~\cite{madmoun2025communication}, is fragile along two axes.
-\emph{Byzantine vulnerability}: a single deterministic adversary eliminates cooperation entirely---more severe than classical BFT, where $n{\geq}3f{+}1$ suffices~\cite{lamport1982byzantine}, because the Stag Hunt's unanimity requirement makes any defection catastrophic.
-Probabilistic adversaries are more insidious: they sustain enough cooperation to extract a persistent \todo{22\%} surplus.
-\emph{Topology vulnerability}: cooperation collapses only when agents \emph{know} communication is restricted---a cognitive failure (meta-reasoning about hidden information), not an informational one.
-This implies that multi-agent systems exposing network topology may inadvertently undermine cooperation.
-
-The FD/PC behavioral split is stable across all adversarial conditions yet vanishes entirely under silent topology, confirming these archetypes are prompt-elicited rather than reflecting intrinsic model dispositions.
-No current model achieves the ideal response: conditional cooperation that detects deception and adapts without either abandoning cooperation prematurely (fast defectors) or persisting irrationally (persistent cooperators).
-Designing agents---or prompts---that achieve this middle ground remains an open challenge.
-
-\paragraph{Design implications.}
-These findings suggest that robust multi-agent LLM systems require mechanisms beyond cheap talk: commitment devices, reputation systems, or verified communication channels.
-Equally important, system designers should attend to \emph{how} agents are informed about their communication environment---exposing topology details can be as destructive as an active adversary.
-
-\paragraph{Limitations and future work.}
-All experiments use a single game (4-player Stag Hunt) with 10--15 trials.
-The unanimity payoff structure may amplify adversarial impact; graded-payoff games may differ.
+Cheap-talk coordination among LLM agents, while effective under benign conditions~\cite{madmoun2026communication}, is fragile along two axes.
+A single adversary eliminates cooperation entirely---more severe than classical Byzantine fault tolerance results~\cite{lamport1982byzantine}, because the Stag Hunt's unanimity requirement makes any defection catastrophic---while probabilistic adversaries extract a 22\% surplus.
+Topology restrictions collapse cooperation only when agents \emph{know} about them, and combining both compounds the damage multiplicatively.
+The FD/PC split is stable across adversarial conditions but vanishes under silent topology, confirming prompt-elicited archetypes.
+Both vulnerabilities share a common root: cooperation collapses from agents' rational response to uncertainty about others' intentions, whether introduced by deception or topology framing.
+Robust multi-agent LLM systems require mechanisms beyond cheap talk, and designers must attend to \emph{how} agents are told about their environment.
+Our experiments are limited to 4-player Stag Hunt (10--15 trials); unanimity payoffs may amplify adversarial impact.
 \todo{Extend to GPT-4o, Claude Sonnet, and IPGG+P.}
 
 \bibliographystyle{splncs04}
 \bibliography{refs}
+
+\appendix
+\input{appendix}
 
 \end{document}
