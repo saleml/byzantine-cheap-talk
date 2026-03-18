@@ -5,7 +5,7 @@ Code and data for the NETYS 2026 submission. We study how adversarial agents (By
 ## Setup
 
 ```bash
-git clone <repo-url> && cd gameth_llm_tmp
+git clone <repo-url> && cd gameth_llm_tmp_netys
 pip install -r requirements.txt
 ```
 

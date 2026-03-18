@@ -1,0 +1,116 @@
+NETYS 2026 — Full Analysis Report
+Generated from raw CSV data in /Users/aya.elmir/gameth_llm_tmp_netys/results/
+Date: 2026-03-18T23:18:36.222129
+
+======================================================================
+  (a) Behavioral Archetype Classification
+======================================================================
+
+--- Hard Byzantine k=1 ---
+
+  Family         never_sw    perm_sw      mixed  no_betray   last_rnd    total
+  ------------ ---------- ---------- ---------- ---------- ---------- --------
+  Mixtral               0          8          0          0          0        8
+  Qwen                  4          0          4          0          0        8
+  GPT-4o                0          6          0          0          0        6
+  Claude Sonnet          0          7          0          1          0        8
+
+--- Hard Byzantine k=2 ---
+
+  Family         never_sw    perm_sw      mixed  no_betray   last_rnd    total
+  ------------ ---------- ---------- ---------- ---------- ---------- --------
+  Mixtral               0          3          0          0          0        3
+  Qwen                  1          0          5          0          0        6
+  GPT-4o                0          4          0          0          0        4
+  Claude Sonnet          0          7          0          0          0        7
+
+
+======================================================================
+  (b) Per-Model-Family Payoff Breakdown
+======================================================================
+
+  Condition    Family        Avg Pay/Rnd    Group    N_obs
+  ------------ ------------ ------------ -------- --------
+  Hard k=1     Mixtral              2.40       FD       40
+  Hard k=1     Qwen                 0.60       PC       40
+  Hard k=1     GPT-4o               2.40       FD       30
+  Hard k=1     Claude Sonnet         2.48       FD       40
+               FD total             2.43
+               PC total             0.60
+               FD/PC ratio           4.0x
+
+  Hard k=2     Mixtral              2.40       FD       15
+  Hard k=2     Qwen                 1.10       PC       30
+  Hard k=2     GPT-4o               2.40       FD       20
+  Hard k=2     Claude Sonnet         2.40       FD       35
+               FD total             2.40
+               PC total             1.10
+               FD/PC ratio           2.2x
+
+  Soft k=1     Mixtral              2.91       FD       55
+  Soft k=1     Qwen                 0.58       PC       60
+  Soft k=1     GPT-4o               2.63       FD       60
+  Soft k=1     Claude Sonnet         2.96       FD       50
+               FD total             2.82
+               PC total             0.58
+               FD/PC ratio           4.8x
+
+
+======================================================================
+  (c) Soft Byzantine: Split by Adversary Defection Count
+======================================================================
+
+  Trial defection counts: {'1': 2, '2': 3, '3': 3, '4': 3, '5': 2, '6': 3, '7': 1, '8': 3, '9': 2, '10': 2, '11': 4, '12': 2, '13': 3, '14': 2, '15': 2}
+  Low-betrayal (<=2 defections): 8 trials, 120 honest obs
+  High-betrayal (>=3 defections): 7 trials, 105 honest obs
+
+  Split                 Group  Avg Pay/Rnd     Coop %
+  ------------------ -------- ------------ ----------
+  Low (<=2)                FD         2.84      26.3%
+  Low (<=2)                PC         0.48      84.0%
+  Low (<=2)             ratio          5.9x
+
+  High (>=3)               FD         2.80      25.7%
+  High (>=3)               PC         0.66      97.1%
+  High (>=3)            ratio          4.3x
+
+
+======================================================================
+  (d) Round-by-Round Honest Cooperation Rates (%)
+======================================================================
+
+  Condition                 R1      R2      R3      R4      R5
+  ------------------------------------------------------------
+  Baseline (k=0)        100.0%  100.0%  100.0%  100.0%  100.0%
+  Hard k=1               96.7%   23.3%   20.0%   16.7%   20.0%
+  Hard k=2              100.0%   30.0%   15.0%   10.0%   10.0%
+  Soft k=1              100.0%   37.8%   35.6%   20.0%   24.4%
+  Expl. broadcast        97.5%   90.0%   92.5%   90.0%   90.0%
+  Expl. ring             50.0%   15.0%    5.0%    0.0%    0.0%
+  Expl. star             42.5%    2.5%    0.0%    2.5%    0.0%
+  Silent broadcast       97.5%   92.5%   92.5%   92.5%   92.5%
+  Silent ring            82.5%   47.5%   42.5%   35.0%   35.0%
+  Silent star            82.5%   47.5%   45.0%   42.5%   37.5%
+
+
+======================================================================
+  (e) Master Summary Table
+======================================================================
+
+  NOTE: All rates computed from raw CSV action columns.
+  We never use results.json cooperation_rate (halved by
+  len(history) bug in engine.py for two-stage games).
+
+  Condition                  Trials   Group%   Honest%   AvgPay
+  ------------------------- ------- -------- --------- --------
+  Baseline (k=0)                 10   100.0%    100.0%    10.00
+  Hard Byz. (k=1)                10     0.0%     35.3%     1.94
+  Hard Byz. (k=2)                10     0.0%     33.0%     2.01
+  Soft Byz. (k=1, p=.5)          15     5.3%     43.6%     2.23
+  Explicit broadcast             10    90.0%     92.0%     9.24
+  Explicit ring                  10     0.0%     14.0%     2.58
+  Explicit star                  10     0.0%      9.5%     2.71
+  Silent broadcast               10    90.0%     93.5%     9.20
+  Silent ring                    10    30.0%     48.5%     4.54
+  Silent star                    10    30.0%     51.0%     4.47
+

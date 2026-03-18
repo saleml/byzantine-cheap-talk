@@ -32,21 +32,33 @@ from io import StringIO
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 
-BYZANTINE_CSV = RESULTS / "byzantine" / "all_results.csv"
-SOFT_CSV = RESULTS / "byzantine_soft" / "all_results.csv"
-TOPO_CSV = RESULTS / "topology" / "all_results.csv"
-TOPO_SILENT_CSV = RESULTS / "topology_silent" / "all_results.csv"
-BYZ_STAR_CSV = RESULTS / "byzantine_star" / "all_results.csv"
+
+# change here also 
+BYZANTINE_CSV   = RESULTS / "byzantine_v2_lowercase" / "all_results.csv"
+SOFT_CSV        = RESULTS / "byzantine_soft_v2_lowercase" / "all_results.csv"
+TOPO_CSV        = RESULTS / "topology_v2_lowercase" / "all_results.csv"
+TOPO_SILENT_CSV = RESULTS / "topology_silent_v2_lowercase" / "all_results.csv"
+BYZ_STAR_CSV    = RESULTS / "byzantine_star_v2_lowercase" / "all_results.csv"
+# BYZ_STAR_CSV = None 
+
 
 # ---------- reuse helpers from generate_summary_figures ----------
 sys.path.insert(0, str(ROOT / "scripts"))
+# from generate_summary_figures import (
+#     load_csv, honest_rows, coop_rate, group_coop_rate, avg_payoff_per_round,
+#     FD_FAMILIES, PC_FAMILIES,
+# )
 from generate_summary_figures import (
     load_csv, honest_rows, coop_rate, group_coop_rate, avg_payoff_per_round,
-    FD_FAMILIES, PC_FAMILIES,
 )
 
+FD_FAMILIES = {"Mixtral", "Claude Sonnet", "GPT-4o"}
+PC_FAMILIES = {"Qwen"}
+
+
 # ---------- model family constants ----------
-ALL_FAMILIES = ["Mixtral", "Qwen", "Llama", "DeepSeek"]
+# ALL_FAMILIES = ["Mixtral", "Qwen", "Llama", "DeepSeek"]
+ALL_FAMILIES = ["Mixtral", "Qwen", "GPT-4o", "Claude Sonnet"]
 
 
 class TeeOutput:
@@ -234,7 +246,8 @@ def analyze_soft_by_defections(soft_data):
     print_separator("(c) Soft Byzantine: Split by Adversary Defection Count")
 
     # Load per-trial adversary defection counts from trial JSONs
-    soft_dir = RESULTS / "byzantine_soft"
+    # soft_dir = RESULTS / "byzantine_soft"
+    soft_dir = RESULTS / "byzantine_soft_v2"
     trial_defection_count = {}
     for t in range(1, 100):
         rfile = soft_dir / f"trial_{t:02d}" / "results.json"
@@ -456,7 +469,7 @@ def main():
         byz_star_data = load_csv(BYZ_STAR_CSV)
 
     # Run all analyses
-    analyze_archetypes(byz_data)
+    analyze_archetypes(byz_data) 
     analyze_payoff_breakdown(byz_data, soft_data)
     analyze_soft_by_defections(soft_data)
     analyze_round_by_round(byz_data, soft_data, topo_data, topo_silent_data)
@@ -465,9 +478,9 @@ def main():
     if byz_star_data:
         analyze_byzantine_star(byz_star_data)
 
-    # Save to file
+    # Save to file [ change here ]
     sys.stdout = tee.stdout
-    report_path = RESULTS / "analysis_report.txt"
+    report_path = RESULTS / "analysis_report_v2_lowercase.txt"
     report_path.write_text(tee.get_value())
     print(f"\nReport saved to {report_path}")
 

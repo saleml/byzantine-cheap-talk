@@ -4,9 +4,9 @@ Generate three publication-ready figures for the Byzantine / Soft Byzantine
 experiments.  LNCS-appropriate sizing, clean style, no gridlines.
 
 Outputs (saved to results/figures/):
-  1. byzantine_learning_curves.pdf   – Round-by-round honest cooperation rate
-  2. payoff_gap_bars.pdf             – FD vs PC avg payoff/round across conditions
-  3. results_summary_table.pdf       – Full results summary as a table figure
+  1. byzantine_learning_curves.pdf   -  Round-by-round honest cooperation rate
+  2. payoff_gap_bars.pdf             -  FD vs PC avg payoff/round across conditions
+  3. results_summary_table.pdf       -  Full results summary as a table figure
 """
 
 import csv

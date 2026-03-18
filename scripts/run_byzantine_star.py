@@ -57,7 +57,7 @@ if _env_file.exists():
             os.environ.setdefault(_k, _v)
 
 from src.engine import GameEngine
-from src.games import StagHuntWithCommunication
+from games import StagHuntWithCommunication
 
 # Reuse topology class and helpers from run_topology
 from run_topology import (

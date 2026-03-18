@@ -1,0 +1,982 @@
+{
+  "total_payoffs": {
+    "Agent_1": 29,
+    "Agent_2": 20,
+    "Agent_3": 26,
+    "Agent_4": 26
+  },
+  "average_payoff": 25.25,
+  "cooperation_rate": 0.2,
+  "cooperation_rounds": 2,
+  "total_rounds": 5,
+  "model_family_averages": {
+    "Mixtral": 29.0,
+    "Qwen": 20.0,
+    "GPT-4o": 26.0,
+    "Claude Sonnet": 26.0
+  },
+  "summary": "Cooperation rate: 20.00%, Avg payoff: 25.2",
+  "communication_analysis": {
+    "total_words_used": 20,
+    "unique_words": 4,
+    "word_frequency": {
+      "stag": 7,
+      "STAG": 10,
+      "Stag": 1,
+      "reasoning": 2
+    },
+    "group_signatures": {},
+    "potential_collusion": false
+  },
+  "duration": 172.24995708465576,
+  "rounds_data": [
+    {
+      "round": 1,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "Stag",
+        "Agent_4": "STAG"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'Stag', 'STAG']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: always signal cooperation.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "In a Stag Hunt game, coordination is key. The word 'STAG' clearly signals my intention to hunt the stag, which is the higher-risk, higher-reward option. It is direct and unambiguous, making it easier for other players to understand and coordinate with me.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In a Stag Hunt game, the optimal outcome is for all players to coordinate and hunt the stag, as this yields the highest payoff for everyone involved. The challenge is to ensure that all players trust each other to choose the stag. By broadcasting the word 'Stag', I signal my intention to hunt the stag and encourage others to do the same. This word is clear and directly related to the optimal strategy, increasing the likelihood of coordination among all players.",
+          "action": {
+            "type": "communicate",
+            "word": "Stag"
+          },
+          "model_family": "GPT-4o"
+        },
+        "Agent_4": {
+          "reasoning": "In a Stag Hunt, the best outcome for everyone (including me) is if all 4 players hunt the stag, yielding 10 points each. The risk is that if anyone defects to hare, stag hunters get 0 while the defector gets only 3. Since this is the first round with no history, I need to signal cooperative intent clearly. Broadcasting 'STAG' is the most direct signal - it communicates my intention to hunt the stag and encourages others to do the same. This is the standard coordination signal in this type of game. If others also say 'STAG' or interpret my signal as genuine, we can all coordinate on the high-payoff equilibrium. The word 'STAG' is unambiguous and directly references the cooperative action, making it the best choice to facilitate coordination.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Claude Sonnet"
+        }
+      }
+    },
+    {
+      "round": 1,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "Stag",
+        "Agent_4": "STAG"
+      },
+      "choices": {
+        "Agent_1": "Hunt Stag",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Stag"
+      },
+      "payoffs": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "all_cooperated": true,
+      "cooperation_rate": 1.0,
+      "communication_analysis": {
+        "unique_words": 3,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'Stag', 'STAG'], Result: Cooperated",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: cooperating this round (p=0.5).",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "All players, including myself, have used a variation of the word 'stag' in the communication phase. This strongly signals an intent to cooperate and hunt the stag. There is no indication of a trick or dissent. The best move, based on this information, is to trust the other players and choose to hunt the stag.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "All players have communicated the word 'stag' in various capitalizations, which suggests a collective intent to cooperate and hunt stag. Since this is the first round and there is no history of betrayal, it is reasonable to trust the signals and choose 'Hunt Stag' to potentially achieve the maximum payoff of 10 points. However, there is a risk that one or more players might choose 'Hunt Hare' for a guaranteed 3 points, but given the unanimous communication, the best strategy is to trust the signals and aim for the higher reward.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "GPT-4o",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "All four players, including myself (Agent_4), broadcast 'STAG' during the communication phase. This is a strong signal of intent to cooperate on hunting the stag. All players are signaling the same thing, which increases the credibility of cooperation. If everyone follows through, we all get 10 points, which is better than the 3 points from hunting hare. There's no history of defection to worry about. The unanimous signaling reduces the risk of being the only one hunting stag. I should cooperate and hunt stag.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Claude Sonnet",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "Stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 2,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "STAG"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'stag', 'STAG']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: always signal cooperation.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the success of the previous round where all players hunted the stag, it is rational to continue this strategy. The word 'STAG' clearly communicates my intention to hunt the stag again, reinforcing the group's coordination towards the higher reward.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In the previous round, all players communicated the intention to hunt stag and followed through, resulting in the maximum payoff for everyone. To maintain this successful coordination and maximize my score again, I should signal the same intent. Using the word 'stag' clearly indicates my intention to continue cooperating, which is likely to encourage others to do the same.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "GPT-4o"
+        },
+        "Agent_4": {
+          "reasoning": "In Round 1, all players said 'stag' and all hunted stag, resulting in the maximum payoff of 10 for everyone. This is the best possible outcome. The pattern is clear: when everyone signals 'stag' and follows through, we all get 10 points versus the safe but lower 3 points from hunting hare. Since Round 1 established a successful coordination norm, I should continue signaling 'stag' to reinforce this cooperative equilibrium. There's no reason to deviate - the stag hunt succeeded perfectly last round, and signaling stag again will help maintain trust and coordination.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Claude Sonnet"
+        }
+      }
+    },
+    {
+      "round": 2,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "STAG"
+      },
+      "choices": {
+        "Agent_1": "Hunt Stag",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Stag"
+      },
+      "payoffs": {
+        "Agent_1": 10,
+        "Agent_2": 10,
+        "Agent_3": 10,
+        "Agent_4": 10
+      },
+      "all_cooperated": true,
+      "cooperation_rate": 1.0,
+      "communication_analysis": {
+        "unique_words": 2,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'stag', 'STAG'], Result: Cooperated",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: cooperating this round (p=0.5).",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In the previous round, all players chose to 'Hunt Stag' and received 10 points each. In this round, all players have again communicated a strong intent to hunt stag, with two players using all caps. This suggests a high likelihood that they will follow through with their communication. Given the high payoff for all hunting stag and the consistent communication, it is rational to trust the other players and choose to hunt stag as well.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "In the previous round, all players communicated 'stag' or 'STAG' and followed through by choosing 'Hunt Stag', resulting in the maximum payoff for everyone. In this round, the communication is consistent with the previous round, with all players again signaling 'stag' or 'STAG'. Given the history of cooperation and the identical communication pattern, it is reasonable to expect that all players will choose 'Hunt Stag' again. Therefore, the best move to maximize my score is to trust the signals and choose 'Hunt Stag'.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "GPT-4o",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "In Round 1, all players communicated 'stag' and all followed through by hunting stag, resulting in 10 points each. This establishes a strong precedent of cooperation and trustworthiness. In Round 2, all players again communicated 'stag' (including myself). The consistent behavior from Round 1 gives me high confidence that the other players will again hunt stag. If I defect and hunt hare, I get only 3 points instead of 10. The risk of hunting stag is that someone defects, leaving me with 0, but given the established pattern and unanimous signaling, the probability of defection seems very low. The expected value of hunting stag (near 10 points given high cooperation probability) far exceeds the guaranteed 3 points from hunting hare. I should continue cooperating.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Claude Sonnet",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 3,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "STAG"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'stag', 'STAG']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: always signal cooperation.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history of successful stag hunts in the previous rounds, it is rational to continue signaling for the stag hunt. The word 'STAG' has been used consistently and effectively in the past, which suggests that it is a clear and strong signal for coordination. Using this word again is likely to reinforce the existing pattern and increase the chances of another successful stag hunt, which maximizes my personal score.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In the previous rounds, all players communicated the word 'stag' or variations of it and successfully coordinated to hunt the stag, resulting in maximum points for everyone. To maintain this successful strategy and signal my intent to continue cooperating, I should use the same word 'stag' to ensure consistency and encourage others to do the same.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "GPT-4o"
+        },
+        "Agent_4": {
+          "reasoning": "Looking at the history, all players have consistently said 'stag' and hunted stag for two rounds, achieving the maximum payoff of 10 each time. The pattern is clear and stable. Saying 'STAG' again reinforces the coordination signal and maintains trust. There's no reason to deviate - hunting stag gives 10 points when everyone cooperates, versus only 3 for hunting hare. The established pattern strongly suggests everyone will continue to hunt stag, so I should signal the same intent.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Claude Sonnet"
+        }
+      }
+    },
+    {
+      "round": 3,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "stag",
+        "Agent_4": "STAG"
+      },
+      "choices": {
+        "Agent_1": "Hunt Hare",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Stag",
+        "Agent_4": "Hunt Stag"
+      },
+      "payoffs": {
+        "Agent_1": 3,
+        "Agent_2": 0,
+        "Agent_3": 0,
+        "Agent_4": 0
+      },
+      "all_cooperated": false,
+      "cooperation_rate": 0.75,
+      "communication_analysis": {
+        "unique_words": 2,
+        "cooperation_signals": 4,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'stag', 'STAG'], Result: Failed",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: defecting this round (p=0.5).",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In the previous two rounds, all players, including myself, chose to 'Hunt Stag' and successfully communicated this intent through the word 'stag' or 'STAG'. This has resulted in a successful hunt and a payoff of 10 points for everyone. In this round, all players have again communicated 'stag' or 'STAG', which strongly signals an intent to cooperate and hunt the stag again. Given the consistent pattern of cooperation and the high payoff for a successful stag hunt, it is rational to continue this strategy and trust the other players to follow through with their communicated intent.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "In the previous rounds, all players communicated 'stag' or 'STAG' and followed through by choosing 'Hunt Stag', resulting in the maximum payoff for everyone. In this round, the communication pattern is consistent with the previous rounds, with all players again signaling 'stag' or 'STAG'. There is no indication of deception or a change in strategy from any player. Given the history of cooperation and the consistent communication, it is reasonable to expect that all players will continue to cooperate by choosing 'Hunt Stag'. Therefore, the best move to maximize my score is to choose 'Hunt Stag'.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "GPT-4o",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "All players have consistently signaled 'stag' in both previous rounds and followed through with 'Hunt Stag' actions, resulting in 10 points each time. The pattern is clear and consistent - everyone cooperates. This round, all four players again broadcast 'stag'/'STAG'. There's no indication of defection. The expected value of hunting stag (10 points if everyone cooperates, which they have done 100% of the time) far exceeds hunting hare (3 points guaranteed but destroys trust and future cooperation). My best move is to continue cooperating.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Claude Sonnet",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "stag"
+            ],
+            [
+              "Agent_4",
+              "STAG"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 4,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "STAG",
+        "Agent_4": "reasoning"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'STAG', 'reasoning']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: always signal cooperation.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history, it's clear that the group has successfully coordinated to hunt the stag in the past, but a deviation occurred in Round 3. To restore trust and coordination, I should use a word that reinforces the commitment to hunt the stag and signals my intention to cooperate. The word 'STAG' is direct and has been used effectively in previous rounds.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In the previous rounds, the word 'stag' or 'STAG' was used consistently, and it led to successful coordination in the first two rounds. However, in the third round, Agent_1 deviated by hunting a hare despite communicating 'stag'. To maximize my score, I need to signal my intent to hunt stag clearly and encourage others to do the same. Using the word 'STAG' aligns with the majority's previous communication and successful coordination, increasing the likelihood of everyone choosing to hunt stag again.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "GPT-4o"
+        },
+        "Agent_4": {
+          "reasoning": "{\n  \"reasoning\": \"Looking at the history: Rounds 1 and 2 were successful with all players hunting stag and getting 10 points each. In Round 3, everyone said 'stag' but Agent_1 defected and hunted hare",
+          "action": {
+            "type": "communicate",
+            "word": "reasoning"
+          },
+          "model_family": "Claude Sonnet"
+        }
+      }
+    },
+    {
+      "round": 4,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "STAG",
+        "Agent_4": "reasoning"
+      },
+      "choices": {
+        "Agent_1": "Hunt Hare",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Hare",
+        "Agent_4": "Hunt Hare"
+      },
+      "payoffs": {
+        "Agent_1": 3,
+        "Agent_2": 0,
+        "Agent_3": 3,
+        "Agent_4": 3
+      },
+      "all_cooperated": false,
+      "cooperation_rate": 0.25,
+      "communication_analysis": {
+        "unique_words": 3,
+        "cooperation_signals": 3,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'STAG', 'reasoning'], Result: Failed",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: defecting this round (p=0.5).",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "reasoning"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In the previous rounds, all players except Agent_1 have consistently communicated and acted to hunt the stag. In Round 3, despite the strong communication for stag, Agent_1 chose to hunt hare, which suggests a potential shift in strategy or a test of the others' commitment. However, the other players (Agent_2, Agent_3, and Agent_4) have shown a strong commitment to hunting the stag. The word 'reasoning' from Agent_4 in this round might indicate a reconsideration or a strategic thought process, but it does not necessarily signal a change in action. Given the history of cooperation and the strong signals from the other players, it is rational to continue with the cooperative strategy to maximize the collective and individual payoff.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "reasoning"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "In the previous rounds, all players initially cooperated by choosing 'Hunt Stag', resulting in the maximum payoff. However, in Round 3, Agent_1 chose 'Hunt Hare', breaking the cooperation and causing others to receive 0 points. In the current round, the communications are mixed: Agent_1 and Agent_2 signal 'stag' and 'STAG', which could indicate cooperation, but Agent_4's word 'reasoning' is ambiguous and does not clearly signal intent to cooperate. Given Agent_1's previous deviation and the ambiguous communication from Agent_4, there is a risk that not all players will choose 'Hunt Stag'. To maximize my personal score, the safer choice is to 'Hunt Hare', ensuring I receive points regardless of others' actions.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "GPT-4o",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "reasoning"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "{\n  \"reasoning\": \"Let me analyze the situation carefully. In Round 3, Agent_1 defected by hunting hare despite saying 'stag' in communications. This is a critical data point - Agent_1 cannot be truste",
+          "action": {
+            "type": "communicate",
+            "word": "reasoning"
+          },
+          "model_family": "Claude Sonnet",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "reasoning"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "round": 5,
+      "stage": "communication",
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "STAG",
+        "Agent_4": "reasoning"
+      },
+      "summary": "Communications collected: ['stag', 'STAG', 'STAG', 'reasoning']",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: always signal cooperation.",
+          "action": {
+            "type": "communicate",
+            "word": "stag"
+          },
+          "model_family": "Mixtral"
+        },
+        "Agent_2": {
+          "reasoning": "Given the history, it's clear that a coordinated effort to hunt the stag yields the best outcome for everyone. However, the last two rounds show a breakdown in coordination, likely due to mistrust or miscommunication. Using a strong, clear, and unambiguous word like 'STAG' can help re-establish the coordination needed for a successful stag hunt. It's a direct signal of my intention and a call for others to follow suit.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "Qwen"
+        },
+        "Agent_3": {
+          "reasoning": "In the first two rounds, everyone communicated 'stag' and successfully coordinated to hunt the stag, resulting in maximum points for all. However, in the last two rounds, Agent_1 deviated by hunting hare despite communicating 'stag', leading to a breakdown in coordination. To maximize my score, I need to re-establish trust and coordination among the players. By using the word 'STAG', which has been consistently used by Agent_2 and myself in successful rounds, I aim to signal my intent clearly and encourage others to return to the successful strategy of hunting stag.",
+          "action": {
+            "type": "communicate",
+            "word": "STAG"
+          },
+          "model_family": "GPT-4o"
+        },
+        "Agent_4": {
+          "reasoning": "{\n  \"reasoning\": \"Let me analyze the history carefully. Round 1-2: Everyone said stag and hunted stag, getting 10 each. Round 3: Everyone said stag, but Agent_1 defected to hare, getting 3 while other",
+          "action": {
+            "type": "communicate",
+            "word": "reasoning"
+          },
+          "model_family": "Claude Sonnet"
+        }
+      }
+    },
+    {
+      "round": 5,
+      "communications": {
+        "Agent_1": "stag",
+        "Agent_2": "STAG",
+        "Agent_3": "STAG",
+        "Agent_4": "reasoning"
+      },
+      "choices": {
+        "Agent_1": "Hunt Hare",
+        "Agent_2": "Hunt Stag",
+        "Agent_3": "Hunt Hare",
+        "Agent_4": "Hunt Hare"
+      },
+      "payoffs": {
+        "Agent_1": 3,
+        "Agent_2": 0,
+        "Agent_3": 3,
+        "Agent_4": 3
+      },
+      "all_cooperated": false,
+      "cooperation_rate": 0.25,
+      "communication_analysis": {
+        "unique_words": 3,
+        "cooperation_signals": 3,
+        "defection_signals": 0,
+        "group_coordination": {}
+      },
+      "summary": "Comms: ['stag', 'STAG', 'STAG', 'reasoning'], Result: Failed",
+      "full_decisions": {
+        "Agent_1": {
+          "reasoning": "Soft Byzantine agent: defecting this round (p=0.5).",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "Mixtral",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "reasoning"
+            ]
+          ]
+        },
+        "Agent_2": {
+          "reasoning": "In the previous rounds, there has been a mix of cooperation and defection. In Round 3, Agent_1 defected, and in Round 4, Agents_1, 3, and 4 defected. However, in this round, Agents_1, 2, and 3 have all communicated 'stag' or 'STAG', which strongly suggests an intent to cooperate. Agent_4's word 'reasoning' could indicate uncertainty or a strategic move, but it does not clearly signal defection. Given the strong signals from the other players and the potential high payoff of 10 points, it is rational to trust the majority and attempt to cooperate again.",
+          "action": {
+            "choice": "Hunt Stag"
+          },
+          "model_family": "Qwen",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "reasoning"
+            ]
+          ]
+        },
+        "Agent_3": {
+          "reasoning": "In the previous rounds, Agent_1 has consistently communicated 'stag' but chose 'Hunt Hare' in the last two rounds, indicating a lack of trust in cooperation. Agent_2 has consistently communicated 'STAG' and chosen 'Hunt Stag', showing a willingness to cooperate. Agent_4's communication of 'reasoning' is ambiguous and they have chosen 'Hunt Hare' in the last round. Given this pattern, it is likely that at least one player will choose 'Hunt Hare' again, making 'Hunt Stag' a risky choice. To maximize my score, I should choose 'Hunt Hare' to ensure I gain points regardless of others' actions.",
+          "action": {
+            "choice": "Hunt Hare"
+          },
+          "model_family": "GPT-4o",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "reasoning"
+            ]
+          ]
+        },
+        "Agent_4": {
+          "reasoning": "{\n  \"reasoning\": \"Let me analyze the situation carefully.\\n\\nGame history:\\n- Round 1: All said stag, all hunted stag \u2192 10 points each\\n- Round 2: All said stag, all hunted stag \u2192 10 points each\\n- Ro",
+          "action": {
+            "type": "communicate",
+            "word": "reasoning"
+          },
+          "model_family": "Claude Sonnet",
+          "words_visible": [
+            [
+              "Agent_1",
+              "stag"
+            ],
+            [
+              "Agent_2",
+              "STAG"
+            ],
+            [
+              "Agent_3",
+              "STAG"
+            ],
+            [
+              "Agent_4",
+              "reasoning"
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "experiment": "byzantine_soft",
+    "n_adversaries": 1,
+    "defect_prob": 0.5,
+    "adversary_agents": [
+      "Agent_1"
+    ],
+    "adversary_detail": [
+      {
+        "agent_id": "Agent_1",
+        "model_family": "Mixtral"
+      }
+    ],
+    "adversary_actions": [
+      {
+        "round": 1,
+        "choice": "Hunt Stag"
+      },
+      {
+        "round": 2,
+        "choice": "Hunt Stag"
+      },
+      {
+        "round": 3,
+        "choice": "Hunt Hare"
+      },
+      {
+        "round": 4,
+        "choice": "Hunt Hare"
+      },
+      {
+        "round": 5,
+        "choice": "Hunt Hare"
+      }
+    ],
+    "trial": 2,
+    "rounds": 5,
+    "agents": [
+      {
+        "name": "Agent_1",
+        "model": "mistralai/Mixtral-8x22B-Instruct-v0.1",
+        "model_family": "Mixtral"
+      },
+      {
+        "name": "Agent_2",
+        "model": "Qwen/Qwen2.5-72B-Instruct",
+        "model_family": "Qwen"
+      },
+      {
+        "name": "Agent_3",
+        "model": "gpt-4o",
+        "model_family": "GPT-4o"
+      },
+      {
+        "name": "Agent_4",
+        "model": "claude-sonnet-4-6",
+        "model_family": "Claude Sonnet"
+      }
+    ],
+    "timestamp": "2026-03-18T19:45:58.055502"
+  }
+}
