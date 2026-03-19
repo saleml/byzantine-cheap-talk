@@ -28,22 +28,65 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-# Configure API client (DeepInfra by default, override with OPENAI_BASE_URL)
-_base_url = os.environ.get("OPENAI_BASE_URL", "https://api.deepinfra.com/v1/openai")
-# Choose the right key for the chosen endpoint. Previously we always preferred
-# OPENAI_API_KEY which sent an OpenAI key to the DeepInfra endpoint and caused
-# 401/invalid model errors. Now we pick the key that matches the base URL.
-if "deepinfra" in _base_url:
-    _api_key = os.environ.get("DEEPINFRA_API_KEY") or os.environ.get("OPENAI_API_KEY")
-else:
-    _api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("DEEPINFRA_API_KEY")
+### BLOCK removed ###
+# # Configure API client (DeepInfra by default, override with OPENAI_BASE_URL)
+# _base_url = os.environ.get("OPENAI_BASE_URL", "https://api.deepinfra.com/v1/openai")
+# # Choose the right key for the chosen endpoint. Previously we always preferred
+# # OPENAI_API_KEY which sent an OpenAI key to the DeepInfra endpoint and caused
+# # 401/invalid model errors. Now we pick the key that matches the base URL.
 
-client = OpenAI(api_key=_api_key, base_url=_base_url)
+
+# if "deepinfra" in _base_url:
+#     _api_key = os.environ.get("DEEPINFRA_API_KEY") or os.environ.get("OPENAI_API_KEY")
+# else:
+#     _api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("DEEPINFRA_API_KEY")
+
+# client = OpenAI(api_key=_api_key, base_url=_base_url)
+
+### END of BLOCK removed ###
+
+### added - ###
+# Simple multi-provider clients
+
+deepinfra_client = OpenAI(
+    api_key=os.environ.get("DEEPINFRA_API_KEY"),
+    base_url="https://api.deepinfra.com/v1/openai"
+)
+
+openai_client = OpenAI(
+    api_key=os.environ.get("OPENAI_API_KEY"),
+    base_url="https://api.openai.com/v1"
+)
+
+# Keep Anthropic simple for now by using its OpenAI-compatible endpoint if available in your setup
+anthropic_client = OpenAI(
+    api_key=os.environ.get("ANTHROPIC_API_KEY"),
+    base_url="https://api.anthropic.com/v1/"
+)
+
+
+
+### ###
+
 
 # Optional formatter client (for post-processing malformed outputs)
 _fmt_api_key = os.environ.get("OPENAI_API_KEY")
 _fmt_base = os.environ.get("OPENAI_BASE_URL_FORMATTER", "https://api.openai.com/v1")
 formatter_client = OpenAI(api_key=_fmt_api_key, base_url=_fmt_base) if _fmt_api_key else None
+
+# added - NEW FUNCTION to route to the correct client based on model name prefix
+def get_client_and_provider(model: str):
+    model_lower = model.lower()
+
+    if model_lower.startswith("gpt-") or model_lower.startswith("o1") or model_lower.startswith("o3"):
+        return openai_client, "openai"
+
+    if "claude" in model_lower:
+        return anthropic_client, "anthropic"
+
+    return deepinfra_client, "deepinfra"
+
+
 
 class GameEngine:
     """
@@ -99,6 +142,28 @@ class GameEngine:
         
         for attempt in range(max_retries):
             try:
+                # kwargs = {
+                #     "model": model,
+                #     "messages": [
+                #         {"role": "system", "content": system_prompt},
+                #         {"role": "user", "content": prompt}
+                #     ],
+                #     "timeout": 60,
+                #     "response_format": {"type": "json_object"},
+                # }
+                # # New OpenAI models (o3, gpt-4.1 family) require max_completion_tokens and do not accept temperature
+                # if "openai.com" in _base_url and (model.startswith("o3") or model.startswith("gpt-4.1")):
+                #     kwargs["max_completion_tokens"] = 300
+                # else:
+                #     kwargs["max_tokens"] = 300
+                #     kwargs["temperature"] = 0.0
+
+                # response = client.chat.completions.create(**kwargs)
+
+
+                ### added - 
+                client, provider = get_client_and_provider(model)
+
                 kwargs = {
                     "model": model,
                     "messages": [
@@ -108,14 +173,21 @@ class GameEngine:
                     "timeout": 60,
                     "response_format": {"type": "json_object"},
                 }
-                # New OpenAI models (o3, gpt-4.1 family) require max_completion_tokens and do not accept temperature
-                if "openai.com" in _base_url and (model.startswith("o3") or model.startswith("gpt-4.1")):
+
+                # Only use json_object for OpenAI/DeepInfra
+                # if provider in ["openai", "deepinfra"]:
+                #     kwargs["response_format"] = {"type": "json_object"}
+
+                # Keep token settings simple
+                if provider == "openai" and (model.startswith("o3") or model.startswith("gpt-4.1")):
                     kwargs["max_completion_tokens"] = 300
                 else:
                     kwargs["max_tokens"] = 300
                     kwargs["temperature"] = 0.0
 
                 response = client.chat.completions.create(**kwargs)
+
+                ### 
 
                 content = response.choices[0].message.content or ""
 
@@ -550,28 +622,28 @@ class CurriculumEngine:
         
         # Import the game class dynamically
         if game_class_name == "IteratedPrisonersDilemma":
-            from games import IteratedPrisonersDilemma
+            from games_lowercase import IteratedPrisonersDilemma
             game_class = IteratedPrisonersDilemma
         elif game_class_name == "NPlayerIteratedPrisonersDilemma":
-            from games import NPlayerIteratedPrisonersDilemma
+            from games_lowercase import NPlayerIteratedPrisonersDilemma
             game_class = NPlayerIteratedPrisonersDilemma
         elif game_class_name == "IteratedPublicGoodsGame":
-            from games import IteratedPublicGoodsGame
+            from games_lowercase import IteratedPublicGoodsGame
             game_class = IteratedPublicGoodsGame
         elif game_class_name == "MinimumEffortGame":
-            from games import MinimumEffortGame
+            from games_lowercase import MinimumEffortGame
             game_class = MinimumEffortGame
         elif game_class_name == "BattleOfTheSexesGame":
-            from games import BattleOfTheSexesGame
+            from games_lowercase import BattleOfTheSexesGame
             game_class = BattleOfTheSexesGame
         elif game_class_name == "StagHuntWithCommunication":
-            from games import StagHuntWithCommunication
+            from games_lowercase import StagHuntWithCommunication
             game_class = StagHuntWithCommunication
         elif game_class_name == "VolunteersDilemmaGame":
-            from games import VolunteersDilemmaGame
+            from games_lowercase import VolunteersDilemmaGame
             game_class = VolunteersDilemmaGame
         elif game_class_name == "IteratedPublicGoodsGameWithCommunication":
-            from games import IteratedPublicGoodsGameWithCommunication
+            from games_lowercase import IteratedPublicGoodsGameWithCommunication
             game_class = IteratedPublicGoodsGameWithCommunication
         else:
             raise ValueError(f"Unknown game class: {game_class_name}")

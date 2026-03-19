@@ -2,6 +2,10 @@
 """
 Experiment A: Byzantine Cheap Talk in 4-Player Stag Hunt
 
+-> This script runs the Byzantine experiment for 0, 1, and 2 adversaries, 
+saves each trial’s JSON output, then merges everything into one CSV.
+
+
 Adversarial agents always broadcast "stag" but always choose Hunt Hare.
 Tests how deceptive communication undermines cooperation.
 
@@ -16,7 +20,26 @@ Usage:
   python scripts/run_byzantine.py                          # defaults: 10 trials, 5 rounds
   python scripts/run_byzantine.py --trials 30 --rounds 5
   python scripts/run_byzantine.py --trials 2 --workers 1   # quick smoke test
+
+Notes: 
+- Meaning of trials and difference from rounds:
+    - Trial - one full game 
+    - Round - one iteration of the two-stage game (communication + action)
+    - Each trial consists of multiple rounds.
+
+So one trial includes:
+	•	creating the game
+	•	choosing which agents are adversarial for that trial
+	•	running all rounds
+	•	saving one results.json
+
+So if --trials 10 --rounds 5, then for a given condition like n_adversaries=1:
+	•	there are 10 separate full games
+	•	each full game contains 5 rounds
+
 """
+
+
 
 import argparse
 import csv
@@ -45,14 +68,33 @@ if _env_file.exists():
             os.environ.setdefault(_k, _v)
 
 from src.engine import GameEngine
-from src.games import StagHuntWithCommunication
+from games import StagHuntWithCommunication
 
 
 # ---------- agents (same heterogeneous cohort as the paper) ----------
+
+# AGENTS = [
+#     {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
+#     {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
+#     {"name": "Agent_3", "model": "meta-llama/Llama-3.3-70B-Instruct", "model_family": "Llama"},
+#     {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
+# ]
+
+# for reference: we have the following keys: DEEPINFRA_API_KEY, ANTHROPIC_API_KEY, and OPENAI_API_KEY 
+
+# add GPT and Claude Sonnet instead of LLaMA and DeepSeek 
+# AGENTS = [
+#     {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
+#     {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
+#     {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
+#     {"name": "Agent_4", "model": "claude-sonnet-4-6", "model_family": "Claude Sonnet"},
+# ]
+
+
 AGENTS = [
     {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
     {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-    {"name": "Agent_3", "model": "meta-llama/Llama-3.3-70B-Instruct", "model_family": "Llama"},
+    {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
     {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
 ]
 
@@ -66,6 +108,14 @@ def patch_byzantine(engine: GameEngine, game: StagHuntWithCommunication,
     and return a fixed deceptive strategy:
       - Communication phase: broadcast "stag"
       - Action phase: choose "Hunt Hare"
+    
+    What it does:
+    Temporarily overrides the engine’s normal agent-calling function so that selected adversarial agents do not call the real LLM. Instead, they follow a fixed deceptive policy:
+        •	in communication stage: always say "stag"
+        •	in action stage: always choose "Hunt Hare"
+
+    So this is the function that creates the Byzantine behavior.
+
     """
     if not adversary_names:
         return  # nothing to patch
@@ -90,7 +140,14 @@ def patch_byzantine(engine: GameEngine, game: StagHuntWithCommunication,
 
 
 def enrich_model_family(results: Dict[str, Any]):
-    """Add model_family to every agent entry in full_decisions throughout rounds_data."""
+    """
+    Add model_family to every agent entry in full_decisions throughout rounds_data.
+
+    What it does:
+    Goes through the saved results and adds the model family name (Mixtral, Qwen, etc.) into each agent’s decision record inside rounds_data.
+
+    So this function adds extra metadata to make later analysis easier.
+    """
     for round_data in results.get("rounds_data", []):
         for agent_name, decision in round_data.get("full_decisions", {}).items():
             if isinstance(decision, dict):
@@ -98,9 +155,17 @@ def enrich_model_family(results: Dict[str, Any]):
 
 
 def add_words_visible(results: Dict[str, Any]):
-    """Add words_visible to each agent's full_decisions in action-stage entries.
-
+    """
+    Add words_visible to each agent's full_decisions in action-stage entries.
     Byzantine experiment uses broadcast topology: every agent sees all words.
+    
+    What it does:
+    Goes through the action-stage entries in the results and records which communication words were visible to each agent.
+
+    In this Byzantine experiment, topology is broadcast, so every agent sees all words. This function stores that explicitly.
+
+    So this function adds visibility information to the saved traces.
+    
     """
     for round_data in results.get("rounds_data", []):
         if "choices" not in round_data:  # skip communication-stage entries
@@ -113,7 +178,23 @@ def add_words_visible(results: Dict[str, Any]):
 
 def run_one_trial(n_adversaries: int, trial_num: int, out_dir: Path,
                   rounds: int):
-    """Run a single trial for a given adversary count."""
+    """
+    Run a single trial for a given adversary count.
+
+    What it does: Runs one complete trial for one condition.
+
+    More precisely, it:
+	1.	randomly chooses which agents are adversarial
+	2.	creates the game
+	3.	creates the engine
+	4.	patches the engine if there are adversaries
+	5.	runs the game
+	6.	fixes and enriches the results
+	7.	adds metadata
+	8.	saves results.json
+
+    So this is the function that runs one full experiment repetition.
+    """
     # Randomize adversary assignment: draw n_adversaries agents uniformly
     all_names = [a["name"] for a in AGENTS]
     adversary_names_list = sorted(random.sample(all_names, n_adversaries))
@@ -140,7 +221,7 @@ def run_one_trial(n_adversaries: int, trial_num: int, out_dir: Path,
 
     # Attach experiment metadata
     results["metadata"] = {
-        "experiment": "byzantine_cheap_talk",
+        "experiment": "byzantine_cheap_talk_v2",
         "n_adversaries": n_adversaries,
         "adversary_agents": adversary_names_list,
         "adversary_detail": adversary_detail,
@@ -161,7 +242,20 @@ def run_one_trial(n_adversaries: int, trial_num: int, out_dir: Path,
 
 def run_condition(n_adversaries: int, trials: int, out_dir: Path,
                   workers: int, rounds: int):
-    """Run all trials for one adversary-count condition."""
+    """
+    Run all trials for one adversary-count condition.
+    What it does: Runs all trials for a given condition, such as:
+        •	0 adversaries
+        •	1 adversary
+        •	2 adversaries
+
+    It also:
+        •	skips trials that already have results saved
+        •	parallelizes trial execution with threads
+        •	prints success/failure messages
+
+    So this function runs one entire experimental condition.
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Determine which trials still need to run
@@ -196,6 +290,15 @@ def generate_csv(out_root: Path, conditions: List[int], trials: int):
     """
     Generate a flat CSV combining all conditions and trials.
     One row per (trial, round, agent).
+
+    What it does: Reads all the per-trial results.json files and combines them into one flat CSV file.
+
+    Each row in the CSV corresponds to:
+        •	one trial
+        •	one round
+        •	one agent
+
+    So this function aggregates all experiment outputs into a single analysis-friendly table.
     """
     csv_path = out_root / "all_results.csv"
     fieldnames = [
@@ -276,32 +379,71 @@ def generate_csv(out_root: Path, conditions: List[int], trials: int):
 
 
 def main():
+
+    # 1.	reads command-line arguments
+	# 2.	sets the output folder and experiment conditions
+	# 3.	runs each condition
+	# 4.	generates the combined CSV
+	# 5.	prints final completion messages
+    
+    # Create the command-line argument parser with a short script description.
     parser = argparse.ArgumentParser(description="Experiment A: Byzantine Cheap Talk")
+
+    # Add the --trials argument: how many full trials to run per condition.
     parser.add_argument("--trials", type=int, default=10)
+
+    # Add the --rounds argument: how many repeated rounds each trial contains.
     parser.add_argument("--rounds", type=int, default=5)
-    parser.add_argument("--out", type=str, default="results/byzantine")
+
+    # Add the --out argument: root folder where all results will be saved.
+    parser.add_argument("--out", type=str, default="results/byzantine_v2")
+        # changed to be results/byzantine_v2 to avoid overwriting old results during testing
+
+    # Add the --workers argument: how many trials can run in parallel within a condition.
     parser.add_argument("--workers", type=int, default=2,
                         help="Parallel workers per condition")
+
+    # Parse all command-line arguments and store them in args.
     args = parser.parse_args()
 
+    # Convert the output folder string into a Path object for easier path handling.
     out_root = Path(args.out)
+
+    # Define the three experiment conditions:
+    # 0 adversaries, 1 adversary, and 2 adversaries.
     conditions = [0, 1, 2]
 
+    # Loop over each adversary condition and run all trials for that condition.
     for n_adv in conditions:
+        # Print a visual separator line.
         print(f"\n{'='*50}")
+
+        # Print which condition is currently running.
         print(f"Condition: {n_adv} adversaries")
+
+        # Print another separator line.
         print(f"{'='*50}")
+
+        # Run all trials for this condition and save them in results/byzantine/adv_X.
         run_condition(n_adv, args.trials, out_root / f"adv_{n_adv}",
                       args.workers, args.rounds)
 
-    # Generate combined flat CSV
+    # After all conditions are done, start building the combined CSV summary file.
     print(f"\n{'='*50}")
+
+    # Print a message indicating CSV generation has started.
     print("Generating combined CSV...")
+
+    # Read all saved JSON results and combine them into one CSV file.
     generate_csv(out_root, conditions, args.trials)
 
+    # Print a final success message once everything is complete.
     print("\nAll Byzantine experiment conditions complete.")
+
+    # Print the root folder where results were saved.
     print(f"Results in {out_root}/")
 
 
+    
 if __name__ == "__main__":
     main()

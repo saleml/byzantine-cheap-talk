@@ -1,11 +1,7 @@
-NETYS 2026 — Byzantine v3 Analysis Report
-Generated from: /Users/salem.lahlou/Library/CloudStorage/GoogleDrive-salemlahlou9@gmail.com/My Drive/GDrive_Synced_with_MBZUAI_WORK/workspace/projects_claude_code/gameth_llm_tmp/results/byzantine_v3/all_results.csv
+NETYS 2026 — Full Analysis Report
 Model cohort: Mixtral, Qwen, GPT-4o, DeepSeek
-Date: 2026-03-19T02:43:11.517310
-
-Families in data: ['DeepSeek', 'GPT-4o', 'Mixtral', 'Qwen']
-Conditions in data: ['adv_0', 'adv_1', 'adv_2']
-Total rows: 600
+Generated from raw CSV data in results/
+Date: 2026-03-19T09:12:20.331229
 
 ======================================================================
   (a) Behavioral Archetype Classification
@@ -34,27 +30,54 @@ Total rows: 600
   (b) Per-Model-Family Payoff Breakdown
 ======================================================================
 
-  Condition    Family        Avg Pay/Rnd     Coop %    N_obs
-  ------------ ------------ ------------ ---------- --------
-  Hard k=1     Mixtral              2.40      20.0%       40
-  Hard k=1     Qwen                 0.60      80.0%       40
-  Hard k=1     GPT-4o               2.62      12.5%       40
-  Hard k=1     DeepSeek             2.30      23.3%       30
-               FD total             2.36
-               PC total             1.61
-               FD/PC ratio           1.5x
+  Condition    Family        Avg Pay/Rnd    Group    N_obs
+  ------------ ------------ ------------ -------- --------
+  Hard k=1     Mixtral              2.40       FD       40
+  Hard k=1     Qwen                 0.60       PC       40
+  Hard k=1     GPT-4o               2.62       FD       40
+  Hard k=1     DeepSeek             2.30       FD       30
+               FD total             2.45
+               PC total             0.60
+               FD/PC ratio           4.1x
 
-  Hard k=2     Mixtral              2.40      20.0%       35
-  Hard k=2     Qwen                 0.20      93.3%       15
-  Hard k=2     GPT-4o               2.40      20.0%       25
-  Hard k=2     DeepSeek             2.40      20.0%       25
+  Hard k=2     Mixtral              2.40       FD       35
+  Hard k=2     Qwen                 0.20       PC       15
+  Hard k=2     GPT-4o               2.40       FD       25
+  Hard k=2     DeepSeek             2.40       FD       25
                FD total             2.40
-               PC total             1.57
+               PC total             0.20
+               FD/PC ratio          12.0x
+
+  Soft k=1     Mixtral              3.02       FD       45
+  Soft k=1     Qwen                 2.42       PC       60
+  Soft k=1     GPT-4o               3.78       FD       50
+  Soft k=1     DeepSeek             3.66       FD       70
+               FD total             3.52
+               PC total             2.42
                FD/PC ratio           1.5x
 
 
 ======================================================================
-  (c) Round-by-Round Honest Cooperation Rates (%)
+  (c) Soft Byzantine: Split by Adversary Defection Count
+======================================================================
+
+  Trial defection counts: {'1': 2, '2': 3, '3': 3, '4': 3, '5': 2, '6': 3, '7': 1, '8': 3, '9': 2, '10': 2, '11': 4, '12': 2, '13': 3, '14': 2, '15': 2}
+  Low-betrayal (<=2 defections): 8 trials, 120 honest obs
+  High-betrayal (>=3 defections): 7 trials, 105 honest obs
+
+  Split                 Group  Avg Pay/Rnd     Coop %
+  ------------------ -------- ------------ ----------
+  Low (<=2)                FD         3.46      31.8%
+  Low (<=2)                PC         2.06      88.6%
+  Low (<=2)             ratio          1.7x
+
+  High (>=3)               FD         3.59      38.8%
+  High (>=3)               PC         2.92      96.0%
+  High (>=3)            ratio          1.2x
+
+
+======================================================================
+  (d) Round-by-Round Honest Cooperation Rates (%)
 ======================================================================
 
   Condition                 R1      R2      R3      R4      R5
@@ -62,8 +85,69 @@ Total rows: 600
   Baseline (k=0)         95.0%   85.0%   80.0%   82.5%   75.0%
   Hard k=1               90.0%   26.7%   16.7%   23.3%   16.7%
   Hard k=2              100.0%   15.0%   10.0%   15.0%   15.0%
+  Soft k=1               95.6%   51.1%   44.4%   33.3%   26.7%
+  Expl. broadcast        92.5%   77.5%   70.0%   72.5%   75.0%
+  Expl. ring             40.0%   20.0%   12.5%   12.5%   15.0%
+  Expl. star             40.0%    7.5%    0.0%    0.0%    0.0%
+  Silent broadcast       97.5%   92.5%   92.5%   92.5%   90.0%
+  Silent ring           100.0%  100.0%  100.0%  100.0%  100.0%
+  Silent star            85.0%   62.5%   57.5%   57.5%   57.5%
 
-  --- Per-model round-by-round for k=1 ---
+
+======================================================================
+  (e) Master Summary Table
+======================================================================
+
+  NOTE: All rates computed from raw CSV action columns.
+  We never use results.json cooperation_rate (halved by
+  len(history) bug in engine.py for two-stage games).
+
+  Condition                  Trials   Group%   Honest%   AvgPay
+  ------------------------- ------- -------- --------- --------
+  Baseline (k=0)                 10    76.0%     83.5%     8.10
+  Hard Byz. (k=1)                10     0.0%     34.7%     1.96
+  Hard Byz. (k=2)                10     0.0%     31.0%     2.07
+  Soft Byz. (k=1, p=.5)          15    17.3%     50.2%     3.23
+  Explicit broadcast             10    70.0%     77.5%     7.67
+  Explicit ring                  10    10.0%     20.0%     3.40
+  Explicit star                  10     0.0%      9.5%     2.71
+  Silent broadcast               10    90.0%     93.0%     9.21
+  Silent ring                    10   100.0%    100.0%    10.00
+  Silent star                    10    50.0%     64.0%     6.08
+
+
+======================================================================
+  (f) Byzantine × Star Topology
+======================================================================
+
+  Condition               Trials   Group%   Honest%   AvgPay
+  ---------------------- ------- -------- --------- --------
+  Hub is adversary            10     0.0%      4.0%     2.88
+  Hub is honest               10     0.0%     13.3%     2.60
+
+  --- FD vs PC payoff breakdown ---
+
+  Condition                 Group  Avg Pay/Rnd     Coop %
+  ---------------------- -------- ------------ ----------
+  Hub is adversary             FD         3.00       0.0%
+  Hub is adversary             PC         2.40      20.0%
+  Hub is adversary          ratio          1.2x
+
+  Hub is honest                FD         2.82       6.1%
+  Hub is honest                PC         1.89      37.1%
+  Hub is honest             ratio          1.5x
+
+  --- Round-by-round honest cooperation ---
+
+  Condition                   R1      R2      R3      R4      R5
+  --------------------------------------------------------------
+  Hub is adversary         20.0%    0.0%    0.0%    0.0%    0.0%
+  Hub is honest            46.7%   10.0%    6.7%    0.0%    3.3%
+
+
+======================================================================
+  (g) Per-Model Round-by-Round (Hard k=1 only)
+======================================================================
 
   Model             R1      R2      R3      R4      R5
   ----------------------------------------------------
@@ -74,20 +158,7 @@ Total rows: 600
 
 
 ======================================================================
-  (d) Master Summary Table
-======================================================================
-
-  NOTE: All rates computed from raw CSV action columns.
-
-  Condition                  Trials   Group%   Honest%   AvgPay
-  ------------------------- ------- -------- --------- --------
-  Baseline (k=0)                 10    76.0%     83.5%     8.10
-  Hard Byz. (k=1)                10     0.0%     34.7%     1.96
-  Hard Byz. (k=2)                10     0.0%     31.0%     2.07
-
-
-======================================================================
-  (e) Per-Model Cooperation Rates
+  (h) Per-Model Cooperation Rates
 ======================================================================
 
   Condition          Model           Coop%   AvgPay   N_obs
