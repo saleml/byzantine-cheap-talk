@@ -34,11 +34,11 @@ RESULTS = ROOT / "results"
 
 
 # change here also 
-BYZANTINE_CSV   = RESULTS / "byzantine_v2_lowercase" / "all_results.csv"
-SOFT_CSV        = RESULTS / "byzantine_soft_v2_lowercase" / "all_results.csv"
-TOPO_CSV        = RESULTS / "topology_v2_lowercase" / "all_results.csv"
-TOPO_SILENT_CSV = RESULTS / "topology_silent_v2_lowercase" / "all_results.csv"
-BYZ_STAR_CSV    = RESULTS / "byzantine_star_v2_lowercase" / "all_results.csv"
+BYZANTINE_CSV   = RESULTS / "byzantine_v3" / "all_results.csv"
+SOFT_CSV        = RESULTS / "byzantine_soft_v3" / "all_results.csv"
+TOPO_CSV        = RESULTS / "topology_v3" / "all_results.csv"
+TOPO_SILENT_CSV = RESULTS / "topology_silent_v3" / "all_results.csv"
+BYZ_STAR_CSV    = RESULTS / "byzantine_star_v3" / "all_results.csv"
 # BYZ_STAR_CSV = None 
 
 
@@ -52,13 +52,28 @@ from generate_summary_figures import (
     load_csv, honest_rows, coop_rate, group_coop_rate, avg_payoff_per_round,
 )
 
-FD_FAMILIES = {"Mixtral", "Claude Sonnet", "GPT-4o"}
+# change here also ... 
+
+# for v2
+# FD_FAMILIES = {"Mixtral", "Claude Sonnet", "GPT-4o"}
+# PC_FAMILIES = {"Qwen"}
+
+
+# for v3 (where DeepSeek replaces Claude Sonnet)
+FD_FAMILIES = {"Mixtral", "DeepSeek", "GPT-4o"}
 PC_FAMILIES = {"Qwen"}
 
 
+# NOTE both FD_FAMILIES and PC_FAMILIES are defined manually after analyzing the results of analysis (a) 
+# Fast Defectors (FD) are models that permanently switch to \tsc{Hare} after the first observed betrayal
+# Persistent Cooperators (PC) are models that never switch or intermittently return to \tsc{Stag} despite continued exploitation. 
+
+
 # ---------- model family constants ----------
+# change here also
 # ALL_FAMILIES = ["Mixtral", "Qwen", "Llama", "DeepSeek"]
-ALL_FAMILIES = ["Mixtral", "Qwen", "GPT-4o", "Claude Sonnet"]
+# ALL_FAMILIES = ["Mixtral", "Qwen", "GPT-4o", "Claude Sonnet"]
+ALL_FAMILIES = ["Mixtral", "Qwen", "GPT-4o", "DeepSeek"]
 
 
 class TeeOutput:
@@ -480,7 +495,7 @@ def main():
 
     # Save to file [ change here ]
     sys.stdout = tee.stdout
-    report_path = RESULTS / "analysis_report_v2_lowercase.txt"
+    report_path = RESULTS / "analysis_report_v3.txt"
     report_path.write_text(tee.get_value())
     print(f"\nReport saved to {report_path}")
 

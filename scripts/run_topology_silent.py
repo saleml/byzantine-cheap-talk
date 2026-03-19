@@ -38,7 +38,7 @@ if _env_file.exists():
             os.environ.setdefault(_k, _v)
 
 from src.engine import GameEngine
-from games_lowercase import StagHuntWithCommunication
+from games import StagHuntWithCommunication
 
 
 # ---------- agents (same heterogeneous cohort as the paper) ----------
@@ -52,12 +52,20 @@ from games_lowercase import StagHuntWithCommunication
 # for reference: we have the following keys: DEEPINFRA_API_KEY, ANTHROPIC_API_KEY, and OPENAI_API_KEY 
 
 # add GPT and Claude Sonnet instead of LLaMA and DeepSeek 
+# AGENTS = [
+#     {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
+#     {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
+#     {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
+#     {"name": "Agent_4", "model": "claude-sonnet-4-6", "model_family": "Claude Sonnet"},
+# ]
+
 AGENTS = [
     {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
     {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
     {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
-    {"name": "Agent_4", "model": "claude-sonnet-4-6", "model_family": "Claude Sonnet"},
+    {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
 ]
+
 
 
 AGENT_FAMILY = {a["name"]: a["model_family"] for a in AGENTS}

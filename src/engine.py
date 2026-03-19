@@ -171,11 +171,12 @@ class GameEngine:
                         {"role": "user", "content": prompt}
                     ],
                     "timeout": 60,
+                    "response_format": {"type": "json_object"},
                 }
 
                 # Only use json_object for OpenAI/DeepInfra
-                if provider in ["openai", "deepinfra"]:
-                    kwargs["response_format"] = {"type": "json_object"}
+                # if provider in ["openai", "deepinfra"]:
+                #     kwargs["response_format"] = {"type": "json_object"}
 
                 # Keep token settings simple
                 if provider == "openai" and (model.startswith("o3") or model.startswith("gpt-4.1")):
