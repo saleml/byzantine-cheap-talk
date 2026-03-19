@@ -14,9 +14,10 @@
 \title{Byzantine Cheap Talk: Adversarial Resilience and\\Topology Effects in LLM Coordination Games}
 \titlerunning{Byzantine Cheap Talk in LLM Coordination Games}
 
-\author{Author~1\inst{1} \and Author~2\inst{1} \and Author~3\inst{1}}
-\authorrunning{Author 1 et al.}
-\institute{Affiliation \\ \email{placeholder@example.com}}
+\author{Aya~ElMir\inst{1} \and Salem~Lahlou\inst{1}}
+\authorrunning{A. ElMir and S. Lahlou}
+\institute{Mohamed bin Zayed University of Artificial Intelligence (MBZUAI),\\Abu Dhabi, UAE \\
+\email{\{aya.elmir,salem.lahlou\}@mbzuai.ac.ae}}
 
 \maketitle
 
@@ -126,11 +127,11 @@ A hard Byzantine agent broadcasts ``stag'' but deterministically chooses \tsc{Ha
 \toprule
 Condition & Group\% & Honest\% & Avg.\ payoff \\
 \midrule
-Baseline ($k{=}0$)              & 92.0 & 95.0 & 9.35 \\
-Hard Byzantine ($k{=}1$)        & 0.0  & 60.0 & 1.20 \\
-Hard Byzantine ($k{=}2$)        & 0.0  & 37.0 & 1.89 \\
-Star + Byz.\ (hub{=}adversary)  & 0.0  & 13.3 & 2.60 \\
-Star + Byz.\ (hub{=}honest)     & 0.0  & 27.3 & 2.18 \\
+Baseline ($k{=}0$)              & $92.0 \pm 25.3$ & $95.0 \pm 15.8$ & $9.35 \pm 2.06$ \\
+Hard Byzantine ($k{=}1$)        & $0.0 \pm 0.0$   & $60.0 \pm 11.8$ & $1.20 \pm 0.35$ \\
+Hard Byzantine ($k{=}2$)        & $0.0 \pm 0.0$   & $37.0 \pm 14.9$ & $1.89 \pm 0.45$ \\
+Star + Byz.\ (hub{=}adversary)  & $0.0 \pm 0.0$   & $13.3 \pm 7.0$  & $2.60 \pm 0.21$ \\
+Star + Byz.\ (hub{=}honest)     & $0.0 \pm 0.0$   & $27.3 \pm 14.2$ & $2.18 \pm 0.43$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -146,7 +147,6 @@ Two model-family-stable patterns emerge under $k{=}1$.
 The payoff gap is stark: FD agents earn 2.40/round vs.\ PC agents' 0.15/round (16$\times$).
 Fast defection is individually rational but collectively destructive.
 We observe a robust correlation between model family and archetype, but cannot identify a causal mechanism: RLHF training data, model scale, and instruction-following style are all confounded with family identity.
-\todo{AYA: Report GPT-4o/Claude Sonnet archetype replication (Sonnet=FD, Qwen=PC, GPT-4o=bimodal).}
 
 %-------------------------------------------------------------------
 \subsection{Soft Byzantine: Probabilistic Deception}\label{sec:byz-soft}
@@ -168,7 +168,6 @@ Both conditions yield 0\% group cooperation, but honest cooperation diverges: 13
 A central adversary's ``stag'' signal reaches all spokes who cannot cross-validate, collapsing cooperation to 0\% by round~2; an honest hub sustains 73.3\% initial trust decaying to 16.7\%.
 Compared to broadcast Byzantine (60\% honest cooperation), star topology compounds adversarial damage to 13--27\%---the two classes interact multiplicatively.
 The FD/PC gap compresses to 1.4--1.7$\times$, as topology suppresses cooperation regardless of archetype.
-\todo{AYA: GPT-4o/Claude Sonnet star+Byzantine rates here.}
 
 %===================================================================
 \section{Communication Topology}\label{sec:topology}
@@ -190,9 +189,9 @@ We test three topologies---broadcast (all-to-all), ring (two neighbors), star (c
 \cmidrule(lr){2-4} \cmidrule(lr){5-7}
 & Broadcast & Ring & Star & Broadcast & Ring & Star \\
 \midrule
-Group coop.   & 80\%  & 0\%  & 0\%  & 100\% & 100\% & 100\% \\
-Agent coop.   & 87.5\% & 33.5\% & 27\% & 100\% & 100\% & 100\% \\
-Avg.\ payoff  & 8.38  & 2.00 & 2.19 & 10.0 & 10.0 & 10.0 \\
+Group coop.   & $80{\pm}42$  & $0{\pm}0$  & $0{\pm}0$  & $100{\pm}0$ & $100{\pm}0$ & $100{\pm}0$ \\
+Agent coop.   & $88{\pm}27$ & $34{\pm}11$ & $27{\pm}5$ & $100{\pm}0$ & $100{\pm}0$ & $100{\pm}0$ \\
+Avg.\ payoff  & $8.4{\pm}3.4$  & $2.0{\pm}0.3$ & $2.2{\pm}0.2$ & $10{\pm}0$ & $10{\pm}0$ & $10{\pm}0$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -217,7 +216,7 @@ The FD/PC split is stable across adversarial conditions but vanishes under silen
 Both vulnerabilities share a common root: cooperation collapses from agents' rational response to uncertainty about others' intentions, whether introduced by deception or topology framing.
 Robust multi-agent LLM systems require mechanisms beyond cheap talk, and designers must attend to \emph{how} agents are told about their environment.
 Our experiments are limited to 4-player Stag Hunt (10--15 trials); unanimity payoffs may amplify adversarial impact.
-\todo{Extend to GPT-4o, Claude Sonnet, and IPGG+P.}
+Future work will extend to additional model families, longer time horizons, and games with graded payoff structures.
 
 \bibliographystyle{splncs04}
 \bibliography{refs}

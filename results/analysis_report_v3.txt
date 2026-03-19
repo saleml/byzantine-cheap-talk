@@ -1,0 +1,109 @@
+NETYS 2026 — Byzantine v3 Analysis Report
+Generated from: /Users/salem.lahlou/Library/CloudStorage/GoogleDrive-salemlahlou9@gmail.com/My Drive/GDrive_Synced_with_MBZUAI_WORK/workspace/projects_claude_code/gameth_llm_tmp/results/byzantine_v3/all_results.csv
+Model cohort: Mixtral, Qwen, GPT-4o, DeepSeek
+Date: 2026-03-19T02:43:11.517310
+
+Families in data: ['DeepSeek', 'GPT-4o', 'Mixtral', 'Qwen']
+Conditions in data: ['adv_0', 'adv_1', 'adv_2']
+Total rows: 600
+
+======================================================================
+  (a) Behavioral Archetype Classification
+======================================================================
+
+--- Hard Byzantine k=1 ---
+
+  Family         never_sw    perm_sw      mixed  no_betray   last_rnd    total
+  ------------ ---------- ---------- ---------- ---------- ---------- --------
+  Mixtral               0          8          0          0          0        8
+  Qwen                  2          0          6          0          0        8
+  GPT-4o                0          5          0          3          0        8
+  DeepSeek              0          5          1          0          0        6
+
+--- Hard Byzantine k=2 ---
+
+  Family         never_sw    perm_sw      mixed  no_betray   last_rnd    total
+  ------------ ---------- ---------- ---------- ---------- ---------- --------
+  Mixtral               0          7          0          0          0        7
+  Qwen                  2          0          1          0          0        3
+  GPT-4o                0          5          0          0          0        5
+  DeepSeek              0          5          0          0          0        5
+
+
+======================================================================
+  (b) Per-Model-Family Payoff Breakdown
+======================================================================
+
+  Condition    Family        Avg Pay/Rnd     Coop %    N_obs
+  ------------ ------------ ------------ ---------- --------
+  Hard k=1     Mixtral              2.40      20.0%       40
+  Hard k=1     Qwen                 0.60      80.0%       40
+  Hard k=1     GPT-4o               2.62      12.5%       40
+  Hard k=1     DeepSeek             2.30      23.3%       30
+               FD total             2.36
+               PC total             1.61
+               FD/PC ratio           1.5x
+
+  Hard k=2     Mixtral              2.40      20.0%       35
+  Hard k=2     Qwen                 0.20      93.3%       15
+  Hard k=2     GPT-4o               2.40      20.0%       25
+  Hard k=2     DeepSeek             2.40      20.0%       25
+               FD total             2.40
+               PC total             1.57
+               FD/PC ratio           1.5x
+
+
+======================================================================
+  (c) Round-by-Round Honest Cooperation Rates (%)
+======================================================================
+
+  Condition                 R1      R2      R3      R4      R5
+  ------------------------------------------------------------
+  Baseline (k=0)         95.0%   85.0%   80.0%   82.5%   75.0%
+  Hard k=1               90.0%   26.7%   16.7%   23.3%   16.7%
+  Hard k=2              100.0%   15.0%   10.0%   15.0%   15.0%
+
+  --- Per-model round-by-round for k=1 ---
+
+  Model             R1      R2      R3      R4      R5
+  ----------------------------------------------------
+  Mixtral       100.0%    0.0%    0.0%    0.0%    0.0%
+  Qwen          100.0%  100.0%   62.5%   75.0%   62.5%
+  GPT-4o         62.5%    0.0%    0.0%    0.0%    0.0%
+  DeepSeek      100.0%    0.0%    0.0%   16.7%    0.0%
+
+
+======================================================================
+  (d) Master Summary Table
+======================================================================
+
+  NOTE: All rates computed from raw CSV action columns.
+
+  Condition                  Trials   Group%   Honest%   AvgPay
+  ------------------------- ------- -------- --------- --------
+  Baseline (k=0)                 10    76.0%     83.5%     8.10
+  Hard Byz. (k=1)                10     0.0%     34.7%     1.96
+  Hard Byz. (k=2)                10     0.0%     31.0%     2.07
+
+
+======================================================================
+  (e) Per-Model Cooperation Rates
+======================================================================
+
+  Condition          Model           Coop%   AvgPay   N_obs
+  ------------------ ------------ -------- -------- -------
+  Baseline (k=0)     Mixtral         82.0%     8.14      50
+  Baseline (k=0)     Qwen            94.0%     7.78      50
+  Baseline (k=0)     GPT-4o          78.0%     8.26      50
+  Baseline (k=0)     DeepSeek        80.0%     8.20      50
+
+  Hard k=1           Mixtral         20.0%     2.40      40
+  Hard k=1           Qwen            80.0%     0.60      40
+  Hard k=1           GPT-4o          12.5%     2.62      40
+  Hard k=1           DeepSeek        23.3%     2.30      30
+
+  Hard k=2           Mixtral         20.0%     2.40      35
+  Hard k=2           Qwen            93.3%     0.20      15
+  Hard k=2           GPT-4o          20.0%     2.40      25
+  Hard k=2           DeepSeek        20.0%     2.40      25
+
