@@ -1,24 +1,100 @@
 #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
-Experiment A: Byzantine Cheap Talk in 4-Player Stag Hunt
+Experiment A: Byzantine Cheap Talk in N-Player Stag Hunt
 
-Adversarial agents always broadcast "stag" but always choose Hunt Hare.
-Tests how deceptive communication undermines cooperation.
+Runs a Stag Hunt with one-word cheap-talk communication, where some agents
+may be Byzantine: they always broadcast "stag" in the communication phase
+but always choose "Hunt Hare" in the action phase.
 
-Conditions:
-  - n_adversaries=0: baseline (all 4 agents are honest LLM players)
-  - n_adversaries=1: one randomly-chosen agent is adversarial
-  - n_adversaries=2: two randomly-chosen agents are adversarial
-
-Adversary assignment is randomized per trial.
 Each trial consists of multiple rounds (default 5).
-Each round has two stages: communication (broadcast one word) then action (Hunt Stag/Hare).
+Each round has two stages:
+  1. communication: every agent broadcasts one word
+  2. action: every agent chooses Hunt Stag or Hunt Hare
 
-Usage:
-  python scripts/run_byzantine.py --version v1                     # Mixtral/Qwen/Llama/DeepSeek
-  python scripts/run_byzantine.py --version v3                     # Mixtral/Qwen/GPT-4o/DeepSeek
-  python scripts/run_byzantine.py --version v2 --lowercase         # v2 with lowercased comms
-  python scripts/run_byzantine.py --version v1 --trials 2          # quick test
+--------------------------------------------------
+KEY FLAGS / TAGS
+--------------------------------------------------
+
+Model selection (choose exactly one):
+  --version {v1,v2,v3}
+      Use one predefined 4-model cohort from config.py:
+        v1 = Mixtral, Qwen, Llama, DeepSeek
+        v2 = Mixtral, Qwen, GPT-4o, Claude Sonnet
+        v3 = Mixtral, Qwen, GPT-4o, DeepSeek
+
+  --num_players N
+      Ignore --version and instead use the first N agents from the
+      ordered master model pool in config.py.
+      Example:
+        --num_players 5
+      means use the first 5 models from MASTER_AGENT_POOL.
+
+  NOTE:
+    --version and --num_players are mutually exclusive.
+    You must provide exactly one of them.
+
+Adversary condition selection:
+  --condition_set {k0,k1,k2,first2,all}
+      k0      = run only adv_0 (no adversaries / baseline)
+      k1      = run only adv_1 (one adversary)
+      k2      = run only adv_2 (two adversaries)
+      first2  = run adv_0 and adv_1
+      all     = run adv_0, adv_1, and adv_2
+
+Lowercasing option:
+  --lowercase
+      Lowercase communication words in the action-stage prompt
+      before agents reason over them.
+      This is useful for testing whether capitalization differences
+      affect coordination behavior.
+      If not mentioned, defaults to False (i.e. comm words appear as-is in prompts and logs).
+
+Standard runtime flags:
+  --trials T
+      Number of trials per condition (default: 10)
+
+  --rounds R
+      Number of rounds per trial (default: 5)
+
+  --workers W
+      Number of parallel workers per condition (default: 2)
+
+  --max-retries M
+      Maximum retry attempts for crashed / missing trials (default: 3)
+
+  --out PATH
+      Output directory. If omitted, a default path is built automatically:
+        results/byzantine_<version>
+        results/byzantine_n<num_players>
+      and appends _lowercase if --lowercase is used.
+
+--------------------------------------------------
+CONDITIONS
+--------------------------------------------------
+
+  adv_0
+      Baseline condition: all agents are honest.
+
+  adv_1
+      One randomly chosen agent is Byzantine in each trial.
+
+  adv_2
+      Two randomly chosen agents are Byzantine in each trial.
+
+Adversary assignment is randomized independently per trial.
+
+--------------------------------------------------
+EXAMPLES
+--------------------------------------------------
+
+  python scripts/run_byzantine.py --version v1
+  python scripts/run_byzantine.py --version v3
+  python scripts/run_byzantine.py --version v2 --lowercase
+  python scripts/run_byzantine.py --version v3 --condition_set k1
+  python scripts/run_byzantine.py --version v3 --condition_set first2
+  python scripts/run_byzantine.py --num_players 5
+  python scripts/run_byzantine.py --version v1 --trials 2
   python scripts/run_byzantine.py --version v3 --out results/custom_dir
 """
 
@@ -50,7 +126,8 @@ if _env_file.exists():
 
 from src.engine import GameEngine
 from src.games import StagHuntWithCommunication
-from config import get_agents, get_agent_family_map
+# get_first_n_agents supports selecting the first N models from MASTER_AGENT_POOL.
+from config import get_agents, get_agent_family_map, get_first_n_agents
 
 
 def patch_byzantine(engine: GameEngine, game: StagHuntWithCommunication,
@@ -276,29 +353,75 @@ def generate_csv(out_root: Path, conditions: List[int], trials: int,
 
 def main():
     parser = argparse.ArgumentParser(description="Experiment A: Byzantine Cheap Talk")
-    parser.add_argument("--version", type=str, required=True, choices=["v1", "v2", "v3"],
-                        help="Model cohort version (v1=Mixtral/Qwen/Llama/DeepSeek, "
-                             "v2=Mixtral/Qwen/GPT-4o/Claude-Sonnet, "
-                             "v3=Mixtral/Qwen/GPT-4o/DeepSeek)")
+    # Enforce that exactly one model-selection mode is used.
+    selector_group = parser.add_mutually_exclusive_group(required=True)
+    # Version mode selects one predefined 4-model cohort.
+    selector_group.add_argument("--version", type=str, choices=["v1", "v2", "v3"],
+                                help="Model cohort version (v1=Mixtral/Qwen/Llama/DeepSeek, "
+                                     "v2=Mixtral/Qwen/GPT-4o/Claude-Sonnet, "
+                                     "v3=Mixtral/Qwen/GPT-4o/DeepSeek)")
+    # Num-players mode selects the first N models from the ordered master pool.
+    selector_group.add_argument("--num_players", type=int, default=None,
+                                help="If set, ignore --version cohort and use first N agents "
+                                     "from config MASTER_AGENT_POOL")
     parser.add_argument("--trials", type=int, default=10)
     parser.add_argument("--rounds", type=int, default=5)
     parser.add_argument("--out", type=str, default=None,
                         help="Output dir (default: results/byzantine_{version})")
     parser.add_argument("--workers", type=int, default=2,
                         help="Parallel workers per condition")
+    parser.add_argument("--condition_set", type=str, default="all",
+                        choices=["k0", "k1", "k2", "first2", "all"],
+                        help="Which adversary conditions to run: "
+                             "k0->adv_0 only, k1->adv_1 only, k2->adv_2 only, "
+                             "first2->adv_0+adv_1, all->adv_0+adv_1+adv_2")
     parser.add_argument("--lowercase", action="store_true",
                         help="Lowercase communication words in action-stage prompts")
+    # if --lowercase is mentioned in the command then it will be set to True, otherwise it will be False
     parser.add_argument("--max-retries", type=int, default=3,
                         help="Max retry attempts for crashed trials (default: 3)")
     args = parser.parse_args()
 
-    agents = get_agents(args.version)
-    agent_family = get_agent_family_map(args.version)
-    suffix = f"_{args.version}" + ("_lowercase" if args.lowercase else "")
-    out_root = Path(args.out) if args.out else Path(f"results/byzantine{suffix}")
-    conditions = [0, 1, 2]
+    # In num-players mode, build agents dynamically from the master pool.
+    if args.num_players is not None:
+        # Select the first N configured models and assign Agent_1..Agent_N names.
+        agents = get_first_n_agents(args.num_players)
+        # Build name->family mapping for downstream metadata and CSV output.
+        agent_family = {a["name"]: a["model_family"] for a in agents}
+    else:
+        # In version mode, use the fixed cohort defined for that version.
+        agents = get_agents(args.version)
+        # Keep existing family mapping behavior for versioned cohorts.
+        agent_family = get_agent_family_map(args.version)
 
-    print(f"Version: {args.version}")
+    # Use version-based output suffix unless num-players mode is active.
+    suffix_core = f"_{args.version}" if args.num_players is None else f"_n{args.num_players}"
+    # Preserve lowercase suffix behavior independent of selection mode.
+    suffix = suffix_core + ("_lowercase" if args.lowercase else "")
+    # Respect explicit --out; otherwise construct default output directory.
+    out_root = Path(args.out) if args.out else Path(f"results/byzantine{suffix}")
+    requested_conditions = {
+        "k0": [0],
+        "k1": [1],
+        "k2": [2],
+        "first2": [0, 1],
+        "all": [0, 1, 2],
+    }[args.condition_set]
+    # Fail fast if requested adversary counts are infeasible for the selected player count.
+    invalid_conditions = [n for n in requested_conditions if n >= len(agents)]
+    if invalid_conditions:
+        parser.error("Invalid condition selection for current player count: "
+                     f"requested {[f'adv_{k}' for k in requested_conditions]} with "
+                     f"{len(agents)} player(s). "
+                     f"Infeasible: {[f'adv_{k}' for k in invalid_conditions]}.")
+    conditions = requested_conditions
+
+    # Version is None in num-players mode, so print a clear label.
+    print(f"Version: {args.version if args.version is not None else 'N/A (using --num_players)'}")
+    # Report final selected player count, including source mode when applicable.
+    print(f"Num players: {len(agents)}" + (f" (from first {args.num_players} in master pool)"
+                                         if args.num_players is not None else ""))
+    print(f"Condition set: {args.condition_set} -> {[f'adv_{k}' for k in requested_conditions]}")
     print(f"Models: {[a['model_family'] for a in agents]}")
     print(f"Lowercase comms: {args.lowercase}")
     print(f"Output: {out_root}")

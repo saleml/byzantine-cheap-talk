@@ -13,30 +13,54 @@ Version history:
       - Current model cohort for ongoing experiments
 """
 
+from copy import deepcopy
+
 # =====================================================================
 # Model cohorts
 # =====================================================================
 
-AGENTS_V1 = [
-    {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
-    {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-    {"name": "Agent_3", "model": "meta-llama/Llama-3.3-70B-Instruct", "model_family": "Llama"},
-    {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
+MASTER_AGENT_POOL = [
+    {"model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
+    {"model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
+    {"model": "meta-llama/Llama-3.3-70B-Instruct", "model_family": "Llama"},
+    {"model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
+    {"model": "gpt-4o", "model_family": "GPT-4o"},
+    {"model": "claude-sonnet-4-6", "model_family": "Claude Sonnet"},
 ]
 
-AGENTS_V2 = [
-    {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
-    {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-    {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
-    {"name": "Agent_4", "model": "claude-sonnet-4-6", "model_family": "Claude Sonnet"},
-]
+_MASTER_POOL_BY_FAMILY = {a["model_family"]: a for a in MASTER_AGENT_POOL}
 
-AGENTS_V3 = [
-    {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
-    {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-    {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
-    {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
-]
+
+def _with_agent_names(pool):
+    return [
+        {
+            "name": f"Agent_{i}",
+            "model": agent["model"],
+            "model_family": agent["model_family"],
+        }
+        for i, agent in enumerate(pool, start=1)
+    ]
+
+
+def get_first_n_agents(n: int):
+    """Return the first n agents from MASTER_AGENT_POOL with Agent_1..Agent_n names."""
+    if n < 1:
+        raise ValueError("n must be >= 1")
+    if n > len(MASTER_AGENT_POOL):
+        raise ValueError(f"n={n} exceeds MASTER_AGENT_POOL size={len(MASTER_AGENT_POOL)}")
+    return _with_agent_names(MASTER_AGENT_POOL[:n])
+
+
+def _agents_from_families(families):
+    missing = [f for f in families if f not in _MASTER_POOL_BY_FAMILY]
+    if missing:
+        raise ValueError(f"Unknown model family/families: {missing}")
+    return _with_agent_names([deepcopy(_MASTER_POOL_BY_FAMILY[f]) for f in families])
+
+
+AGENTS_V1 = _agents_from_families(["Mixtral", "Qwen", "Llama", "DeepSeek"])
+AGENTS_V2 = _agents_from_families(["Mixtral", "Qwen", "GPT-4o", "Claude Sonnet"])
+AGENTS_V3 = _agents_from_families(["Mixtral", "Qwen", "GPT-4o", "DeepSeek"])
 
 AGENTS_BY_VERSION = {"v1": AGENTS_V1, "v2": AGENTS_V2, "v3": AGENTS_V3}
 

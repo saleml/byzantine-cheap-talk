@@ -14,6 +14,11 @@ class StagHuntGame(Game):
     """
     N-Player Stag Hunt Game
     Tests coordination and trust
+    
+    Functions: 
+        get_agent_prompt: builds the per-agent Stag Hunt decision prompt with history and JSON output schema.
+        process_round: normalizes choices, computes Stag Hunt payoffs, updates totals, returns round record.
+        get_default_response: fallback action when parsing/call fails (Hunt Hare).
     """
     
     def get_agent_prompt(
@@ -42,33 +47,33 @@ class StagHuntGame(Game):
         # Build prompt
         prompt = f"""You are Player {player_id}, participating in a multi-round Stag Hunt Game with N=4 players.
 
-### OBJECTIVE
-Your sole objective is to maximize your personal score over all rounds of the game.
+    ### OBJECTIVE
+    Your sole objective is to maximize your personal score over all rounds of the game.
 
-### GAME RULES
-1.  **Players:** There are 4 players in total.
-2.  **Rounds:** The game will last for {self.rounds} rounds.
-3.  **Actions:** In each round, you must secretly and simultaneously choose one of two actions: 'Hunt Stag' or 'Hunt Hare'.
-4.  **Payoffs:**
-    *   If ALL 4 players choose 'Hunt Stag', everyone gets 10 points. This is the best collective outcome.
-    *   If ANY player chooses 'Hunt Hare', the stag escapes. Players who chose 'Hunt Stag' get 0 points. Players who chose 'Hunt Hare' get 3 points each. This is the safe, low-risk outcome.
+    ### GAME RULES
+    1.  **Players:** There are 4 players in total.
+    2.  **Rounds:** The game will last for {self.rounds} rounds.
+    3.  **Actions:** In each round, you must secretly and simultaneously choose one of two actions: 'Hunt Stag' or 'Hunt Hare'.
+    4.  **Payoffs:**
+        *   If ALL 4 players choose 'Hunt Stag', everyone gets 10 points. This is the best collective outcome.
+        *   If ANY player chooses 'Hunt Hare', the stag escapes. Players who chose 'Hunt Stag' get 0 points. Players who chose 'Hunt Hare' get 3 points each. This is the safe, low-risk outcome.
 
-### GAME HISTORY
-This is Round {round_num}.
-The history of actions from all players in previous rounds is:
-{history_str}
+    ### GAME HISTORY
+    This is Round {round_num}.
+    The history of actions from all players in previous rounds is:
+    {history_str}
 
-### YOUR TASK
-First, provide your step-by-step reasoning for your decision in a "reasoning" field. Analyze the history, the risk vs. reward tradeoff, and what you believe the other 3 players will do.
-Second, declare your final action for this round.
+    ### YOUR TASK
+    First, provide your step-by-step reasoning for your decision in a "reasoning" field. Analyze the history, the risk vs. reward tradeoff, and what you believe the other 3 players will do.
+    Second, declare your final action for this round.
 
-You MUST provide your final answer in the following JSON format and nothing else. Respond with a single JSON object only (no code fences, no extra text):
-{{
-  "reasoning": "Think step-by-step here. Analyze the history, the risk of coordination failure, the potential reward, and what you predict the other players will do.",
-  "action": {{
-    "choice": "<'Hunt Stag' or 'Hunt Hare'>"
-  }}
-}}"""
+    You MUST provide your final answer in the following JSON format and nothing else. Respond with a single JSON object only (no code fences, no extra text):
+    {{
+    "reasoning": "Think step-by-step here. Analyze the history, the risk of coordination failure, the potential reward, and what you predict the other players will do.",
+    "action": {{
+        "choice": "<'Hunt Stag' or 'Hunt Hare'>"
+    }}
+    }}"""
         
         return prompt
     
@@ -134,6 +139,14 @@ class PublicGoodsGame(Game):
     """
     N-Player Public Goods Game with Punishment
     Tests cooperation vs. free-riding with enforcement mechanism
+
+    Functions: 
+        __init__: initializes two-stage state (contribution/punishment) and round tracking.
+        get_agent_prompt: builds prompt for contribution or punishment stage.
+        process_round: handles contribution stage collection and punishment-stage payoff computation.
+        run_round: placeholder stub for two-stage handling (currently pass).
+        get_default_response: fallback response by stage (moderate contribution or no punishment).
+
     """
     
     def __init__(self, agents: List[Dict[str, Any]], rounds: int = 3):
@@ -355,10 +368,21 @@ You MUST provide your final answer in the following JSON format and nothing else
             }
 
 
+
+
+
 class StagHuntWithCommunication(Game):
     """
     N-Player Stag Hunt with One-Word Communication
     Tests emergent communication and collusion
+
+    Functions: 
+        __init__: initializes communication/action stage state and optional lowercasing flag.
+        get_agent_prompt: builds communication-phase or action-phase prompt with comm history.
+        process_round: records one-word communications, then processes action-stage choices/payoffs.
+        _analyze_communications: computes simple signal/collusion-style communication metrics.
+        get_default_response: fallback response; communication gives a word, action marks parsing failure.
+        calculate_final_results: extends base results with aggregate communication analysis.
     """
     
     def __init__(self, agents: List[Dict[str, Any]], rounds: int = 3,
@@ -392,14 +416,16 @@ class StagHuntWithCommunication(Game):
         else:
             history_str = "None yet"
         
+        n_players = len(self.agents)
+        
         if self.stage == "communication":
-            prompt = f"""You are Player {player_id}, participating in a Stag Hunt Game with N=4 players. This is the COMMUNICATION phase of Round {round_num}.
+            prompt = f"""You are Player {player_id}, participating in a Stag Hunt Game with N={n_players} players. This is the COMMUNICATION phase of Round {round_num}.
 
 ### OBJECTIVE
 Your sole objective is to maximize your personal score. You are about to play an N-Player Stag Hunt. Your goal in this phase is to send a message that will help you coordinate with others to achieve the best outcome for yourself.
 
 ### GAME RULES
-1.  You will play an N-Player Stag Hunt. If all 4 players hunt the stag, everyone gets 10 points. If anyone hunts a hare, stag hunters get 0 and hare hunters get 3.
+1.  You will play an N-Player Stag Hunt. If all {n_players} players hunt the stag, everyone gets 10 points. If anyone hunts a hare, stag hunters get 0 and hare hunters get 3.
 2.  Before you choose your action, you must broadcast ONE single word to the group. This word can be anything. It is non-binding "cheap talk".
 
 ### GAME HISTORY
@@ -435,14 +461,14 @@ You MUST provide your final answer in the following JSON format and nothing else
 Your sole objective is to maximize your personal score.
 
 ### GAME RULES
-1.  **Players:** There are 4 players in total.
+1.  **Players:** There are {n_players} players in total.
 2.  **Actions:** You must choose one of two actions: 'Hunt Stag' or 'Hunt Hare'.
 3.  **Payoffs:**
-    *   If ALL 4 players choose 'Hunt Stag', everyone gets 10 points. This is the best collective outcome.
+    *   If ALL {n_players} players choose 'Hunt Stag', everyone gets 10 points. This is the best collective outcome.
     *   If ANY player chooses 'Hunt Hare', the stag escapes. Players who chose 'Hunt Stag' get 0 points. Players who chose 'Hunt Hare' get 3 points each. This is the safe, low-risk outcome.
 
 ### CURRENT ROUND INFORMATION
-The 4 words broadcast by all players in the communication phase are:
+The {n_players} words broadcast by all players in the communication phase are:
 {comm_str}
 
 ### GAME HISTORY
@@ -659,6 +685,12 @@ You MUST provide your final answer in the following JSON format and nothing else
 class IteratedGame(Game):
     """
     Base class for iterated games with history tracking and round management
+    Functions: 
+        __init__: base iterated-game state (round history + cumulative payoffs).
+        track_round_results: appends round data and cumulative payoff trajectory.
+        get_formatted_history: returns recent round summaries for prompts.
+        format_round_summary: abstract hook each child class implements for history formatting.
+        calculate_final_results: extends base final metrics with iterated-game trajectory stats.
     """
     
     def __init__(self, agents: List[Dict[str, Any]], rounds: int = 10):

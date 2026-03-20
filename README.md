@@ -17,6 +17,12 @@ OPENAI_API_KEY=your_key_here        # needed for GPT-4o in v2/v3
 ANTHROPIC_API_KEY=your_key_here     # needed for Claude Sonnet in v2
 ```
 
+
+Before running any scripts, load the environment variables into your terminal session:
+```
+source .env
+```
+
 ## Model Versions
 
 All experiment scripts take a `--version` flag that selects the model cohort:
