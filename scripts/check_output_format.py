@@ -20,25 +20,11 @@ from collections import defaultdict
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 
-DIRS = [
-    "byzantine",
-    "byzantine_soft",
-    "byzantine_soft_v2",
-    "byzantine_soft_v2_lowercase",
-    "byzantine_star",
-    "byzantine_test",
-    "byzantine_v2",
-    "byzantine_v2_lowercase",
-    "byzantine_v2_lowercase_test",
-    "byzantine_v2_test",
-    "topology",
-    "topology_silent",
-    "topology_silent_v2",
-    "topology_silent_v2_lowercase",
-    "topology_v2",
-    "topology_v2_lowercase",
-    "topology_v2_test",
-]
+# Auto-discover all subdirectories in results/ that contain trial data
+DIRS = sorted([
+    d.name for d in RESULTS.iterdir()
+    if d.is_dir() and d.name != "figures" and not d.name.startswith(".")
+])
 
 VALID_CHOICES = {"hunt stag", "hunt hare"}
 
