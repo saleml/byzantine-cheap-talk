@@ -14,9 +14,10 @@ Topology conditions:
 Hub assignment is randomized per trial in the star condition.
 
 Usage:
-  python scripts/run_topology.py                          # defaults: 10 trials, 5 rounds
-  python scripts/run_topology.py --trials 30 --rounds 5
-  python scripts/run_topology.py --trials 2 --workers 1   # quick smoke test
+  python scripts/run_topology.py --version v1              # Mixtral/Qwen/Llama/DeepSeek
+  python scripts/run_topology.py --version v3              # Mixtral/Qwen/GPT-4o/DeepSeek
+  python scripts/run_topology.py --version v1 --trials 2   # quick test
+  python scripts/run_topology.py --version v3 --out results/custom_dir
 """
 
 import argparse
@@ -32,7 +33,7 @@ from typing import Dict, List, Any, Set, Optional
 
 # Ensure repo root and src/ on path
 ROOT = Path(__file__).resolve().parents[1]
-for p in (ROOT, ROOT / "src"):
+for p in (ROOT, ROOT / "src", ROOT / "scripts"):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 
@@ -46,37 +47,8 @@ if _env_file.exists():
             os.environ.setdefault(_k, _v)
 
 from src.engine import GameEngine
-from games import StagHuntWithCommunication
-
-
-# ---------- agents (same heterogeneous cohort as the paper) ----------
-# AGENTS = [
-#     {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
-#     {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-#     {"name": "Agent_3", "model": "meta-llama/Llama-3.3-70B-Instruct", "model_family": "Llama"},
-#     {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
-# ]
-
-# for reference: we have the following keys: DEEPINFRA_API_KEY, ANTHROPIC_API_KEY, and OPENAI_API_KEY 
-
-# add GPT and Claude Sonnet instead of LLaMA and DeepSeek 
-# AGENTS = [
-#     {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
-#     {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-#     {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
-#     {"name": "Agent_4", "model": "claude-sonnet-4-6", "model_family": "Claude Sonnet"},
-# ]
-
-
-AGENTS = [
-    {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
-    {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-    {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
-    {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
-]
-
-
-AGENT_FAMILY = {a["name"]: a["model_family"] for a in AGENTS}
+from src.games import StagHuntWithCommunication
+from config import get_agents, get_agent_family_map
 
 
 def build_visibility(topology: str, agent_names: List[str],
@@ -88,7 +60,7 @@ def build_visibility(topology: str, agent_names: List[str],
     Args:
         topology: "broadcast", "ring", or "star"
         agent_names: ordered list of agent names
-        hub_name: required for "star" — the designated hub agent
+        hub_name: required for "star" -- the designated hub agent
 
     Returns:
         {agent_name: set of agent_names whose messages are visible}
@@ -156,7 +128,7 @@ class TopologyStagHunt(StagHuntWithCommunication):
         player_id = int(agent_name.split('_')[1])
         visible = self.visibility[agent_name]
 
-        # Format history — show only visible communications per round
+        # Format history -- show only visible communications per round
         history_str = ""
         if self.round_history:
             for r in self.round_history:
@@ -238,12 +210,12 @@ You MUST provide your final answer in the following JSON format and nothing else
         return prompt
 
 
-def enrich_model_family(results: Dict[str, Any]):
+def enrich_model_family(results: Dict[str, Any], agent_family: Dict[str, str]):
     """Add model_family to every agent entry in full_decisions throughout rounds_data."""
     for round_data in results.get("rounds_data", []):
         for agent_name, decision in round_data.get("full_decisions", {}).items():
             if isinstance(decision, dict):
-                decision["model_family"] = AGENT_FAMILY.get(agent_name, "Unknown")
+                decision["model_family"] = agent_family.get(agent_name, "Unknown")
 
 
 def add_words_visible(results: Dict[str, Any],
@@ -259,11 +231,11 @@ def add_words_visible(results: Dict[str, Any],
                 decision["words_visible"] = [[a, w] for a, w in communications.items() if a in visible]
 
 
-def run_one_trial(topology: str, trial_num: int, out_dir: Path,
-                  rounds: int):
+def run_one_trial(agents, agent_family, version, topology: str,
+                  trial_num: int, out_dir: Path, rounds: int):
     """Run a single trial for a given topology condition."""
     # Randomize hub for star topology
-    agent_names = [a["name"] for a in AGENTS]
+    agent_names = [a["name"] for a in agents]
     hub_name: Optional[str] = None
     hub_detail: Optional[Dict[str, str]] = None
 
@@ -271,11 +243,11 @@ def run_one_trial(topology: str, trial_num: int, out_dir: Path,
         hub_name = random.choice(agent_names)
         hub_detail = {
             "agent_id": hub_name,
-            "model_family": AGENT_FAMILY[hub_name],
+            "model_family": agent_family[hub_name],
         }
 
     game = TopologyStagHunt(
-        agents=AGENTS, rounds=rounds,
+        agents=agents, rounds=rounds,
         topology=topology, hub_name=hub_name,
     )
     engine = GameEngine(game)
@@ -289,18 +261,19 @@ def run_one_trial(topology: str, trial_num: int, out_dir: Path,
     vis_map = build_visibility(topology, agent_names, hub_name=hub_name)
 
     # Enrich reasoning traces with model_family and words_visible
-    enrich_model_family(results)
+    enrich_model_family(results, agent_family)
     add_words_visible(results, vis_map)
 
     # Attach experiment metadata
     results["metadata"] = {
         "experiment": "communication_topology",
+        "version": version,
         "topology": topology,
         "hub_agent": hub_detail,
         "visibility_map": {k: sorted(v) for k, v in vis_map.items()},
         "trial": trial_num,
         "rounds": rounds,
-        "agents": AGENTS,
+        "agents": agents,
         "timestamp": datetime.now().isoformat(),
     }
 
@@ -313,8 +286,8 @@ def run_one_trial(topology: str, trial_num: int, out_dir: Path,
     return trial_num
 
 
-def run_condition(topology: str, trials: int, out_dir: Path,
-                  workers: int, rounds: int):
+def run_condition(agents, agent_family, version, topology: str, trials: int,
+                  out_dir: Path, workers: int, rounds: int):
     """Run all trials for one topology condition."""
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -333,7 +306,8 @@ def run_condition(topology: str, trials: int, out_dir: Path,
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {
-            pool.submit(run_one_trial, topology, t, out_dir, rounds): t
+            pool.submit(run_one_trial, agents, agent_family, version,
+                        topology, t, out_dir, rounds): t
             for t in todo
         }
         for fut in as_completed(futures):
@@ -345,7 +319,8 @@ def run_condition(topology: str, trials: int, out_dir: Path,
                 print(f"  [FAIL] {topology} trial {t:02d}: {e}")
 
 
-def generate_csv(out_root: Path, topologies: List[str], trials: int):
+def generate_csv(out_root: Path, topologies: List[str], trials: int,
+                 agents, agent_family):
     """
     Generate a flat CSV combining all conditions and trials.
     One row per (trial, round, agent).
@@ -400,7 +375,7 @@ def generate_csv(out_root: Path, topologies: List[str], trials: int):
                     comm_decisions = comm.get("full_decisions", {})
                     act_decisions = act.get("full_decisions", {})
 
-                    for agent in [a["name"] for a in AGENTS]:
+                    for agent in [a["name"] for a in agents]:
                         comm_reason = (
                             comm_decisions.get(agent, {}).get("reasoning", "")
                             if isinstance(comm_decisions.get(agent), dict)
@@ -418,7 +393,7 @@ def generate_csv(out_root: Path, topologies: List[str], trials: int):
                             "condition": topo,
                             "round": rn,
                             "agent_id": agent,
-                            "model_family": AGENT_FAMILY.get(agent, "Unknown"),
+                            "model_family": agent_family.get(agent, "Unknown"),
                             "word_broadcast": communications.get(agent, ""),
                             "action": choices.get(agent, ""),
                             "payoff": payoffs.get(agent, 0),
@@ -433,27 +408,39 @@ def generate_csv(out_root: Path, topologies: List[str], trials: int):
 def main():
     parser = argparse.ArgumentParser(
         description="Experiment B: Communication Topology")
+    parser.add_argument("--version", type=str, required=True, choices=["v1", "v2", "v3"],
+                        help="Model cohort version (v1=Mixtral/Qwen/Llama/DeepSeek, "
+                             "v2=Mixtral/Qwen/GPT-4o/Claude-Sonnet, "
+                             "v3=Mixtral/Qwen/GPT-4o/DeepSeek)")
     parser.add_argument("--trials", type=int, default=10)
     parser.add_argument("--rounds", type=int, default=5)
-    parser.add_argument("--out", type=str, default="results/topology")
+    parser.add_argument("--out", type=str, default=None,
+                        help="Output dir (default: results/topology_{version})")
     parser.add_argument("--workers", type=int, default=2,
                         help="Parallel workers per condition")
     args = parser.parse_args()
 
-    out_root = Path(args.out)
+    agents = get_agents(args.version)
+    agent_family = get_agent_family_map(args.version)
+    out_root = Path(args.out) if args.out else Path(f"results/topology_{args.version}")
     topologies = ["broadcast", "ring", "star"]
+
+    print(f"Version: {args.version}")
+    print(f"Models: {[a['model_family'] for a in agents]}")
+    print(f"Output: {out_root}")
 
     for topology in topologies:
         print(f"\n{'='*50}")
         print(f"Condition: {topology}")
         print(f"{'='*50}")
-        run_condition(topology, args.trials, out_root / topology,
+        run_condition(agents, agent_family, args.version, topology,
+                      args.trials, out_root / topology,
                       args.workers, args.rounds)
 
     # Generate combined flat CSV
     print(f"\n{'='*50}")
     print("Generating combined CSV...")
-    generate_csv(out_root, topologies, args.trials)
+    generate_csv(out_root, topologies, args.trials, agents, agent_family)
 
     print("\nAll topology experiment conditions complete.")
     print(f"Results in {out_root}/")

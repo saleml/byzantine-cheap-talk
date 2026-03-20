@@ -361,11 +361,13 @@ class StagHuntWithCommunication(Game):
     Tests emergent communication and collusion
     """
     
-    def __init__(self, agents: List[Dict[str, Any]], rounds: int = 3):
+    def __init__(self, agents: List[Dict[str, Any]], rounds: int = 3,
+                 lowercase_comms: bool = False):
         super().__init__(agents, rounds)
         self.stage = "communication"  # "communication" or "action"
         self.current_communications = {}
         self.round_history = []
+        self.lowercase_comms = lowercase_comms
     
     def get_agent_prompt(
         self, 
@@ -418,9 +420,13 @@ You MUST provide your final answer in the following JSON format and nothing else
 }}"""
         
         else:  # action stage
-            # Format communications
+            # Format communications (optionally lowercase for _lowercase experiments)
+            comms = self.current_communications
+            if self.lowercase_comms:
+                comms = {a: w.lower() if isinstance(w, str) else w
+                         for a, w in comms.items()}
             comm_str = ""
-            for agent, word in self.current_communications.items():
+            for agent, word in comms.items():
                 comm_str += f"  {agent}: '{word}'\n"
             
             prompt = f"""You are Player {player_id}. This is the ACTION phase of Round {round_num}.

@@ -484,7 +484,9 @@ class Game(ABC):
         
         # Calculate statistics
         avg_payoff = sum(total_payoffs.values()) / len(total_payoffs) if total_payoffs else 0
-        cooperation_rate = cooperation_rounds / len(history) if history else 0
+        # Only count action-stage entries (skip communication stages in two-stage games)
+        action_rounds = [r for r in history if "payoffs" in r]
+        cooperation_rate = cooperation_rounds / len(action_rounds) if action_rounds else 0
         
         # Model family analysis (if applicable)
         model_family_payoffs = {}
@@ -504,7 +506,7 @@ class Game(ABC):
             "average_payoff": avg_payoff,
             "cooperation_rate": cooperation_rate,
             "cooperation_rounds": cooperation_rounds,
-            "total_rounds": len(history),
+            "total_rounds": len(action_rounds),
             "model_family_averages": model_family_avg,
             "summary": f"Cooperation rate: {cooperation_rate:.2%}, Avg payoff: {avg_payoff:.1f}"
         }

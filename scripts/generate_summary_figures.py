@@ -3,12 +3,17 @@
 Generate three publication-ready figures for the Byzantine / Soft Byzantine
 experiments.  LNCS-appropriate sizing, clean style, no gridlines.
 
-Outputs (saved to results/figures/):
+Usage:
+  python scripts/generate_summary_figures.py --version v1
+  python scripts/generate_summary_figures.py --version v3
+
+Outputs (saved to results/figures_{version}/):
   1. byzantine_learning_curves.pdf   -  Round-by-round honest cooperation rate
   2. payoff_gap_bars.pdf             -  FD vs PC avg payoff/round across conditions
   3. results_summary_table.pdf       -  Full results summary as a table figure
 """
 
+import argparse
 import csv
 import sys
 from pathlib import Path
@@ -17,16 +22,11 @@ from collections import defaultdict
 # ---------- paths ----------
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
-FIGURES = RESULTS / "figures"
+sys.path.insert(0, str(ROOT / "scripts"))
 
-BYZANTINE_CSV = RESULTS / "byzantine" / "all_results.csv"
-SOFT_CSV = RESULTS / "byzantine_soft" / "all_results.csv"
-TOPO_CSV = RESULTS / "topology" / "all_results.csv"
-TOPO_SILENT_CSV = RESULTS / "topology_silent" / "all_results.csv"
-
-# Model family grouping
-FD_FAMILIES = {"Mixtral", "DeepSeek"}   # fast defectors
-PC_FAMILIES = {"Qwen", "Llama"}         # persistent cooperators
+# FD/PC are derived from data at runtime (set in main)
+FD_FAMILIES = set()
+PC_FAMILIES = set()
 
 
 # =====================================================================
@@ -80,6 +80,12 @@ if __name__ == "__main__":
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     import numpy as np
+    from analyze_results import classify_families_from_data
+
+    parser = argparse.ArgumentParser(description="Generate summary figures")
+    parser.add_argument("--version", type=str, required=True, choices=["v1", "v2", "v3"])
+    args = parser.parse_args()
+    version = args.version
 
     # ---------- style ----------
     plt.rcParams.update({
@@ -97,16 +103,29 @@ if __name__ == "__main__":
         "figure.dpi": 300,
     })
 
-    # LNCS single-column width ~= 3.3 in; we use a bit wider for readability
     FIG_W, FIG_H = 3.5, 2.6
 
+    FIGURES = RESULTS / f"figures_{version}"
     FIGURES.mkdir(parents=True, exist_ok=True)
 
     # load data
-    byz_data = load_csv(BYZANTINE_CSV)
-    soft_data = load_csv(SOFT_CSV)
-    topo_data = load_csv(TOPO_CSV)
-    topo_silent_data = load_csv(TOPO_SILENT_CSV)
+    byz_csv = RESULTS / f"byzantine_{version}" / "all_results.csv"
+    soft_csv = RESULTS / f"byzantine_soft_{version}" / "all_results.csv"
+    topo_csv = RESULTS / f"topology_{version}" / "all_results.csv"
+    topo_silent_csv = RESULTS / f"topology_silent_{version}" / "all_results.csv"
+
+    byz_data = load_csv(byz_csv)
+    soft_data = load_csv(soft_csv) if soft_csv.exists() else []
+    topo_data = load_csv(topo_csv) if topo_csv.exists() else []
+    topo_silent_data = load_csv(topo_silent_csv) if topo_silent_csv.exists() else []
+
+    # Derive FD/PC from data
+    FD_FAMILIES, PC_FAMILIES = classify_families_from_data(byz_data)
+    fd_label = " + ".join(sorted(FD_FAMILIES)) if FD_FAMILIES else "FD"
+    pc_label = " + ".join(sorted(PC_FAMILIES)) if PC_FAMILIES else "PC"
+    print(f"Version: {version}")
+    print(f"FD families (derived): {sorted(FD_FAMILIES)}")
+    print(f"PC families (derived): {sorted(PC_FAMILIES)}")
 
     # separate byzantine conditions
     byz_by_cond = defaultdict(list)
@@ -182,9 +201,9 @@ if __name__ == "__main__":
     x = np.arange(len(bar_conditions))
     width = 0.32
 
-    bars_fd = ax2.bar(x - width / 2, fd_vals, width, label="Mixtral + DeepSeek",
+    bars_fd = ax2.bar(x - width / 2, fd_vals, width, label=f"FD ({fd_label})",
                       color="#1f77b4", edgecolor="white", linewidth=0.5)
-    bars_pc = ax2.bar(x + width / 2, pc_vals, width, label="Qwen + Llama",
+    bars_pc = ax2.bar(x + width / 2, pc_vals, width, label=f"PC ({pc_label})",
                       color="#e377c2", edgecolor="white", linewidth=0.5)
 
     # add ratio annotations

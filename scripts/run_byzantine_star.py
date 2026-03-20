@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Experiment: Byzantine × Star Topology Crossing
+Experiment: Byzantine x Star Topology Crossing
 
 Combines a single hard Byzantine adversary with a star communication
 topology, testing whether the adversary's structural position matters.
@@ -19,15 +19,12 @@ In both cases:
   - Adversary identity (which model) randomized per trial within the
     positional constraint (hub vs spoke)
 
-Results saved to:
-  results/byzantine_star/hub_is_adversary/trial_XX/results.json
-  results/byzantine_star/hub_is_honest/trial_XX/results.json
-  results/byzantine_star/all_results.csv
-
 Usage:
-  python scripts/run_byzantine_star.py                    # full run
-  python scripts/run_byzantine_star.py --trials 5         # fewer trials
-  python scripts/run_byzantine_star.py --dry-run          # verify setup, no API calls
+  python scripts/run_byzantine_star.py --version v1              # Mixtral/Qwen/Llama/DeepSeek
+  python scripts/run_byzantine_star.py --version v3              # Mixtral/Qwen/GPT-4o/DeepSeek
+  python scripts/run_byzantine_star.py --version v1 --trials 2   # quick test
+  python scripts/run_byzantine_star.py --version v3 --out results/custom_dir
+  python scripts/run_byzantine_star.py --version v3 --dry-run    # verify setup, no API calls
 """
 
 import argparse
@@ -43,7 +40,7 @@ from typing import Dict, List, Any, Set, Optional
 
 # Ensure repo root and src/ on path
 ROOT = Path(__file__).resolve().parents[1]
-for p in (ROOT, ROOT / "src"):
+for p in (ROOT, ROOT / "src", ROOT / "scripts"):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 
@@ -57,7 +54,7 @@ if _env_file.exists():
             os.environ.setdefault(_k, _v)
 
 from src.engine import GameEngine
-from games import StagHuntWithCommunication
+from src.games import StagHuntWithCommunication
 
 # Reuse topology class and helpers from run_topology
 from run_topology import (
@@ -68,35 +65,17 @@ from run_topology import (
 # Reuse Byzantine patch from run_byzantine
 from run_byzantine import patch_byzantine
 
-
-# ---------- agents (same heterogeneous cohort as the paper) ----------
-# AGENTS = [
-#     {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
-#     {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-#     {"name": "Agent_3", "model": "meta-llama/Llama-3.3-70B-Instruct", "model_family": "Llama"},
-#     {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
-# ]
+from config import get_agents, get_agent_family_map
 
 
-
-AGENTS = [
-    {"name": "Agent_1", "model": "mistralai/Mixtral-8x22B-Instruct-v0.1", "model_family": "Mixtral"},
-    {"name": "Agent_2", "model": "Qwen/Qwen2.5-72B-Instruct", "model_family": "Qwen"},
-    {"name": "Agent_3", "model": "gpt-4o", "model_family": "GPT-4o"},
-    {"name": "Agent_4", "model": "deepseek-ai/DeepSeek-V3", "model_family": "DeepSeek"},
-]
-
-AGENT_FAMILY = {a["name"]: a["model_family"] for a in AGENTS}
-
-
-def run_one_trial(condition: str, trial_num: int, out_dir: Path,
-                  rounds: int):
+def run_one_trial(agents, agent_family, version, condition: str,
+                  trial_num: int, out_dir: Path, rounds: int):
     """
     Run a single trial for a given condition.
 
     condition: "hub_is_adversary" or "hub_is_honest"
     """
-    agent_names = [a["name"] for a in AGENTS]
+    agent_names = [a["name"] for a in agents]
 
     if condition == "hub_is_adversary":
         # Adversary is the hub; pick which agent is adversary (= hub)
@@ -114,16 +93,16 @@ def run_one_trial(condition: str, trial_num: int, out_dir: Path,
 
     adversary_detail = [{
         "agent_id": adversary_name,
-        "model_family": AGENT_FAMILY[adversary_name],
+        "model_family": agent_family[adversary_name],
     }]
     hub_detail = {
         "agent_id": hub_name,
-        "model_family": AGENT_FAMILY[hub_name],
+        "model_family": agent_family[hub_name],
     }
 
     # Create game with star topology and explicit visibility
     game = TopologyStagHunt(
-        agents=AGENTS, rounds=rounds,
+        agents=agents, rounds=rounds,
         topology="star", hub_name=hub_name,
     )
     engine = GameEngine(game)
@@ -138,12 +117,13 @@ def run_one_trial(condition: str, trial_num: int, out_dir: Path,
     vis_map = build_visibility("star", agent_names, hub_name=hub_name)
 
     # Enrich reasoning traces
-    enrich_model_family(results)
+    enrich_model_family(results, agent_family)
     add_words_visible(results, vis_map)
 
     # Attach experiment metadata
     results["metadata"] = {
         "experiment": "byzantine_star",
+        "version": version,
         "condition": condition,
         "n_adversaries": 1,
         "adversary_agents": [adversary_name],
@@ -154,7 +134,7 @@ def run_one_trial(condition: str, trial_num: int, out_dir: Path,
         "visibility_map": {k: sorted(v) for k, v in vis_map.items()},
         "trial": trial_num,
         "rounds": rounds,
-        "agents": AGENTS,
+        "agents": agents,
         "timestamp": datetime.now().isoformat(),
     }
 
@@ -167,8 +147,8 @@ def run_one_trial(condition: str, trial_num: int, out_dir: Path,
     return trial_num
 
 
-def run_condition(condition: str, trials: int, out_dir: Path,
-                  workers: int, rounds: int):
+def run_condition(agents, agent_family, version, condition: str, trials: int,
+                  out_dir: Path, workers: int, rounds: int):
     """Run all trials for one condition."""
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -187,7 +167,8 @@ def run_condition(condition: str, trials: int, out_dir: Path,
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = {
-            pool.submit(run_one_trial, condition, t, out_dir, rounds): t
+            pool.submit(run_one_trial, agents, agent_family, version,
+                        condition, t, out_dir, rounds): t
             for t in todo
         }
         for fut in as_completed(futures):
@@ -199,7 +180,8 @@ def run_condition(condition: str, trials: int, out_dir: Path,
                 print(f"  [FAIL] {condition} trial {t:02d}: {e}")
 
 
-def generate_csv(out_root: Path, conditions: List[str], trials: int):
+def generate_csv(out_root: Path, conditions: List[str], trials: int,
+                 agents, agent_family):
     """
     Generate a flat CSV combining both conditions.
     One row per (trial, round, agent).
@@ -255,7 +237,7 @@ def generate_csv(out_root: Path, conditions: List[str], trials: int):
                     comm_decisions = comm.get("full_decisions", {})
                     act_decisions = act.get("full_decisions", {})
 
-                    for agent in [a["name"] for a in AGENTS]:
+                    for agent in [a["name"] for a in agents]:
                         comm_reason = (
                             comm_decisions.get(agent, {}).get("reasoning", "")
                             if isinstance(comm_decisions.get(agent), dict)
@@ -273,7 +255,7 @@ def generate_csv(out_root: Path, conditions: List[str], trials: int):
                             "condition": cond,
                             "round": rn,
                             "agent_id": agent,
-                            "model_family": AGENT_FAMILY.get(agent, "Unknown"),
+                            "model_family": agent_family.get(agent, "Unknown"),
                             "word_broadcast": communications.get(agent, ""),
                             "action": choices.get(agent, ""),
                             "payoff": payoffs.get(agent, 0),
@@ -285,17 +267,17 @@ def generate_csv(out_root: Path, conditions: List[str], trials: int):
     print(f"  CSV written to {csv_path}")
 
 
-def dry_run():
+def dry_run(agents, agent_family):
     """
     Print the visibility map and agent assignments for one trial of each
     condition, without making any API calls.
     """
     conditions = ["hub_is_adversary", "hub_is_honest"]
-    agent_names = [a["name"] for a in AGENTS]
+    agent_names = [a["name"] for a in agents]
 
     for condition in conditions:
         print(f"\n{'='*60}")
-        print(f"  DRY RUN — Condition: {condition}")
+        print(f"  DRY RUN -- Condition: {condition}")
         print(f"{'='*60}")
 
         if condition == "hub_is_adversary":
@@ -308,8 +290,8 @@ def dry_run():
 
         vis_map = build_visibility("star", agent_names, hub_name=hub_name)
 
-        print(f"\n  Hub agent:       {hub_name} ({AGENT_FAMILY[hub_name]})")
-        print(f"  Adversary agent: {adversary_name} ({AGENT_FAMILY[adversary_name]})")
+        print(f"\n  Hub agent:       {hub_name} ({agent_family[hub_name]})")
+        print(f"  Adversary agent: {adversary_name} ({agent_family[adversary_name]})")
         print(f"  Adversary is hub: {adversary_name == hub_name}")
         print()
 
@@ -317,11 +299,11 @@ def dry_run():
         if condition == "hub_is_adversary":
             assert adversary_name == hub_name, \
                 f"FAIL: adversary ({adversary_name}) != hub ({hub_name})"
-            print("  CONSTRAINT CHECK: adversary == hub  ✓")
+            print("  CONSTRAINT CHECK: adversary == hub  OK")
         else:
             assert adversary_name != hub_name, \
                 f"FAIL: adversary ({adversary_name}) == hub ({hub_name})"
-            print("  CONSTRAINT CHECK: adversary != hub  ✓")
+            print("  CONSTRAINT CHECK: adversary != hub  OK")
 
         print(f"\n  Visibility map (star topology):")
         for agent, visible in sorted(vis_map.items()):
@@ -335,7 +317,7 @@ def dry_run():
             else:
                 role_parts.append("honest")
             role = ", ".join(role_parts)
-            print(f"    {agent} ({AGENT_FAMILY[agent]:>8}, {role}): "
+            print(f"    {agent} ({agent_family[agent]:>8}, {role}): "
                   f"sees {sorted(visible)}")
 
         # Show what the adversary would do
@@ -351,46 +333,59 @@ def dry_run():
             else:
                 desc = (f"You can only see the hub player's ({hub_name}) message. "
                         f"Other players' messages are hidden from you.")
-            is_adv = " [ADVERSARY — prompt never sent, patched]" if agent == adversary_name else ""
+            is_adv = " [ADVERSARY -- prompt never sent, patched]" if agent == adversary_name else ""
             print(f"    {agent}: {desc}{is_adv}")
 
     print(f"\n{'='*60}")
-    print("  DRY RUN COMPLETE — No API calls were made.")
+    print("  DRY RUN COMPLETE -- No API calls were made.")
     print(f"{'='*60}\n")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Experiment: Byzantine × Star Topology")
+        description="Experiment: Byzantine x Star Topology")
+    parser.add_argument("--version", type=str, required=True, choices=["v1", "v2", "v3"],
+                        help="Model cohort version (v1=Mixtral/Qwen/Llama/DeepSeek, "
+                             "v2=Mixtral/Qwen/GPT-4o/Claude-Sonnet, "
+                             "v3=Mixtral/Qwen/GPT-4o/DeepSeek)")
     parser.add_argument("--trials", type=int, default=10)
     parser.add_argument("--rounds", type=int, default=5)
-    parser.add_argument("--out", type=str, default="results/byzantine_star")
+    parser.add_argument("--out", type=str, default=None,
+                        help="Output dir (default: results/byzantine_star_{version})")
     parser.add_argument("--workers", type=int, default=2,
                         help="Parallel workers per condition")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print setup for one trial per condition, no API calls")
     args = parser.parse_args()
 
+    agents = get_agents(args.version)
+    agent_family = get_agent_family_map(args.version)
+    out_root = Path(args.out) if args.out else Path(f"results/byzantine_star_{args.version}")
+
+    print(f"Version: {args.version}")
+    print(f"Models: {[a['model_family'] for a in agents]}")
+    print(f"Output: {out_root}")
+
     if args.dry_run:
-        dry_run()
+        dry_run(agents, agent_family)
         return
 
-    out_root = Path(args.out)
     conditions = ["hub_is_adversary", "hub_is_honest"]
 
     for condition in conditions:
         print(f"\n{'='*50}")
         print(f"Condition: {condition}")
         print(f"{'='*50}")
-        run_condition(condition, args.trials, out_root / condition,
+        run_condition(agents, agent_family, args.version, condition,
+                      args.trials, out_root / condition,
                       args.workers, args.rounds)
 
     # Generate combined flat CSV
     print(f"\n{'='*50}")
     print("Generating combined CSV...")
-    generate_csv(out_root, conditions, args.trials)
+    generate_csv(out_root, conditions, args.trials, agents, agent_family)
 
-    print("\nAll Byzantine × Star conditions complete.")
+    print("\nAll Byzantine x Star conditions complete.")
     print(f"Results in {out_root}/")
 
 

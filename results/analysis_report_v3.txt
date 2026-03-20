@@ -1,7 +1,13 @@
-NETYS 2026 — Full Analysis Report
-Model cohort: Mixtral, Qwen, GPT-4o, DeepSeek
-Generated from raw CSV data in results/
-Date: 2026-03-19T09:12:20.331229
+NETYS 2026 — Full Analysis Report (v3)
+Models: ['Mixtral', 'Qwen', 'GPT-4o', 'DeepSeek']
+Generated from: results/*_v3/all_results.csv
+Date: 2026-03-20T00:17:36.033626
+
+Derived FD/PC classification from k=1 data:
+  Fast Defectors (FD):       ['DeepSeek', 'GPT-4o', 'Mixtral']
+  Persistent Cooperators (PC): ['Qwen']
+  (FD = >50% of instances permanently switch after first betrayal)
+
 
 ======================================================================
   (a) Behavioral Archetype Classification
@@ -61,19 +67,19 @@ Date: 2026-03-19T09:12:20.331229
   (c) Soft Byzantine: Split by Adversary Defection Count
 ======================================================================
 
-  Trial defection counts: {'1': 2, '2': 3, '3': 3, '4': 3, '5': 2, '6': 3, '7': 1, '8': 3, '9': 2, '10': 2, '11': 4, '12': 2, '13': 3, '14': 2, '15': 2}
-  Low-betrayal (<=2 defections): 8 trials, 120 honest obs
-  High-betrayal (>=3 defections): 7 trials, 105 honest obs
+  Trial defection counts: {'1': 3, '2': 3, '3': 3, '4': 2, '5': 1, '6': 2, '7': 4, '8': 3, '9': 1, '10': 2, '11': 4, '12': 3, '13': 2, '14': 3, '15': 3}
+  Low-betrayal (<=2 defections): 6 trials, 90 honest obs
+  High-betrayal (>=3 defections): 9 trials, 135 honest obs
 
   Split                 Group  Avg Pay/Rnd     Coop %
   ------------------ -------- ------------ ----------
-  Low (<=2)                FD         3.46      31.8%
-  Low (<=2)                PC         2.06      88.6%
-  Low (<=2)             ratio          1.7x
+  Low (<=2)                FD         4.55      50.8%
+  Low (<=2)                PC         4.12      96.0%
+  Low (<=2)             ratio          1.1x
 
-  High (>=3)               FD         3.59      38.8%
-  High (>=3)               PC         2.92      96.0%
-  High (>=3)            ratio          1.2x
+  High (>=3)               FD         2.85      25.0%
+  High (>=3)               PC         1.20      88.6%
+  High (>=3)            ratio          2.4x
 
 
 ======================================================================
@@ -92,6 +98,8 @@ Date: 2026-03-19T09:12:20.331229
   Silent broadcast       97.5%   92.5%   92.5%   92.5%   90.0%
   Silent ring           100.0%  100.0%  100.0%  100.0%  100.0%
   Silent star            85.0%   62.5%   57.5%   57.5%   57.5%
+  Star+Byz (hub=adv)     20.0%    0.0%    0.0%    0.0%    0.0%
+  Star+Byz (hub=hon)     46.7%   10.0%    6.7%    0.0%    3.3%
 
 
 ======================================================================
@@ -114,6 +122,8 @@ Date: 2026-03-19T09:12:20.331229
   Silent broadcast               10    90.0%     93.0%     9.21
   Silent ring                    10   100.0%    100.0%    10.00
   Silent star                    10    50.0%     64.0%     6.08
+  Star+Byz (hub=adv)             10     0.0%      4.0%     2.88
+  Star+Byz (hub=hon)             10     0.0%     13.3%     2.60
 
 
 ======================================================================
@@ -143,38 +153,4 @@ Date: 2026-03-19T09:12:20.331229
   --------------------------------------------------------------
   Hub is adversary         20.0%    0.0%    0.0%    0.0%    0.0%
   Hub is honest            46.7%   10.0%    6.7%    0.0%    3.3%
-
-
-======================================================================
-  (g) Per-Model Round-by-Round (Hard k=1 only)
-======================================================================
-
-  Model             R1      R2      R3      R4      R5
-  ----------------------------------------------------
-  Mixtral       100.0%    0.0%    0.0%    0.0%    0.0%
-  Qwen          100.0%  100.0%   62.5%   75.0%   62.5%
-  GPT-4o         62.5%    0.0%    0.0%    0.0%    0.0%
-  DeepSeek      100.0%    0.0%    0.0%   16.7%    0.0%
-
-
-======================================================================
-  (h) Per-Model Cooperation Rates
-======================================================================
-
-  Condition          Model           Coop%   AvgPay   N_obs
-  ------------------ ------------ -------- -------- -------
-  Baseline (k=0)     Mixtral         82.0%     8.14      50
-  Baseline (k=0)     Qwen            94.0%     7.78      50
-  Baseline (k=0)     GPT-4o          78.0%     8.26      50
-  Baseline (k=0)     DeepSeek        80.0%     8.20      50
-
-  Hard k=1           Mixtral         20.0%     2.40      40
-  Hard k=1           Qwen            80.0%     0.60      40
-  Hard k=1           GPT-4o          12.5%     2.62      40
-  Hard k=1           DeepSeek        23.3%     2.30      30
-
-  Hard k=2           Mixtral         20.0%     2.40      35
-  Hard k=2           Qwen            93.3%     0.20      15
-  Hard k=2           GPT-4o          20.0%     2.40      25
-  Hard k=2           DeepSeek        20.0%     2.40      25
 

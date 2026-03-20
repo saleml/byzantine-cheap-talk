@@ -1,51 +1,126 @@
 # Byzantine Cheap Talk and Communication Topology in LLM-Mediated Coordination Games
 
-Code and data for the NETYS 2026 submission. We study how adversarial agents (Byzantine cheap talk) and restricted communication topologies affect cooperation in a 4-player Stag Hunt with pre-play communication, using four heterogeneous LLM agents (Mixtral-8x22B, Qwen2.5-72B, Llama-3.3-70B, DeepSeek-V3). Key findings: a single deterministic liar destroys group cooperation entirely; probabilistic deception is far more survivable; topology restrictions collapse coordination only when agents are explicitly told about visibility limits (meta-reasoning effect, not information loss).
+Code and data for the NETYS 2026 submission. We study how adversarial agents (Byzantine cheap talk) and restricted communication topologies affect cooperation in a 4-player Stag Hunt with pre-play communication, using heterogeneous LLM agents.
 
 ## Setup
 
 ```bash
-git clone <repo-url> && cd gameth_llm_tmp_netys
+git clone <repo-url> && cd gameth_llm_tmp
 pip install -r requirements.txt
 ```
 
-Create a `.env` file with your DeepInfra API key:
+Create a `.env` file with your API keys:
 
 ```
 DEEPINFRA_API_KEY=your_key_here
+OPENAI_API_KEY=your_key_here        # needed for GPT-4o in v2/v3
+ANTHROPIC_API_KEY=your_key_here     # needed for Claude Sonnet in v2
 ```
+
+## Model Versions
+
+All experiment scripts take a `--version` flag that selects the model cohort:
+
+| Version | Models | Notes |
+|---------|--------|-------|
+| `v1` | Mixtral-8x22B, Qwen2.5-72B, Llama-3.3-70B, DeepSeek-V3 | Original cohort (all via DeepInfra). Used for NETYS paper. |
+| `v2` | Mixtral-8x22B, Qwen2.5-72B, GPT-4o, Claude Sonnet | Replaced Llama+DeepSeek. Claude Sonnet had severe output schema bugs (73-97% malformed). |
+| `v3` | Mixtral-8x22B, Qwen2.5-72B, GPT-4o, DeepSeek-V3 | Replaced Claude Sonnet with DeepSeek. Current cohort for ongoing experiments. |
+
+Model cohorts are defined in `scripts/config.py`.
 
 ## Experiments
 
-| Script | Description | Example |
-|--------|-------------|---------|
-| `scripts/run_byzantine.py` | Hard Byzantine cheap talk (k=0,1,2 adversaries) | `python scripts/run_byzantine.py --trials 10 --workers 4` |
-| `scripts/run_byzantine_soft.py` | Soft Byzantine (probabilistic defection, p=0.5) | `python scripts/run_byzantine_soft.py --trials 15 --workers 4` |
-| `scripts/run_topology.py` | Explicit communication topology (broadcast/ring/star) | `python scripts/run_topology.py --trials 10 --workers 4` |
-| `scripts/run_topology_silent.py` | Silent topology (same filtering, no visibility cues) | `python scripts/run_topology_silent.py --trials 10 --workers 4` |
-| `scripts/generate_summary_figures.py` | Generate publication figures from results CSVs | `python scripts/generate_summary_figures.py` |
-| `scripts/analyze_results.py` | Reproduces all paper statistics from raw CSVs | `python scripts/analyze_results.py` |
+All scripts require `--version v1|v2|v3`. Results go to `results/{experiment}_{version}/`.
 
-## Pre-computed Results
+| Script | Description | Key flags | Example |
+|--------|-------------|-----------|---------|
+| `run_byzantine.py` | Hard Byzantine (k=0,1,2) | `--version`, `--lowercase`, `--trials`, `--rounds` | `python scripts/run_byzantine.py --version v1 --trials 10` |
+| `run_byzantine_soft.py` | Soft Byzantine | `--version`, `--defect_prob`, `--trials` | `python scripts/run_byzantine_soft.py --version v3 --defect_prob 0.3` |
+| `run_topology.py` | Explicit topology | `--version`, `--lowercase`, `--trials` | `python scripts/run_topology.py --version v1 --trials 10` |
+| `run_topology_silent.py` | Silent topology | `--version`, `--lowercase`, `--trials` | `python scripts/run_topology_silent.py --version v1` |
+| `run_byzantine_star.py` | Byzantine × star | `--version`, `--dry-run`, `--trials` | `python scripts/run_byzantine_star.py --version v1 --dry-run` |
 
-The `results/` directory contains pre-computed experiment outputs:
+### Analysis
 
-- `results/byzantine/` -- 10 trials each for k=0, k=1, k=2
-- `results/byzantine_soft/` -- 15 trials, k=1 soft (p=0.5)
-- `results/topology/` -- 10 trials each for broadcast, ring, star
-- `results/topology_silent/` -- 10 trials each for broadcast, ring, star (silent)
-- `results/figures/` -- Generated PDF/PNG figures
+```bash
+python scripts/analyze_results.py --version v1    # analyze v1 results
+python scripts/analyze_results.py --version v3    # analyze v3 results
+python scripts/generate_summary_figures.py        # generate figures
+python scripts/check_output_format.py             # diagnose malformed outputs
+```
 
-Each experiment directory contains per-trial JSON results and an `all_results.csv` summary.
+Reports are saved to `results/analysis_report_{version}.txt`.
+
+## Results Directory
+
+Results are organized as `results/{experiment}_{version}/`:
+
+```
+results/
+  byzantine_v1/          # Hard Byzantine, v1 models (10 trials × 3 conditions)
+  byzantine_v2/          # Hard Byzantine, v2 models
+  byzantine_v3/          # Hard Byzantine, v3 models
+  byzantine_soft_v2/     # Soft Byzantine, v2 models (15 trials)
+  byzantine_soft_v3/     # Soft Byzantine, v3 models
+  byzantine_star_v1/     # Byzantine × star, v1 models (10 trials × 2 conditions)
+  topology_v1/           # Explicit topology, v1 models (10 trials × 3 topologies)
+  topology_v2/           # Explicit topology, v2 models
+  topology_v3/           # Explicit topology, v3 models
+  topology_silent_v1/    # Silent topology, v1 models
+  topology_silent_v2/    # Silent topology, v2 models
+  topology_silent_v3/    # Silent topology, v3 models
+  *_v2_lowercase/        # v2 models with lowercased communication words
+  *_test/                # Quick smoke-test runs (3 trials)
+  figures/               # Generated PDF/PNG figures
+```
+
+Each experiment directory contains per-trial `results.json` files and an `all_results.csv` summary.
+
+**Note on the paper:** The NETYS 2026 paper reports v1 results (Mixtral, Qwen, Llama, DeepSeek). There is no `byzantine_soft_v1/` because soft Byzantine was first run with v2 models.
 
 ## Project Structure
 
 ```
 src/
-  engine.py                 # GameEngine: runs games, handles LLM API calls
-  games.py                  # Game implementations (StagHuntWithCommunication, etc.)
-scripts/                    # Experiment runners and analysis (see table above)
-results/                    # Raw trial data + figures
-paper_netys/
-  outline.md                # Paper outline with all results
+  engine.py              # GameEngine: runs games, handles multi-provider LLM API calls
+  games.py               # Game implementations (StagHuntWithCommunication, etc.)
+                         #   lowercase_comms=True flag for lowercase prompt variant
+scripts/
+  config.py              # Centralized version config (model cohorts, FD/PC families)
+  run_byzantine.py       # Experiment A: hard Byzantine
+  run_byzantine_soft.py  # Experiment A-soft: probabilistic Byzantine
+  run_byzantine_star.py  # Experiment: Byzantine × star topology crossing
+  run_topology.py        # Experiment B: explicit topology
+  run_topology_silent.py # Experiment B-silent: silent topology
+  analyze_results.py     # Comprehensive analysis (--version flag)
+  generate_summary_figures.py  # Publication figures
+  check_output_format.py # Diagnostic for malformed LLM outputs
+paper_netys/             # NETYS 2026 paper (LaTeX)
+paper_eacl/              # EACL 2026 paper (prior work)
 ```
+
+## TODO
+
+### Figures & Paper
+- [ ] Generate topology figures (explicit vs silent comparison) and add to paper
+- [ ] Regenerate learning curve plots with per-round mean ± std; add to paper and reference inline (the "100% → 53%" claim currently has no figure reference)
+- [ ] Decide which version (v1 vs v3) the paper reports — or report both as robustness check
+
+### Experiments
+- [ ] Rerun all conditions with 20 trials (currently 10 for some, 15 for others)
+- [ ] Confirm FD/PC archetypes hold with different group sizes (2, 3, 5, 6 players)
+- [ ] Run Byzantine experiments in IPGG+P (graded payoffs — tests whether unanimity structure drives fragility)
+- [ ] Analyze v2_lowercase results: does lowercasing communications change behavior?
+- [ ] If FD/PC archetypes hold across group sizes, design experiments to explain *why* (model gullibility? risk aversion? instruction-following style?)
+
+### Analysis
+- [ ] Qualitative analysis of reasoning traces (common themes, archetype differences, clustering/word clouds — like EACL paper Section 5.2)
+- [ ] Add bootstrap confidence intervals / statistical tests to `analyze_results.py` (reviewers will ask)
+### AI Safety
+- [ ] Develop AI safety framing: cheap talk fragility as a vulnerability in deployed multi-agent systems; adversarial prompt injection as a form of Byzantine behavior
+
+## Known Issues
+
+- **cooperation_rate in results.json is bugged**: The engine divides by `len(history)` which double-counts communication-stage entries, halving the rate. All analysis scripts compute from raw CSV actions instead.
+- **Claude Sonnet schema bug (v2)**: Claude Sonnet outputs communication-stage JSON during the action stage in 73-97% of rounds. v3 replaces it with DeepSeek.

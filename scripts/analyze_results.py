@@ -2,25 +2,21 @@
 """
 Comprehensive analysis of all NETYS experiment results.
 
-Reads the four all_results.csv files and prints:
-  (a) Behavioral archetype classification (k=1, k=2)
-  (b) Per-model-family payoff breakdown (hard k=1, k=2, soft k=1)
-  (c) Soft Byzantine split by adversary defection count
-  (d) Round-by-round honest cooperation rates for all conditions
-  (e) Master summary table
+Uses --version to select which model cohort's results to analyze.
+All paths, model families, and FD/PC classifications are derived
+from config.py based on the version flag.
 
 Usage:
-  python scripts/analyze_results.py
+  python scripts/analyze_results.py --version v1    # Mixtral/Qwen/Llama/DeepSeek
+  python scripts/analyze_results.py --version v3    # Mixtral/Qwen/GPT-4o/DeepSeek
 
-Output is printed to stdout and saved to results/analysis_report.txt.
+Output saved to results/analysis_report_{version}.txt.
 """
 
-# NOTE: results.json contains a bugged cooperation_rate field
-# (engine.py divides by len(history) which double-counts
-# communication-stage entries in two-stage games, halving
-# the true rate). All statistics here are computed from the
-# raw action columns in all_results.csv instead.
+# NOTE: results.json cooperation_rate field is bugged (halved by
+# double-counting comm stages). All stats here use raw CSV actions.
 
+import argparse
 import csv
 import json
 import sys
@@ -28,56 +24,88 @@ from pathlib import Path
 from collections import defaultdict
 from io import StringIO
 
-# ---------- paths ----------
 ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
-
-
-# change here also
-BYZANTINE_CSV = RESULTS / "byzantine_v3" / "all_results.csv"
-SOFT_CSV = RESULTS / "byzantine_soft_v3" / "all_results.csv"
-TOPO_CSV = RESULTS / "topology_v3" / "all_results.csv"
-TOPO_SILENT_CSV = RESULTS / "topology_silent_v3" / "all_results.csv"
-BYZ_STAR_CSV = RESULTS / "byzantine_star_v3" / "all_results.csv"
-# BYZ_STAR_CSV = None
-
-
-# ---------- reuse helpers from generate_summary_figures ----------
 sys.path.insert(0, str(ROOT / "scripts"))
-# from generate_summary_figures import (
-#     load_csv, honest_rows, coop_rate, group_coop_rate, avg_payoff_per_round,
-#     FD_FAMILIES, PC_FAMILIES,
-# )
+
 from generate_summary_figures import (
-    load_csv,
-    honest_rows,
-    coop_rate,
-    group_coop_rate,
-    avg_payoff_per_round,
+    load_csv, honest_rows, coop_rate, group_coop_rate, avg_payoff_per_round,
 )
+from config import get_all_families
 
-# change here also ...
-
-# for v2
-# FD_FAMILIES = {"Mixtral", "Claude Sonnet", "GPT-4o"}
-# PC_FAMILIES = {"Qwen"}
-
-
-# for v3 (where DeepSeek replaces Claude Sonnet)
-FD_FAMILIES = {"Mixtral", "DeepSeek", "GPT-4o"}
-PC_FAMILIES = {"Qwen"}
+# These globals are set in main() — FD/PC derived from k=1 archetype data.
+# FD = fast defectors (>50% of instances permanently switch after betrayal).
+# PC = persistent cooperators (everything else).
+FD_FAMILIES = set()
+PC_FAMILIES = set()
+ALL_FAMILIES = []
 
 
-# NOTE both FD_FAMILIES and PC_FAMILIES are defined manually after analyzing the results of analysis (a)
-# Fast Defectors (FD) are models that permanently switch to \tsc{Hare} after the first observed betrayal
-# Persistent Cooperators (PC) are models that never switch or intermittently return to \tsc{Stag} despite continued exploitation.
+def classify_families_from_data(byz_data):
+    """Derive FD/PC classification from k=1 archetype analysis.
 
+    A model family is FD if >50% of its honest instances under k=1
+    permanently switched to Hunt Hare after the first betrayal.
+    Otherwise it is PC.
 
-# ---------- model family constants ----------
-# change here also
-# ALL_FAMILIES = ["Mixtral", "Qwen", "Llama", "DeepSeek"]
-# ALL_FAMILIES = ["Mixtral", "Qwen", "GPT-4o", "Claude Sonnet"]
-ALL_FAMILIES = ["Mixtral", "Qwen", "GPT-4o", "DeepSeek"]
+    Returns (fd_set, pc_set).
+    """
+    from collections import defaultdict
+
+    k1_rows = [r for r in byz_data if r["condition"] == "adv_1"]
+    if not k1_rows:
+        return set(), set()
+
+    trials = defaultdict(list)
+    for r in k1_rows:
+        trials[r["trial_id"]].append(r)
+
+    family_perm_switch = defaultdict(int)
+    family_total = defaultdict(int)
+
+    for trial_id, rows in trials.items():
+        adversary_agents = {
+            r["agent_id"] for r in rows if r["is_adversary"] in ("True", "1", True)
+        }
+        honest_agents = {
+            r["agent_id"] for r in rows if r["is_adversary"] in ("False", "0", False)
+        }
+
+        agent_actions = defaultdict(list)
+        round_choices = defaultdict(dict)
+        for r in rows:
+            agent_actions[r["agent_id"]].append((int(r["round"]), r["action"]))
+            round_choices[int(r["round"])][r["agent_id"]] = r["action"]
+
+        for agent in honest_agents:
+            actions = sorted(agent_actions[agent])
+            fam = next((r["model_family"] for r in rows if r["agent_id"] == agent), "Unknown")
+
+            # Find first betrayal round
+            first_betrayal = None
+            for rnd, _ in actions:
+                if (round_choices[rnd].get(agent) == "Hunt Stag" and
+                    any(round_choices[rnd].get(adv) == "Hunt Hare" for adv in adversary_agents)):
+                    first_betrayal = rnd
+                    break
+
+            if first_betrayal is not None:
+                post = [a for rn, a in actions if rn > first_betrayal]
+                if post and all(a == "Hunt Hare" for a in post):
+                    family_perm_switch[fam] += 1
+
+            family_total[fam] += 1
+
+    fd = set()
+    pc = set()
+    for fam in family_total:
+        rate = family_perm_switch[fam] / family_total[fam] if family_total[fam] else 0
+        if rate > 0.5:
+            fd.add(fam)
+        else:
+            pc.add(fam)
+
+    return fd, pc
 
 
 class TeeOutput:
@@ -280,12 +308,11 @@ def analyze_payoff_breakdown(byz_data, soft_data):
 # =====================================================================
 # (c) Soft Byzantine split by adversary defection count
 # =====================================================================
-def analyze_soft_by_defections(soft_data):
+def analyze_soft_by_defections(soft_data, version="v1"):
     print_separator("(c) Soft Byzantine: Split by Adversary Defection Count")
 
     # Load per-trial adversary defection counts from trial JSONs
-    # soft_dir = RESULTS / "byzantine_soft"
-    soft_dir = RESULTS / "byzantine_soft_v2"
+    soft_dir = RESULTS / f"byzantine_soft_{version}"
     trial_defection_count = {}
     for t in range(1, 100):
         rfile = soft_dir / f"trial_{t:02d}" / "results.json"
@@ -518,38 +545,82 @@ def analyze_byzantine_star(byz_star_data):
 # main
 # =====================================================================
 def main():
+    parser = argparse.ArgumentParser(description="Analyze NETYS experiment results")
+    parser.add_argument("--version", type=str, required=True, choices=["v1", "v2", "v3"],
+                        help="Model cohort version to analyze")
+    args = parser.parse_args()
+
+    version = args.version
+
+    # Set globals
+    global FD_FAMILIES, PC_FAMILIES, ALL_FAMILIES
+    ALL_FAMILIES = get_all_families(version)
+
+    # Derive CSV paths
+    byz_csv = RESULTS / f"byzantine_{version}" / "all_results.csv"
+    soft_csv = RESULTS / f"byzantine_soft_{version}" / "all_results.csv"
+    topo_csv = RESULTS / f"topology_{version}" / "all_results.csv"
+    topo_silent_csv = RESULTS / f"topology_silent_{version}" / "all_results.csv"
+    byz_star_csv = RESULTS / f"byzantine_star_{version}" / "all_results.csv"
+
     tee = TeeOutput()
     sys.stdout = tee
 
-    print("NETYS 2026 — Full Analysis Report")
-    print(f"Generated from raw CSV data in {RESULTS}/")
+    print(f"NETYS 2026 — Full Analysis Report ({version})")
+    print(f"Models: {ALL_FAMILIES}")
+    print(f"Generated from: results/*_{version}/all_results.csv")
     print(f"Date: {__import__('datetime').datetime.now().isoformat()}")
 
-    # Load data
-    byz_data = load_csv(BYZANTINE_CSV)
-    soft_data = load_csv(SOFT_CSV)
-    topo_data = load_csv(TOPO_CSV)
-    topo_silent_data = load_csv(TOPO_SILENT_CSV)
+    # Load data (skip missing experiments gracefully)
+    byz_data = load_csv(byz_csv) if byz_csv.exists() else None
+    soft_data = load_csv(soft_csv) if soft_csv.exists() else None
+    topo_data = load_csv(topo_csv) if topo_csv.exists() else None
+    topo_silent_data = load_csv(topo_silent_csv) if topo_silent_csv.exists() else None
+    byz_star_data = load_csv(byz_star_csv) if byz_star_csv.exists() else None
 
-    byz_star_data = None
-    if BYZ_STAR_CSV.exists():
-        byz_star_data = load_csv(BYZ_STAR_CSV)
+    missing = []
+    if not byz_data: missing.append("byzantine")
+    if not soft_data: missing.append("byzantine_soft")
+    if not topo_data: missing.append("topology")
+    if not topo_silent_data: missing.append("topology_silent")
+    if not byz_star_data: missing.append("byzantine_star")
+    if missing:
+        print(f"\nMissing data for: {', '.join(missing)}")
+        print("(Skipping those analyses)\n")
 
-    # Run all analyses
-    analyze_archetypes(byz_data)
-    analyze_payoff_breakdown(byz_data, soft_data)
-    analyze_soft_by_defections(soft_data)
-    analyze_round_by_round(
-        byz_data, soft_data, topo_data, topo_silent_data, byz_star_data
-    )
-    print_summary_table(byz_data, soft_data, topo_data, topo_silent_data, byz_star_data)
+    # Derive FD/PC classification from k=1 archetype data
+    if byz_data:
+        FD_FAMILIES, PC_FAMILIES = classify_families_from_data(byz_data)
+        print(f"\nDerived FD/PC classification from k=1 data:")
+        print(f"  Fast Defectors (FD):       {sorted(FD_FAMILIES) if FD_FAMILIES else '(none)'}")
+        print(f"  Persistent Cooperators (PC): {sorted(PC_FAMILIES) if PC_FAMILIES else '(none)'}")
+        print(f"  (FD = >50% of instances permanently switch after first betrayal)\n")
 
+    # Run analyses
+    if byz_data:
+        analyze_archetypes(byz_data)
+    if byz_data and soft_data:
+        analyze_payoff_breakdown(byz_data, soft_data)
+    elif byz_data:
+        # Payoff breakdown without soft data
+        analyze_payoff_breakdown(byz_data, [])
+    if soft_data:
+        analyze_soft_by_defections(soft_data, version=version)
+    if byz_data:
+        analyze_round_by_round(
+            byz_data, soft_data or [], topo_data or [], topo_silent_data or [],
+            byz_star_data
+        )
+        print_summary_table(
+            byz_data, soft_data or [], topo_data or [], topo_silent_data or [],
+            byz_star_data
+        )
     if byz_star_data:
         analyze_byzantine_star(byz_star_data)
 
-    # Save to file [ change here ]
+    # Save report
     sys.stdout = tee.stdout
-    report_path = RESULTS / "analysis_report_v3.txt"
+    report_path = RESULTS / f"analysis_report_{version}.txt"
     report_path.write_text(tee.get_value())
     print(f"\nReport saved to {report_path}")
 
