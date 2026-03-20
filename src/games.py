@@ -583,7 +583,17 @@ You MUST provide your final answer in the following JSON format and nothing else
         }
     
     def get_default_response(self, agent_name: str) -> Dict[str, Any]:
-        """Default response for Stag Hunt with Communication"""
+        """Default response for Stag Hunt with Communication.
+
+        WARNING: this fires when all retries and re-prompts fail.
+        Communication stage: defaults to "cooperate" (harmless).
+        Action stage: flags the round as failed — never silently
+        infers Hunt Stag or Hunt Hare.
+        """
+        import logging
+        logging.getLogger(__name__).warning(
+            f"get_default_response fired for {agent_name} (stage={self.stage})"
+        )
         if self.stage == "communication":
             return {
                 "reasoning": "Error occurred, signaling cooperation",
@@ -591,8 +601,9 @@ You MUST provide your final answer in the following JSON format and nothing else
             }
         else:
             return {
-                "reasoning": "Error occurred, choosing safe option",
-                "action": {"choice": "Hunt Hare"}
+                "reasoning": "Error occurred, all retries failed",
+                "action": None,
+                "action_parsing_failed": True,
             }
     
     def calculate_final_results(self, history: List[Dict[str, Any]]) -> Dict[str, Any]:

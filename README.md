@@ -105,12 +105,12 @@ paper_eacl/              # EACL 2026 paper (prior work)
 ### Figures & Paper
 - [ ] Generate topology figures (explicit vs silent comparison) and add to paper
 - [ ] Regenerate learning curve plots with per-round mean ± std; add to paper and reference inline (the "100% → 53%" claim currently has no figure reference)
-- [ ] Decide which version (v1 vs v3) the paper reports — or report both as robustness check
+- [ ] Decide which version (v1 vs v2 vs v3) the paper reports — or report all as robustness check
 
 ### Experiments
 - [ ] Rerun all conditions with 20 trials (currently 10 for some, 15 for others)
-- [ ] Confirm FD/PC archetypes hold with different group sizes (2, 3, 5, 6 players)
-- [ ] Run Byzantine experiments in IPGG+P (graded payoffs — tests whether unanimity structure drives fragility)
+- [ ] Confirm FD/PC archetypes hold with different group sizes (2, 3, 5, 6 players) - add that to the paper
+- [ ] Run Byzantine experiments in IPGG+P (as a confirmation of archetypes?)
 - [ ] Analyze v2_lowercase results: does lowercasing communications change behavior?
 - [ ] If FD/PC archetypes hold across group sizes, design experiments to explain *why* (model gullibility? risk aversion? instruction-following style?)
 

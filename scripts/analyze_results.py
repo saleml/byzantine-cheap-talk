@@ -29,9 +29,22 @@ RESULTS = ROOT / "results"
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from generate_summary_figures import (
-    load_csv, honest_rows, coop_rate, group_coop_rate, avg_payoff_per_round,
+    load_csv, valid_rows, honest_rows, coop_rate, group_coop_rate, avg_payoff_per_round,
 )
 from config import get_all_families
+
+
+def report_exclusions(label, data):
+    """Print count of rows excluded due to action_parsing_failed."""
+    if not data:
+        return
+    total = len(data)
+    invalid = total - len(valid_rows(data))
+    if invalid > 0:
+        pct = invalid / total * 100
+        marker = " *** WARNING: >5% excluded" if pct > 5 else ""
+        print(f"  {label}: {invalid}/{total} rows excluded ({pct:.1f}%){marker}")
+    return invalid
 
 # These globals are set in main() — FD/PC derived from k=1 archetype data.
 # FD = fast defectors (>50% of instances permanently switch after betrayal).
@@ -587,6 +600,18 @@ def main():
     if missing:
         print(f"\nMissing data for: {', '.join(missing)}")
         print("(Skipping those analyses)\n")
+
+    # Report any excluded rows (action_parsing_failed)
+    print_separator("Excluded Rounds (action_parsing_failed)")
+    any_exclusions = False
+    for label, data in [("Byzantine", byz_data), ("Soft Byzantine", soft_data),
+                         ("Topology", topo_data), ("Silent Topology", topo_silent_data),
+                         ("Byzantine×Star", byz_star_data)]:
+        if data and report_exclusions(label, data):
+            any_exclusions = True
+    if not any_exclusions:
+        print("  No excluded rounds.")
+    print()
 
     # Derive FD/PC classification from k=1 archetype data
     if byz_data:

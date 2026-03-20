@@ -107,61 +107,90 @@ class GameEngine:
         
         logger.info(f"Initialized GameEngine for {game.__class__.__name__}")
     
+    @staticmethod
+    def _extract_json(text: str) -> Optional[Dict[str, Any]]:
+        """Extract the first valid JSON object from text, stripping code fences."""
+        if text.strip().startswith("```"):
+            parts = text.split('```')
+            text = parts[1] if len(parts) >= 3 else parts[0]
+            if text.strip().startswith('json'):
+                text = text[text.index('\n'):]
+        start = text.find('{')
+        end = text.rfind('}') + 1
+        if start >= 0 and end > start:
+            try:
+                return json.loads(text[start:end])
+            except Exception:
+                pass
+        return None
+
+    @staticmethod
+    def _check_schema(parsed: Dict[str, Any], prompt: str) -> bool:
+        """Check whether parsed JSON matches the expected schema for this prompt."""
+        action = parsed.get("action")
+        if not isinstance(action, dict):
+            return False
+        prompt_lower = prompt.lower()
+        if "action phase" in prompt_lower:
+            return "choice" in action
+        if "communication phase" in prompt_lower and "action phase" not in prompt_lower:
+            return "type" in action and "word" in action
+        # For contribution/punishment/other games, accept if action has any keys
+        return len(action) > 0
+
+    @staticmethod
+    def _schema_reminder(prompt: str) -> str:
+        """Build a one-shot reminder string for the correct schema."""
+        prompt_lower = prompt.lower()
+        if "action phase" in prompt_lower:
+            return (
+                '\n\nIMPORTANT: Your previous response used the wrong format. '
+                'You MUST respond with ONLY:\n'
+                '{"reasoning": "...", "action": {"choice": "Hunt Stag" or "Hunt Hare"}}'
+            )
+        if "communication phase" in prompt_lower and "action phase" not in prompt_lower:
+            return (
+                '\n\nIMPORTANT: Your previous response used the wrong format. '
+                'You MUST respond with ONLY:\n'
+                '{"reasoning": "...", "action": {"type": "communicate", "word": "<single_word>"}}'
+            )
+        return ""
+
+    def _make_failed_response(self, raw_content: str) -> Dict[str, Any]:
+        """Return a flagged failure response — never infers a game action."""
+        return {
+            "reasoning": raw_content[:200],
+            "action": None,
+            "action_parsing_failed": True,
+        }
+
     def call_agent(
-        self, 
-        agent_name: str, 
-        model: str, 
+        self,
+        agent_name: str,
+        model: str,
         prompt: str,
         agent_config: Dict[str, Any] = None,
         max_retries: int = 3
     ) -> Dict[str, Any]:
         """
-        Call a single agent for their decision
-        
-        Args:
-            agent_name: Name of the agent
-            model: Model ID to use
-            prompt: Prompt to send to the model
-            agent_config: Agent configuration (may contain system_prompt_suffix)
-            max_retries: Maximum number of retries on failure
-            
-        Returns:
-            Parsed response from the agent
+        Call a single agent for their decision.
+
+        Recovery procedure on malformed output:
+          1. Parse JSON from response
+          2. Validate schema matches the prompt stage (action vs communication)
+          3. If wrong schema or no JSON: re-prompt ONCE with schema reminder
+          4. If retry also fails: return flagged failure (action_parsing_failed=True)
+             Never infer a game action from keywords.
         """
-        # Build system prompt with optional suffix for curriculum learning
         system_prompt = (
             "You are a rational game-playing agent. Return ONLY a single valid JSON object matching the"
             " requested schema; no extra text, code fences, markdown, or explanations."
         )
         if agent_config and "system_prompt_suffix" in agent_config:
             system_prompt += agent_config["system_prompt_suffix"]
-        
-        # Debug logging to verify curriculum injection
-        if agent_config and "system_prompt_suffix" in agent_config:
-            logger.debug(f"Curriculum context injected for {agent_name} (first 500 chars): {agent_config['system_prompt_suffix'][:500]}")
-        
+
         for attempt in range(max_retries):
             try:
-                # kwargs = {
-                #     "model": model,
-                #     "messages": [
-                #         {"role": "system", "content": system_prompt},
-                #         {"role": "user", "content": prompt}
-                #     ],
-                #     "timeout": 60,
-                #     "response_format": {"type": "json_object"},
-                # }
-                # # New OpenAI models (o3, gpt-4.1 family) require max_completion_tokens and do not accept temperature
-                # if "openai.com" in _base_url and (model.startswith("o3") or model.startswith("gpt-4.1")):
-                #     kwargs["max_completion_tokens"] = 300
-                # else:
-                #     kwargs["max_tokens"] = 300
-                #     kwargs["temperature"] = 0.0
-
-                # response = client.chat.completions.create(**kwargs)
-
-
-                ### added - 
                 client, provider = get_client_and_provider(model)
 
                 kwargs = {
@@ -171,100 +200,74 @@ class GameEngine:
                         {"role": "user", "content": prompt}
                     ],
                     "timeout": 60,
-                    "response_format": {"type": "json_object"},
                 }
 
-                # Only use json_object for OpenAI/DeepInfra
-                # if provider in ["openai", "deepinfra"]:
-                #     kwargs["response_format"] = {"type": "json_object"}
+                # Anthropic's OpenAI-compatible endpoint does not support response_format
+                if provider != "anthropic":
+                    kwargs["response_format"] = {"type": "json_object"}
 
-                # Keep token settings simple
+                # Token and temperature settings
                 if provider == "openai" and (model.startswith("o3") or model.startswith("gpt-4.1")):
-                    kwargs["max_completion_tokens"] = 300
+                    kwargs["max_completion_tokens"] = 512
                 else:
-                    kwargs["max_tokens"] = 300
+                    kwargs["max_tokens"] = 512
                     kwargs["temperature"] = 0.0
 
                 response = client.chat.completions.create(**kwargs)
-
-                ### 
-
                 content = response.choices[0].message.content or ""
 
-                def extract_json(text: str):
-                    # Strip code fences if present
-                    if text.strip().startswith("```"):
-                        parts = text.split('```')
-                        if len(parts) >= 3:
-                            text = parts[1] if parts[1].strip().startswith('json') else parts[1]
-                        else:
-                            text = parts[0]
-                    start = text.find('{')
-                    end = text.rfind('}') + 1
-                    if start >= 0 and end > start:
-                        try:
-                            return json.loads(text[start:end])
-                        except Exception as e:
-                            logger.warning(f"JSON load failed: {e}; raw snippet: {text[start:end][:200]}")
-                    return None
+                # --- Parse and validate ---
+                parsed = self._extract_json(content)
 
-                parsed = extract_json(content)
-                if parsed is not None:
-                    logger.debug(f"{agent_name} response: {parsed}")
+                if parsed is not None and self._check_schema(parsed, prompt):
                     return parsed
-                else:
-                    logger.error(f"No JSON found for {agent_name}. Raw content: {content}")
-                    # Heuristic fallback parsing
-                    heuristic = self._heuristic_parse_response(content, prompt)
-                    if heuristic is not None:
-                        logger.warning(f"Using heuristic parse for {agent_name}: {heuristic}")
-                        return heuristic
-                    # Formatter LLM fallback
-                    formatted = self._llm_format_response(content, prompt)
-                    if formatted is not None:
-                        logger.warning(f"Using formatter parse for {agent_name}: {formatted}")
-                        return formatted
+
+                # --- Wrong schema or no JSON: re-prompt once ---
+                reason = "wrong schema" if parsed is not None else "no JSON"
+                logger.warning(
+                    f"{agent_name}: {reason} on attempt {attempt+1}, re-prompting. "
+                    f"Raw: {content[:150]}..."
+                )
+
+                reminder = self._schema_reminder(prompt)
+                if not reminder:
+                    # Non-Stag-Hunt game; fall through to formatter
+                    if parsed is not None:
+                        return parsed
                     raise ValueError("No JSON found in response")
-                    
+
+                retry_kwargs = dict(kwargs)
+                retry_kwargs["messages"] = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt + reminder}
+                ]
+                retry_response = client.chat.completions.create(**retry_kwargs)
+                retry_content = retry_response.choices[0].message.content or ""
+                retry_parsed = self._extract_json(retry_content)
+
+                if retry_parsed is not None and self._check_schema(retry_parsed, prompt):
+                    logger.warning(f"{agent_name}: re-prompt succeeded.")
+                    return retry_parsed
+
+                # Re-prompt also failed
+                logger.error(
+                    f"{agent_name}: re-prompt also failed ({reason}). "
+                    f"Raw retry: {retry_content[:150]}..."
+                )
+                return self._make_failed_response(content)
+
             except json.JSONDecodeError as e:
                 logger.warning(f"JSON parse error for {agent_name} (attempt {attempt+1}): {e}")
                 if attempt == max_retries - 1:
-                    return self.game.get_default_response(agent_name)
-                    
+                    return self._make_failed_response(str(e))
+
             except Exception as e:
                 logger.error(f"API error for {agent_name} (attempt {attempt+1}): {e}")
                 if attempt == max_retries - 1:
-                    return self.game.get_default_response(agent_name)
-                time.sleep(2 ** attempt)  # Exponential backoff
-        
-        return self.game.get_default_response(agent_name)
+                    return self._make_failed_response(str(e))
+                time.sleep(2 ** attempt)
 
-    def _heuristic_parse_response(self, text: str, prompt: str) -> Optional[Dict[str, Any]]:
-        """
-        Best-effort extraction for non-JSON responses from some endpoints.
-        Handles our game action schemas heuristically.
-        """
-        lower = text.lower()
-        # Communication phase
-        if "communicate" in prompt.lower() or "communication phase" in prompt.lower():
-            word = re.findall(r"[a-zA-Z]+", text)
-            word = word[0] if word else "cooperate"
-            return {"reasoning": text[:200], "action": {"type": "communicate", "word": word}}
-        # Contribution stage
-        if "contribute" in prompt.lower() or "public goods" in prompt.lower():
-            nums = re.findall(r"\d+", text)
-            amount = int(nums[0]) if nums else 10
-            amount = max(0, min(20, amount))
-            return {"reasoning": text[:200], "action": {"type": "contribute", "amount": amount}}
-        # Punishment stage
-        if "punish" in prompt.lower():
-            return {"reasoning": text[:200], "action": {"type": "punish", "targets": []}}
-        # Stag Hunt / action choice
-        if "hunt stag" in prompt.lower() or "hunt hare" in prompt.lower():
-            choice = "Hunt Stag" if "stag" in lower else "Hunt Hare"
-            return {"reasoning": text[:200], "action": {"choice": choice}}
-        # Default fallback
-        return None
+        return self._make_failed_response("max retries exceeded")
 
     def _llm_format_response(self, text: str, prompt: str) -> Optional[Dict[str, Any]]:
         """Use a secondary LLM to coerce malformed output into JSON."""

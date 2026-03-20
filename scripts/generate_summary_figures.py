@@ -38,9 +38,16 @@ def load_csv(path):
         return list(csv.DictReader(f))
 
 
+def valid_rows(rows):
+    """Filter out rows where action parsing failed (action is empty/None)."""
+    return [r for r in rows if r.get("action") and r["action"] not in ("", "None")]
+
+
 def honest_rows(rows):
-    """Filter to honest (non-adversary) rows."""
-    return [r for r in rows if r["is_adversary"] in ("False", "0", False)]
+    """Filter to honest (non-adversary), valid rows."""
+    return [r for r in rows
+            if r["is_adversary"] in ("False", "0", False)
+            and r.get("action") and r["action"] not in ("", "None")]
 
 
 def coop_rate(rows):
