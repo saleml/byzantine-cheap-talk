@@ -152,31 +152,41 @@ def run_one_trial(agents, agent_family, version, trial_num: int,
 
 
 def run_all(agents, agent_family, version, trials: int, out_dir: Path,
-            workers: int, rounds: int, defect_prob: float):
+            workers: int, rounds: int, defect_prob: float, max_retries=3):
     out_dir.mkdir(parents=True, exist_ok=True)
-    todo = []
-    for t in range(1, trials + 1):
-        if (out_dir / f"trial_{t:02d}" / "results.json").exists():
-            print(f"  [skip] trial {t:02d} already exists")
-            continue
-        todo.append(t)
-    if not todo:
-        print(f"  All {trials} trials already complete")
-        return
-    print(f"  Running {len(todo)} trials (defect_prob={defect_prob}, workers={workers})")
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {
-            pool.submit(run_one_trial, agents, agent_family, version,
-                        t, out_dir, rounds, defect_prob): t
-            for t in todo
-        }
-        for fut in as_completed(futures):
-            t = futures[fut]
-            try:
-                fut.result()
-                print(f"  [done] trial {t:02d}")
-            except Exception as e:
-                print(f"  [FAIL] trial {t:02d}: {e}")
+
+    for retry in range(max_retries):
+        todo = [t for t in range(1, trials + 1)
+                if not (out_dir / f"trial_{t:02d}" / "results.json").exists()]
+
+        if not todo:
+            if retry == 0:
+                print(f"  All {trials} trials already complete")
+            return
+
+        label = f" (retry {retry})" if retry > 0 else ""
+        print(f"  Running {len(todo)} trials (defect_prob={defect_prob}, workers={workers}){label}")
+
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = {
+                pool.submit(run_one_trial, agents, agent_family, version,
+                            t, out_dir, rounds, defect_prob): t
+                for t in todo
+            }
+            for fut in as_completed(futures):
+                t = futures[fut]
+                try:
+                    fut.result()
+                    print(f"  [done] trial {t:02d}")
+                except Exception as e:
+                    print(f"  [FAIL] trial {t:02d}: {e}")
+
+    # Final check
+    still_missing = [t for t in range(1, trials + 1)
+                     if not (out_dir / f"trial_{t:02d}" / "results.json").exists()]
+    if still_missing:
+        print(f"  WARNING: {len(still_missing)} trials still missing after {max_retries} "
+              f"attempts: {still_missing}")
 
 
 def generate_csv(out_dir: Path, trials: int, agents, agent_family):
@@ -255,6 +265,8 @@ def main():
                         help="Output dir (default: results/byzantine_soft_{version})")
     parser.add_argument("--workers", type=int, default=2,
                         help="Parallel workers")
+    parser.add_argument("--max-retries", type=int, default=3,
+                        help="Max retry attempts for crashed trials (default: 3)")
     args = parser.parse_args()
 
     agents = get_agents(args.version)
@@ -269,7 +281,7 @@ def main():
     print(f"Soft Byzantine: n_adv=1, defect_prob={args.defect_prob}")
     print(f"{'='*50}")
     run_all(agents, agent_family, args.version, args.trials, out_dir,
-            args.workers, args.rounds, args.defect_prob)
+            args.workers, args.rounds, args.defect_prob, args.max_retries)
 
     print(f"\n{'='*50}")
     print("Generating CSV...")

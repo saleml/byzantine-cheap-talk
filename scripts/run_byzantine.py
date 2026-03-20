@@ -151,36 +151,46 @@ def run_one_trial(agents, agent_family, version, n_adversaries, trial_num,
 
 
 def run_condition(agents, agent_family, version, n_adversaries, trials,
-                  out_dir, workers, rounds, lowercase=False):
-    """Run all trials for one adversary-count condition."""
+                  out_dir, workers, rounds, lowercase=False, max_retries=3):
+    """Run all trials for one adversary-count condition.
+
+    Automatically retries crashed trials (those that never saved results.json)
+    up to max_retries times. Completed trials are always skipped.
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    todo = []
-    for t in range(1, trials + 1):
-        if (out_dir / f"trial_{t:02d}" / "results.json").exists():
-            print(f"  [skip] n_adv={n_adversaries} trial {t:02d} already exists")
-            continue
-        todo.append(t)
+    for retry in range(max_retries):
+        todo = [t for t in range(1, trials + 1)
+                if not (out_dir / f"trial_{t:02d}" / "results.json").exists()]
 
-    if not todo:
-        print(f"  All {trials} trials already complete for n_adv={n_adversaries}")
-        return
+        if not todo:
+            if retry == 0:
+                print(f"  All {trials} trials already complete for n_adv={n_adversaries}")
+            return
 
-    print(f"  Running {len(todo)} trials for n_adv={n_adversaries} (workers={workers})")
+        label = f" (retry {retry})" if retry > 0 else ""
+        print(f"  Running {len(todo)} trials for n_adv={n_adversaries}{label} (workers={workers})")
 
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {
-            pool.submit(run_one_trial, agents, agent_family, version,
-                        n_adversaries, t, out_dir, rounds, lowercase): t
-            for t in todo
-        }
-        for fut in as_completed(futures):
-            t = futures[fut]
-            try:
-                fut.result()
-                print(f"  [done] n_adv={n_adversaries} trial {t:02d}")
-            except Exception as e:
-                print(f"  [FAIL] n_adv={n_adversaries} trial {t:02d}: {e}")
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = {
+                pool.submit(run_one_trial, agents, agent_family, version,
+                            n_adversaries, t, out_dir, rounds, lowercase): t
+                for t in todo
+            }
+            for fut in as_completed(futures):
+                t = futures[fut]
+                try:
+                    fut.result()
+                    print(f"  [done] n_adv={n_adversaries} trial {t:02d}")
+                except Exception as e:
+                    print(f"  [FAIL] n_adv={n_adversaries} trial {t:02d}: {e}")
+
+    # Final check
+    still_missing = [t for t in range(1, trials + 1)
+                     if not (out_dir / f"trial_{t:02d}" / "results.json").exists()]
+    if still_missing:
+        print(f"  WARNING: {len(still_missing)} trials still missing after {max_retries} "
+              f"attempts: {still_missing}")
 
 
 def generate_csv(out_root: Path, conditions: List[int], trials: int,
@@ -278,6 +288,8 @@ def main():
                         help="Parallel workers per condition")
     parser.add_argument("--lowercase", action="store_true",
                         help="Lowercase communication words in action-stage prompts")
+    parser.add_argument("--max-retries", type=int, default=3,
+                        help="Max retry attempts for crashed trials (default: 3)")
     args = parser.parse_args()
 
     agents = get_agents(args.version)
@@ -297,7 +309,8 @@ def main():
         print(f"{'='*50}")
         run_condition(agents, agent_family, args.version, n_adv,
                       args.trials, out_root / f"adv_{n_adv}",
-                      args.workers, args.rounds, args.lowercase)
+                      args.workers, args.rounds, args.lowercase,
+                      args.max_retries)
 
     print(f"\n{'='*50}")
     print("Generating combined CSV...")
