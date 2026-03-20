@@ -122,5 +122,4 @@ paper_eacl/              # EACL 2026 paper (prior work)
 
 ## Known Issues
 
-- **cooperation_rate in results.json is bugged**: The engine divides by `len(history)` which double-counts communication-stage entries, halving the rate. All analysis scripts compute from raw CSV actions instead.
 - **Claude Sonnet schema bug (v2)**: Claude Sonnet outputs communication-stage JSON during the action stage in 73-97% of rounds. v3 replaces it with DeepSeek.
