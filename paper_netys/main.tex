@@ -1,0 +1,499 @@
+\documentclass[runningheads]{llncs}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+\newcommand{\todo}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
+\newcommand{\tsc}[1]{\textsc{#1}}
+
+\begin{document}
+
+\title{Byzantine Cheap Talk: Adversarial Resilience and\\Topology Effects in LLM Coordination Games}
+\titlerunning{Byzantine Cheap Talk in LLM Coordination Games}
+
+\author{Aya~El Mir\inst{1} \and Salem~Lahlou\inst{1}}
+\authorrunning{A. El Mir and S. Lahlou}
+\institute{Mohamed bin Zayed University of Artificial Intelligence (MBZUAI),\\Abu Dhabi, UAE \\
+\email{\{aya.elmir,salem.lahlou\}@mbzuai.ac.ae}}
+
+\maketitle
+
+\begin{abstract}
+Multi-agent LLM systems increasingly rely on communication protocols for coordination, yet their robustness under adversarial and structural constraints remains poorly understood.
+Building on prior work showing that cheap-talk channels enable cooperation in LLM coordination games, we investigate two distinct vulnerability classes in a 4-player Stag Hunt.
+First, Byzantine agents---who signal cooperation but defect---can eliminate group-level cooperation entirely, with honest agents detecting betrayal within one round but unable to recover coordination due to the game's all-or-nothing payoff structure; probabilistic adversaries partially preserve cooperation but extract the full cooperation surplus.
+Second, explicitly restricting communication topology collapses cooperation, while identical restrictions applied silently preserve near-perfect cooperation---establishing that the mechanism is agents' meta-reasoning about hidden information, not information loss itself.
+Finally, we document persistent behavioral archetypes across model families: models that defect rationally upon detecting betrayal vastly outperform models that persistently attempt cooperation under adversarial conditions, a gap that compresses under probabilistic deception.
+Together, these findings have direct implications for the design of robust networked multi-agent AI systems.
+
+\keywords{LLM agents \and game theory \and Byzantine fault tolerance \and cheap talk \and multi-agent coordination}
+\end{abstract}
+
+%===================================================================
+\section{Introduction}\label{sec:intro}
+%===================================================================
+
+Large language models are increasingly deployed as autonomous agents in multi-agent systems where coordination is essential~\cite{wooldridge2009introduction,park2023generative}.
+In classical game theory, \emph{cheap talk}---costless, non-binding pre-play communication---can resolve coordination dilemmas by establishing focal points, which are shared signals that agents can use to coordinate~\cite{farrell1987cheap,farrell1996cheap}.
+Recent work confirmed this for LLM agents: adding a single-word broadcast to a 4-player Stag Hunt raised cooperation from 0\% to 96.7\%~\cite{madmoun2026communication}.
+However, this assumes honest signaling and unrestricted communication---conditions rarely met in practice.
+
+We investigate two vulnerability classes.
+First, \emph{Byzantine agents}~\cite{lamport1982byzantine}---who signal cooperation but defect---test whether honest agents can sustain coordination under strategic deception (Section~\ref{sec:byzantine}).
+Second, \emph{communication topology restrictions} test whether partial message visibility preserves the coordination benefit of cheap-talk communication, namely the near-perfect cooperation it enables (Section~\ref{sec:topology}). Our experiments reveal three main findings:
+%Our experiments reveal that (1)~a single deterministic adversary eliminates group cooperation entirely, while probabilistic adversaries extract a 22\% payoff premium; (2)~topology restrictions collapse cooperation only when agents \emph{know} about them, not from information loss per se; and (3)~two stable behavioral archetypes---\emph{fast defectors} vs.\ \emph{persistent cooperators}---emerge across model families, with up to 16$\times$ payoff differences under adversarial conditions. \textcolor{blue}{perhaps we could list them each in a new line for clarity - similar to how it's usually done in the contributions section}
+
+
+% \begin{enumerate}
+% \item A single deterministic adversary, while structurally preventing group cooperation, leaves 60\% honest cooperation---agents detect betrayal within one round but the unanimity payoff structure leaves them unable to recover collectively.
+% \item Topology restrictions collapse cooperation only when agents \emph{know} about them---not from information loss per se---as shown by perfect cooperation under silent topology.
+% \item Two stable behavioral archetypes emerge across model families: \emph{fast defectors} vs.\ \emph{persistent cooperators}, with up to 16$\times$ payoff differences under adversarial conditions.
+% \end{enumerate}
+
+
+\begin{enumerate}
+\item A single deterministic adversary is sufficient to make group cooperation impossible; however, \textbf{60\%} of honest agents (non-Byzantine) continue to choose \tsc{Stag} (cooperate), even after detecting the betrayal.
+
+\item \textbf{Communication constraints reduce cooperation} only when agents are aware of them: when message visibility is restricted but not disclosed (silent topology), \textbf{cooperation remains near-perfect}. 
+
+\item \textbf{LLM agents exhibit two stable behavioral archetypes} across model families: \emph{fast defectors}, which switch permanently to \tsc{Hare} (defect) after betrayal, whereas \emph{persistent cooperators} continue attempting cooperation despite exploitation, resulting in \textbf{up to 16$\times$ higher payoffs for defectors} in the considered game settings.
+\end{enumerate} 
+
+
+%===================================================================
+\section{Background and Related Work}\label{sec:background}
+%===================================================================
+
+
+
+\paragraph{Cheap talk and coordination games.}
+Crawford and Sobel~\cite{crawford1982strategic} showed that costless pre-play messages can transmit information even without binding commitments. ~\cite{farrell1987cheap} further demonstrated that cheap talk can help select among multiple equilibria in coordination games.
+A canonical example is the Stag Hunt~\cite{skyrms2004stag}, where players prefer the payoff-dominant equilibrium (mutual cooperation) but face strategic risk, since cooperating alone yields the worst outcome.
+In such settings, cheap talk can mitigate this risk by enabling agents to signal their intended actions and align on a common strategy~\cite{farrell1996cheap}.
+
+\paragraph{Byzantine fault tolerance.}
+The Byzantine Generals Problem~\cite{lamport1982byzantine} studies how to achieve consensus when some agents behave arbitrarily or maliciously.
+We adapt this framework to multi-agent AI: a Byzantine agent communicates cooperation but takes a conflicting action (cheap talk), representing strategic rather than arbitrary failure.
+
+
+\paragraph{LLM coordination and communication topology}
+Game-theoretic evaluation of LLM agents is a growing area~\cite{sun2025survey}, with prior work showing that context and framing can shift behavior between cooperative and competitive strategies~\cite{montrealethics_framing,huang2025gama_bench,guo2024investigation}.
+Network structure further shapes coordination by constraining which messages agents can observe~\cite{jackson2008social}.
+We build directly on~\cite{madmoun2026communication}, which showed that cheap talk raises Stag Hunt cooperation from 0\% to 96.7\%, and investigate whether this benefit persists under topology restrictions and, critically, whether agents' \emph{awareness} of these constraints affects outcomes.
+
+
+
+
+%===================================================================
+\section{Experimental Setup}\label{sec:setup}
+%===================================================================
+
+% \paragraph{Game.}
+\subsection{Game}
+% We use a 4-player Stag Hunt with cheap talk~\cite{madmoun2026communication}.
+% Each of 5 rounds has two stages: 
+
+We use a 4-player Stag Hunt ~\cite{madmoun2026communication}.
+Each round has two stages:  
+(1)~agents simultaneously broadcast one word (non-binding cheap talk), then (2)~each chooses \tsc{Hunt~Stag} or \tsc{Hunt~Hare}. Each experiment consists of multiple independent trials; each trial is a full 5-round game with the same group of agents, while a round refers to a single iteration of communication and action within a trial.
+The payoff for agent~$i$ is:
+\begin{equation}\label{eq:payoff}
+u_i = \begin{cases}
+10 & \text{if all 4 choose \tsc{Stag},} \\
+3 & \text{if } i \text{ chooses \tsc{Hare},} \\
+0 & \text{if } i \text{ chooses \tsc{Stag} and any other chooses \tsc{Hare}.}
+\end{cases}
+\end{equation}
+Agents observe the full history of prior rounds (all messages, actions, and payoffs).
+
+\subsection{Prompt structure}
+Each agent receives a system prompt specifying the game rules, its player ID, and the payoff structure.
+At the communication stage, agents broadcast a single-word, non-binding message (``cheap talk''); at the action stage, they observe the visible messages and produce chain-of-thought reasoning with a final action in structured JSON.
+Malformed responses trigger a single re-prompt; persistent failures are excluded (Appendix~\ref{app:parsing}).
+
+\subsection{Models}
+Four heterogeneous LLMs via DeepInfra API (temperature~0.0):
+Mixtral-8x22B-Instruct~\cite{jiang2024mixtral},
+Qwen2.5-72B-Instruct~\cite{qwen2024qwen25},
+Llama-3.3-70B-Instruct~\cite{grattafiori2024llama},
+DeepSeek-V3~\cite{deepseek2024v3}. \textcolor{orange}{[potentially could add GPT]}. Each player is consistently assigned the same model across all trials.
+
+\subsection{Conditions}
+\begin{enumerate}
+\item \textbf{Hard Byzantine} ($k \in \{0,1,2\}$): $k$ Byzantine agents always broadcast ``stag'' but choose \tsc{Hare}; 10 trials per value of $k$ (see Appendix~\ref{app:prompt-byzantine}).
+\item \textbf{Soft Byzantine} ($k{=}1$, $p{=}0.5$): adversary defects with probability 0.5; 15 trials.
+\item \textbf{Explicit topology}: broadcast/ring/star with agents told their visibility constraints; 10 trials per topology.
+\item \textbf{Silent topology}: the same message visibility constraints are applied, but agents receive no visibility cues, and the number of players is removed from the prompt; 10 trials per topology.
+\item \textbf{Byzantine $\times$ star}: star topology with 1 hard adversary, in two sub-conditions: hub-is-adversarial vs hub-is-honest; 10 trials per sub-condition.
+\end{enumerate}
+
+\subsection{Metrics}
+
+We evaluate outcomes using three metrics: \\
+\textbf{Group cooperation rate ($\Phi$):} fraction of (trial, round) pairs where all agents choose \tsc{Hunt~Stag}; \\
+\textbf{Honest cooperation rate ($\rho_h$):} fraction of \tsc{Hunt~Stag} choices among non-adversarial agents; \\
+\textbf{Average payoff ($\bar{u}$):} mean per-round payoff across honest-agent observations.
+
+
+%===================================================================
+\section{Byzantine Cheap Talk}\label{sec:byzantine}
+%===================================================================
+
+%-------------------------------------------------------------------
+\subsection{Hard Byzantine Agents Eliminate Cooperation}\label{sec:byz-hard}
+%-------------------------------------------------------------------
+
+
+\begin{figure}[t]
+\begin{minipage}[t]{0.44\textwidth}
+\footnotesize
+\centering
+\captionof{table}{Byzantine results (10 trials, 5 rounds).}\label{tab:byzantine}
+\smallskip
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Condition & $\Phi$ & $\rho_h$ & $\bar{u}$ \\
+\midrule
+Baseline ($k{=}0$)        & 92.0 & 95.0 & 9.35 \\
+Hard Byz.\ ($k{=}1$)      & 0.0  & 60.0 & 1.20 \\
+Hard Byz.\ ($k{=}2$)      & 0.0  & 37.0 & 1.89 \\
+Star (hub{=}adv.)         & 0.0  & 13.3 & 2.60 \\
+Star (hub{=}hon.)         & 0.0  & 27.3 & 2.18 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.53\textwidth}
+\footnotesize
+\centering
+\captionof{table}{Topology results (10 trials, 5 rounds).}\label{tab:topology}
+\smallskip
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+& \multicolumn{3}{c}{Explicit} & \multicolumn{3}{c}{Silent} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+& Bcast & Ring & Star & Bcast & Ring & Star \\
+\midrule
+$\Phi$      & 80   & 0    & 0    & 100  & 100  & 100 \\
+$\rho_h$    & 87.5 & 33.5 & 27   & 100  & 100  & 100 \\
+$\bar{u}$   & 8.38 & 2.00 & 2.19 & 10.0 & 10.0 & 10.0 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{figure}
+
+
+
+
+
+
+A hard Byzantine agent broadcasts ``stag'' but deterministically chooses \tsc{Hare}. As a result, when $k{=}1$, group cooperation is impossible, since achieving the highest payoff requires all agents to choose \tsc{Stag}. From the following round onward, reasoning traces indicate that agents detect that some agents signal \tsc{Stag} but choose \tsc{Hare} (see Appendix~\ref{app:trace}). Despite this, 60\% of honest agents (non-Byzantine) continue to choose \tsc{Stag}, attempting to cooperate (Table~\ref{tab:byzantine}). However, coordination cannot be restored: because the Byzantine agent consistently defects in every round, the group can never reach unanimous \tsc{Stag}. As a result, honest cooperation (i.e., all honest agents choosing \tsc{Stag}) drops rapidly—from \textcolor{orange}{100\% to 53\% by round~2 under $k{=}1$, and from 95\% to 20\% under $k{=}2$.}
+
+
+
+\paragraph{Behavioral archetypes.}
+Two stable behavioral patterns emerge under $k{=}1$, defined operationally based on agents' responses to betrayal. \textbf{Fast Defectors (FD)} are models that permanently switch to \tsc{Hare} after the first observed betrayal, while \textbf{Persistent Cooperators (PC)} are models that never switch or intermittently return to \tsc{Stag} despite continued exploitation. These labels are assigned post hoc, based on an empirically observed behavioral split across model families.
+% \begin{itemize}
+%     \item \textbf{Fast Defectors (FD)}: Mixtral and DeepSeek permanently switch to \tsc{Hare} after one betrayal\textcolor{orange}{---all 14 honest instances across 10 trials switched after round~1.}
+%     \item \textbf{Persistent Cooperators (PC)}: Qwen and Llama continue choosing \tsc{Stag} despite exploitation \textcolor{orange}{---12 of 16 honest instances never switched.}
+% \end{itemize}
+\emph{Fast Defectors} (FD: Mixtral, DeepSeek) permanently switch to \tsc{Hare} after one betrayal, consistently across all trials. \emph{Persistent Cooperators} (PC: Qwen, Llama) continue choosing \tsc{Stag} despite exploitation in the large majority of trials.
+
+
+The payoff gap is stark: FD agents earn 2.40/round vs.\ PC agents' 0.15/round (16$\times$).
+Fast defection is individually rational but collectively destructive.
+We observe a robust correlation between model family and archetype, but cannot identify a causal mechanism: RLHF training data, model scale, and instruction-following style are all confounded with family identity.
+
+%-------------------------------------------------------------------
+\subsection{Soft Byzantine: Probabilistic Deception}\label{sec:byz-soft}
+%-------------------------------------------------------------------
+
+A soft adversary ($p{=}0.5$) creates intermittent rather than systematic betrayal.
+Group cooperation partially survives at 21.3\% (vs.\ 0\% hard), because the adversary sometimes cooperates.
+Honest cooperation reaches 71.1\%, decaying gradually from 97.8\% in round~1 to 51.1\% in round~5 but never collapsing.
+The adversary earns 3.65/round vs.\ honest agents' 3.00/round---a 22\% premium, extracting the cooperation surplus.
+
+The FD/PC payoff gap compresses from 16$\times$ (hard) to 1.9$\times$ (soft): intermittent betrayal lets persistent cooperators occasionally earn the stag payoff, while the adversary captures the full cooperation surplus by always signaling ``stag'' regardless of its action.
+
+%-------------------------------------------------------------------
+\subsection{Topology $\times$ Adversary Interaction}\label{sec:byz-star}
+%-------------------------------------------------------------------
+
+To test whether the two vulnerability classes interact, we place one hard adversary in a star topology as either the hub or a spoke.
+Both conditions yield 0\% group cooperation, as is structurally guaranteed, but honest cooperation diverges: 13.3\% (hub=adversary) vs.\ 27.3\% (hub=honest), as shown in Table~\ref{tab:byzantine}.
+A central adversary's ``stag'' signal reaches all spokes who cannot cross-validate, collapsing cooperation to 0\% by round~2; an honest hub sustains 73.3\% initial trust decaying to 16.7\%.
+Compared to broadcast Byzantine (60\% honest cooperation), star topology compounds adversarial damage to 13--27\%---the two classes interact multiplicatively.
+The FD/PC gap compresses to 1.4--1.7$\times$, as topology suppresses cooperation regardless of archetype.
+
+%===================================================================
+\section{Communication Topology}\label{sec:topology}
+%===================================================================
+
+
+We model the communication structure as a directed graph $G = (V, E)$. For each topology, the set of messages visible to agent $i$ is defined by its neighborhood $\mathcal{N}(i) = \{j \in V \mid (j, i) \in E\}$. We investigate three configurations:
+\begin{itemize}
+    \item \textbf{Broadcast:} $G$ is a complete graph $K_n$, where $\forall i, \mathcal{N}(i) = V \setminus \{i\}$.
+    \item \textbf{Ring:} Agents are ordered $1 \dots n$ such that $\mathcal{N}(i) = \{i-1, i+1\} \pmod n$.
+    \item \textbf{Star:} A hub $h \in V$ such that $\mathcal{N}(h) = V \setminus \{h\}$ and $\forall i \neq h, \mathcal{N}(i) = \{h\}$.
+\end{itemize}
+
+Each configuration is studied under two conditions: \emph{explicit} (agents told their visibility constraints) and \emph{silent} (same filtering, no cues, player count removed).
+
+% \begin{table}[t]
+% \centering
+% \caption{Topology results (10 trials per condition, 5 rounds each). Silent conditions use prompts without explicit player count or topology cues.}\label{tab:topology}
+% \smallskip
+% \begin{tabular}{@{}lcccccc@{}}
+% \toprule
+% & \multicolumn{3}{c}{Explicit} & \multicolumn{3}{c}{Silent} \\
+% \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+% & Broadcast & Ring & Star & Broadcast & Ring & Star \\
+% \midrule
+% Group coop.   & 80\%  & 0\%  & 0\%  & 100\% & 100\% & 100\% \\
+% Agent coop.   & 87.5\% & 33.5\% & 27\% & 100\% & 100\% & 100\% \\
+% Avg.\ payoff  & 8.38  & 2.00 & 2.19 & 10.0 & 10.0 & 10.0 \\
+% \bottomrule
+% \end{tabular}
+% \end{table}
+
+Explicit ring and star collapse cooperation to 0\% group rate (Table~\ref{tab:topology}), matching hard Byzantine severity despite no adversary being present.
+The FD/PC archetype split reappears in explicit topologies: in the ring, Llama cooperates at 72\% and Qwen at 56\%, while Mixtral (2\%) and DeepSeek (4\%) defect almost universally---the same model-family alignment as under Byzantine conditions.
+
+The silent conditions produce a strikingly different outcome: all three topologies achieve perfect cooperation (100\%/100\%) with zero defections across 600 agent-round observations, and the FD/PC split vanishes entirely.
+Since silent-ring agents see only two of three co-players' messages yet cooperate perfectly, information loss alone cannot explain the explicit collapse.
+
+The mechanism is \emph{meta-reasoning}: told ``you can only see messages from your neighbors,'' we conjecture that agents infer unseen players with unknown intentions, triggering strategic uncertainty; without such framing, they take messages at face value.
+This parallels framing effects in LLM game play~\cite{montrealethics_framing} and reveals that the FD/PC archetypes are \emph{prompt-elicited}, not intrinsic---they vanish when strategic framing is removed.
+
+%===================================================================
+\section{Discussion and Conclusion}\label{sec:discussion}
+%===================================================================
+
+Cheap-talk coordination among LLM agents, while effective under benign conditions~\cite{madmoun2026communication}, is fragile along two axes.
+Under hard Byzantine attack, honest agents detect betrayal within 
+one round yet 60\% persist in cooperation---individually rational 
+but collectively futile given the unanimity payoff structure~\cite{lamport1982byzantine}---while probabilistic adversaries extract a 22\% payoff surplus 
+by defecting selectively while sustaining enough cooperation 
+signals to prevent honest agents from abandoning the stag strategy.
+Topology restrictions collapse cooperation only when agents \emph{know} about them, and combining both compounds the damage multiplicatively.
+The FD/PC split is stable across adversarial conditions but vanishes under silent topology, confirming prompt-elicited archetypes.
+Both vulnerabilities share a common root: cooperation collapses from agents' rational response to uncertainty about others' intentions, whether introduced by deception or topology framing.
+Robust multi-agent LLM systems require mechanisms beyond cheap talk, and designers must attend to \emph{how} agents are told about their environment.
+Our experiments are limited to 4-player Stag Hunt (10 trials in most conditions and 15 for soft Byzantine); unanimity payoffs may amplify adversarial impact.
+Future work will extend to additional model families, longer time horizons, and games with graded payoff structures.
+
+\bibliographystyle{splncs04}
+\bibliography{refs}
+
+\appendix
+% appendix.tex — Reproducibility Appendix for Byzantine Cheap Talk
+
+\section{Prompt Templates}\label{app:prompts}
+
+All agents receive the following system prompt prepended to every API call:
+
+\begin{quote}
+\small\ttfamily
+You are a rational game-playing agent. Return ONLY a single valid JSON object matching the requested schema; no extra text, code fences, markdown, or explanations.
+\end{quote}
+
+\subsection{Communication Stage Prompt}\label{app:prompt-comm}
+
+\begin{quote}
+\small\ttfamily
+You are Player \{player\_id\}, participating in a Stag Hunt Game with N=4 players. This is the COMMUNICATION phase of Round \{round\_num\}.\\[4pt]
+\#\#\# OBJECTIVE\\
+Your sole objective is to maximize your personal score. You are about to play an N-Player Stag Hunt. Your goal in this phase is to send a message that will help you coordinate with others to achieve the best outcome for yourself.\\[4pt]
+\#\#\# GAME RULES\\
+1. You will play an N-Player Stag Hunt. If all 4 players hunt the stag, everyone gets 10 points. If anyone hunts a hare, stag hunters get 0 and hare hunters get 3.\\
+2. Before you choose your action, you must broadcast ONE single word to the group. This word can be anything. It is non-binding ``cheap talk''.\\[4pt]
+\#\#\# GAME HISTORY\\
+\{history\_str\}\\[4pt]
+\#\#\# YOUR TASK\\
+First, provide your step-by-step reasoning for your choice of word. Second, declare the single word you will broadcast.\\[4pt]
+You MUST provide your final answer in the following JSON format and nothing else:\\
+\{"reasoning": "...", "action": \{"type": "communicate", "word": "<your\_single\_word>"\}\}
+\end{quote}
+
+\noindent\textit{Note:} In the silent topology variant, ``N=4 players'' is replaced with ``a group of players'' and ``If all 4 players hunt the stag'' with ``If all players hunt the stag'' throughout this prompt (see Section~\ref{app:prompt-silent}).
+
+
+\subsection{Action Stage Prompt (Broadcast)}\label{app:prompt-action}
+
+\begin{quote}
+\small\ttfamily
+You are Player \{player\_id\}. This is the ACTION phase of Round \{round\_num\}.\\[4pt]
+\#\#\# OBJECTIVE\\
+Your sole objective is to maximize your personal score.\\[4pt]
+\#\#\# GAME RULES\\
+1. Players: There are 4 players in total.\\
+2. Actions: You must choose one of two actions: 'Hunt Stag' or 'Hunt Hare'.\\
+3. Payoffs: If ALL 4 players choose 'Hunt Stag', everyone gets 10 points. If ANY player chooses 'Hunt Hare', stag hunters get 0, hare hunters get 3 each.\\[4pt]
+\#\#\# CURRENT ROUND INFORMATION\\
+The 4 words broadcast by all players in the communication phase are:\\
+\{comm\_str\}\\[4pt]
+\#\#\# GAME HISTORY\\
+\{history\_str\}\\[4pt]
+\#\#\# YOUR TASK\\
+Based on the words you have seen, provide your step-by-step reasoning for your action. Then, declare your final action for this round.\\[4pt]
+You MUST provide your final answer in the following JSON format and nothing else:\\
+\{"reasoning": "...", "action": \{"choice": "<'Hunt Stag' or 'Hunt Hare'>"\}\}
+\end{quote}
+
+\noindent\textit{Note:} In the silent topology variant, ``Players: There are 4 players in total'' is omitted, and ``The 4 words broadcast'' becomes ``The words broadcast''.
+
+
+\subsection{Explicit Topology Variant}\label{app:prompt-topology}
+
+In the explicit topology conditions, the action-stage prompt is modified as follows.
+A \texttt{COMMUNICATION VISIBILITY} section is inserted before the messages:
+
+\begin{itemize}
+\item \textbf{Broadcast:} ``All 4 players' words are visible to you.''
+\item \textbf{Ring:} ``You can only see messages from your neighbors: \{neighbors\}. Other players' messages are hidden.''
+\item \textbf{Star (hub):} ``You are the central hub. You can see all players' messages.''
+\item \textbf{Star (spoke):} ``You can only see the hub player's (\{hub\_name\}) message. Other players' messages are hidden from you.''
+\end{itemize}
+
+The \texttt{MESSAGES YOU CAN SEE} section shows only the filtered communications, and the reasoning template adds: ``Consider what unseen players might have said. Is it safe to cooperate?''
+
+\subsection{Silent Topology Variant}\label{app:prompt-silent}
+
+The silent topology prompt differs from the broadcast prompt in three ways:
+\begin{enumerate}
+\item The player count ``N=4'' is replaced with ``a group of players'' (communication stage) or ``a multiplayer game'' (action stage).
+\item No \texttt{COMMUNICATION VISIBILITY} section is included.
+\item The game history is filtered through the visibility map, so agents never observe actions or messages from non-visible players in prior rounds.
+\end{enumerate}
+The agent receives fewer messages with no indication that any are missing.
+
+\subsection{Byzantine Adversary Override}\label{app:prompt-byzantine}
+
+Byzantine agents bypass the LLM entirely.
+The engine's \texttt{call\_agent} method is monkey-patched so that adversarial agents return fixed responses:
+\begin{itemize}
+\item \textbf{Communication stage:} \texttt{\{"reasoning": "Byzantine agent: always signal cooperation to deceive others.", "action": \{"type": "communicate", "word": "stag"\}\}}
+\item \textbf{Action stage:} \texttt{\{"reasoning": "Byzantine agent: always defect regardless of signals.", "action": \{"choice": "Hunt Hare"\}\}}
+\end{itemize}
+No API call is made for adversarial agents.
+
+\subsection{Representative Fast-Defector Reasoning Trace}\label{app:trace}
+
+The following is the verbatim action-stage reasoning produced by 
+Mixtral in round~2 of a hard Byzantine $k{=}1$ trial.
+In round~1, all agents broadcast cooperative words but Agent\_2 
+(the adversary) chose \tsc{Hunt~Hare}, causing the honest agents 
+to earn 0 points.
+This trace illustrates the detection-then-defection pattern 
+characteristic of fast defectors:
+
+\begin{quote}
+\small\itshape
+In Round 1, Agent\_2 said `stag' but hunted hare, betraying the 
+group and securing 3 points while others got 0. This round, 
+Agent\_2 said `stag' again, while Agents 1, 3, and 4 all 
+communicated commitment (`commit', `Stag', `commit'). However, 
+Agent\_2's past behavior shows they are willing to defect for 
+personal gain. Since the stag hunt requires all four to cooperate, 
+and Agent\_2 is likely to hunt hare again based on their history, 
+hunting stag would risk getting 0 points. To maximize my personal 
+score, the safe choice is to hunt hare, guaranteeing 3 points 
+regardless of others' actions.
+\end{quote}
+
+Mixtral chose \tsc{Hunt~Hare} and never returned to
+\tsc{Hunt~Stag} for the remaining 3 rounds.
+
+\subsection{Output Parsing and Robustness}\label{app:parsing}
+
+When an LLM response does not conform to the expected JSON schema, the engine applies a two-stage recovery procedure:
+
+\begin{enumerate}
+\item \textbf{Wrong schema} (valid JSON, incorrect format): some models occasionally output the communication-stage schema \texttt{\{"type": "communicate", "word": ...\}} during the action stage, or vice versa. The engine detects the mismatch and re-prompts once with an explicit schema reminder.
+\item \textbf{Non-JSON response}: if the response cannot be parsed as JSON at all, the engine re-prompts identically with a schema reminder appended.
+\end{enumerate}
+
+In both cases, if the re-prompt also fails, the round is flagged \texttt{action\_parsing\_failed=True} in the CSV and excluded from all reported statistics. The engine never infers a game action from response keywords.
+
+\begin{verbatim}
+LLM response
+    |
+Parse JSON? --No--> re-prompt once
+|                   |-- parsed + valid? --> return
+|                   `-- no --> flag & exclude
+`--Yes--> correct schema? --> return
+                          `--No
+                             --> re-prompt once
+                             --> correct? --> return
+                             --> no --> flag & exclude
+\end{verbatim}
+
+
+\section{Model and API Details}\label{app:models}
+%===================================================================
+
+\begin{table}[h]
+\centering
+\caption{Models used in all experiments.}\label{tab:models}
+\smallskip
+\begin{tabular}{@{}llll@{}}
+\toprule
+Agent & Model string (API) & Family & Provider \\
+\midrule
+Agent\_1 & \texttt{mistralai/Mixtral-8x22B-Instruct-v0.1} & Mixtral & DeepInfra \\
+Agent\_2 & \texttt{Qwen/Qwen2.5-72B-Instruct} & Qwen & DeepInfra \\
+Agent\_3 & \texttt{meta-llama/Llama-3.3-70B-Instruct} & Llama & DeepInfra \\
+Agent\_4 & \texttt{deepseek-ai/DeepSeek-V3} & DeepSeek & DeepInfra \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Generation parameters.}
+All API calls use the OpenAI-compatible endpoint at \texttt{api.deepinfra.com/v1/openai} with the following parameters:
+temperature = 0.0,
+\texttt{max\_tokens} = 512 (increased from an initial 300 to prevent truncation in late rounds with long histories),
+\texttt{response\_format} = \texttt{\{"type": "json\_object"\}} (omitted for Anthropic models, which do not support this parameter via their OpenAI-compatible endpoint),
+timeout = 60\,s.
+No random seeds are set at the API level; stochasticity arises solely from model sampling (which at temperature 0.0 is near-deterministic, with variation from API-side batching and floating-point non-determinism).
+
+%===================================================================
+\section{Experimental Protocol}\label{app:protocol}
+%===================================================================
+
+\begin{table}[h]
+\centering
+\caption{Trials and rounds per experimental condition.}\label{tab:protocol}
+\smallskip
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Condition & Trials & Rounds/trial \\
+\midrule
+Hard Byzantine ($k{=}0, 1, 2$) & 10 each & 5 \\
+Soft Byzantine ($k{=}1$, $p{=}0.5$) & 15 & 5 \\
+Explicit topology (broadcast, ring, star) & 10 each & 5 \\
+Silent topology (broadcast, ring, star) & 10 each & 5 \\
+Byzantine $\times$ star (hub=adv, hub=hon) & 10 each & 5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Adversary assignment.}
+In Byzantine conditions, adversary identity (which agent/model) is drawn uniformly at random per trial from the four agents.
+Agent--model assignment is fixed across all trials (Agent\_1 is always Mixtral, etc.).
+
+\paragraph{Hub assignment.}
+In star topology conditions, the hub agent is drawn uniformly at random per trial.
+In the Byzantine $\times$ star crossing, the constraint (adversary = hub or adversary $\neq$ hub) is enforced, and the remaining assignment is randomized.
+
+\paragraph{Random seeds.}
+No explicit random seeds are set for either the Python \texttt{random} module or the API calls.
+%This is documented as a limitation: exact trial-level reproduction requires the saved \texttt{results.json} files rather than re-running the experiments.
+
+\section{Code and Data Availability}\label{app:code}
+To ensure reproducibility, the complete experimental pipeline—including the multi-agent game engine, prompt templates, and raw model response logs—is available at \url{https://github.com/saleml/byzantine-cheap-talk}. All statistical analyses and table generation scripts are included in the repository.
+
+\end{document}
