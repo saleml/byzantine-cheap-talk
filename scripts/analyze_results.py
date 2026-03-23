@@ -27,7 +27,10 @@ from collections import defaultdict
 from io import StringIO
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "results"
+# Analyze this experiment bundle by default:
+# /Users/aya.elmir/gameth_llm_tmp_netys/results/k1_5_groups/k1_20_trials_5_rounds
+# RESULTS = ROOT / "results"
+RESULTS = ROOT / "results" / "k1_5_groups" / "k1_20_trials_5_rounds"
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from generate_summary_figures import (
@@ -679,6 +682,7 @@ def main():
             byz_star_csv = RESULTS / f"byzantine_star_{version}" / "all_results.csv"
 
             print(f"NETYS 2026 — Full Analysis Report ({version})")
+            print(f"Results root: {RESULTS}")
             print(f"Models: {ALL_FAMILIES}")
             print(f"Generated from: results/*_{version}/all_results.csv")
             print(f"Date: {__import__('datetime').datetime.now().isoformat()}")
@@ -755,6 +759,7 @@ def main():
             )
 
             print("NETYS 2026 — Archetype Analysis by Number of Players")
+            print(f"Results root: {RESULTS}")
             print(f"Player setup(s): {player_sets}")
             print(f"Date: {__import__('datetime').datetime.now().isoformat()}")
 
