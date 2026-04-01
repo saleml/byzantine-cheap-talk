@@ -51,20 +51,20 @@ def report_exclusions(label, data):
         print(f"  {label}: {invalid}/{total} rows excluded ({pct:.1f}%){marker}")
     return invalid
 
-# These globals are set in main() — FD/PC derived from k=1 archetype data.
-# FD = fast defectors (>50% of instances permanently switch after betrayal).
-# PC = persistent cooperators (everything else).
-FD_FAMILIES = set()
-PC_FAMILIES = set()
+# These globals are set in main() — DP/CP derived from k=1 archetype data.
+# DP = defection-prone (>50% of instances permanently switch after betrayal).
+# CP = cooperation-persistent (everything else).
+DP_FAMILIES = set()
+CP_FAMILIES = set()
 ALL_FAMILIES = []
 
 
 def classify_families_from_data(byz_data):
-    """Derive FD/PC classification from k=1 archetype analysis.
+    """Derive DP/CP classification from k=1 archetype analysis.
 
-    A model family is FD if >50% of its honest instances under k=1
+    A model family is DP if >50% of its honest instances under k=1
     permanently switched to Hunt Hare after the first betrayal.
-    Otherwise it is PC.
+    Otherwise it is CP.
 
     Returns (fd_set, pc_set).
     """
@@ -363,20 +363,20 @@ def analyze_payoff_breakdown(byz_data, soft_data):
         for fam in ALL_FAMILIES:
             fam_rows = [r for r in rows if family_of(r) == fam]
             avg = avg_payoff_per_round(fam_rows)
-            group = "FD" if fam in FD_FAMILIES else "PC"
+            group = "DP" if fam in DP_FAMILIES else "CP"
             print(
                 f"  {cond_label:<12} {fam:<12} {avg:>12.2f} "
                 f"{group:>8} {len(fam_rows):>8}"
             )
-        # FD vs PC aggregate
-        fd_rows = [r for r in rows if family_of(r) in FD_FAMILIES]
-        pc_rows = [r for r in rows if family_of(r) in PC_FAMILIES]
+        # DP vs CP aggregate
+        fd_rows = [r for r in rows if family_of(r) in DP_FAMILIES]
+        pc_rows = [r for r in rows if family_of(r) in CP_FAMILIES]
         fd_avg = avg_payoff_per_round(fd_rows)
         pc_avg = avg_payoff_per_round(pc_rows)
         ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
-        print(f"  {'':<12} {'FD total':<12} {fd_avg:>12.2f}")
-        print(f"  {'':<12} {'PC total':<12} {pc_avg:>12.2f}")
-        print(f"  {'':<12} {'FD/PC ratio':<12} {ratio:>12.1f}x")
+        print(f"  {'':<12} {'DP total':<12} {fd_avg:>12.2f}")
+        print(f"  {'':<12} {'CP total':<12} {pc_avg:>12.2f}")
+        print(f"  {'':<12} {'DP/CP ratio':<12} {ratio:>12.1f}x")
         print()
 
 
@@ -421,15 +421,15 @@ def analyze_soft_by_defections(soft_data, version="v1"):
     print(f"  {'-'*18} {'-'*8} {'-'*12} {'-'*10}")
 
     for split_label, split_rows in [("Low (<=2)", low), ("High (>=3)", high)]:
-        fd = [r for r in split_rows if family_of(r) in FD_FAMILIES]
-        pc = [r for r in split_rows if family_of(r) in PC_FAMILIES]
+        fd = [r for r in split_rows if family_of(r) in DP_FAMILIES]
+        pc = [r for r in split_rows if family_of(r) in CP_FAMILIES]
         fd_avg = avg_payoff_per_round(fd)
         pc_avg = avg_payoff_per_round(pc)
         fd_coop = coop_rate(fd) * 100
         pc_coop = coop_rate(pc) * 100
         ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
-        print(f"  {split_label:<18} {'FD':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
-        print(f"  {split_label:<18} {'PC':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
+        print(f"  {split_label:<18} {'DP':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
+        print(f"  {split_label:<18} {'CP':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
         print(f"  {split_label:<18} {'ratio':>8} {ratio:>12.1f}x")
         print()
 
@@ -579,22 +579,22 @@ def analyze_byzantine_star(byz_star_data):
         )
     print()
 
-    # FD vs PC breakdown per condition
-    print(f"  --- FD vs PC payoff breakdown ---\n")
+    # DP vs CP breakdown per condition
+    print(f"  --- DP vs CP payoff breakdown ---\n")
     print(f"  {'Condition':<22} {'Group':>8} {'Avg Pay/Rnd':>12} " f"{'Coop %':>10}")
     print(f"  {'-'*22} {'-'*8} {'-'*12} {'-'*10}")
 
     for label, cond_key in conditions:
         h_rows = honest_rows(byz_star_by_cond[cond_key])
-        fd = [r for r in h_rows if family_of(r) in FD_FAMILIES]
-        pc = [r for r in h_rows if family_of(r) in PC_FAMILIES]
+        fd = [r for r in h_rows if family_of(r) in DP_FAMILIES]
+        pc = [r for r in h_rows if family_of(r) in CP_FAMILIES]
         fd_avg = avg_payoff_per_round(fd)
         pc_avg = avg_payoff_per_round(pc)
         fd_coop = coop_rate(fd) * 100
         pc_coop = coop_rate(pc) * 100
         ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
-        print(f"  {label:<22} {'FD':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
-        print(f"  {label:<22} {'PC':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
+        print(f"  {label:<22} {'DP':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
+        print(f"  {label:<22} {'CP':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
         print(f"  {label:<22} {'ratio':>8} {ratio:>12.1f}x")
         print()
 
@@ -639,14 +639,14 @@ def analyze_archetypes_across_num_players(byz_by_players):
             switched = fam_stats["permanently_switched"]
             total = fam_stats["total"]
             rate = fam_stats["rate"] * 100
-            cls = "FD" if (total > 0 and fam_stats["rate"] > 0.5) else "PC"
+            cls = "DP" if (total > 0 and fam_stats["rate"] > 0.5) else "CP"
             print(f"  {n:>3} {fam:<16} {switched:>8} {total:>8} {rate:>9.1f}% {cls:>8}")
         print()
 
-    print("  FD vs PC count by player setting:")
+    print("  DP vs CP count by player setting:")
     for n in player_counts:
         fd, pc = classify_families_from_data(byz_by_players[n])
-        print(f"    n={n}: FD={len(fd)}  PC={len(pc)}")
+        print(f"    n={n}: DP={len(fd)}  CP={len(pc)}")
     print()
 
 
@@ -663,7 +663,7 @@ def main():
                                "--num_of_players 2 or --num_of_players 2 3 4 5 6")
     args = parser.parse_args()
 
-    global FD_FAMILIES, PC_FAMILIES, ALL_FAMILIES
+    global DP_FAMILIES, CP_FAMILIES, ALL_FAMILIES
 
     tee = TeeOutput()
     sys.stdout = tee
@@ -716,13 +716,13 @@ def main():
                 print("  No excluded rounds.")
             print()
 
-            # Derive FD/PC classification from k=1 archetype data
+            # Derive DP/CP classification from k=1 archetype data
             if byz_data:
-                FD_FAMILIES, PC_FAMILIES = classify_families_from_data(byz_data)
-                print(f"\nDerived FD/PC classification from k=1 data:")
-                print(f"  Fast Defectors (FD):       {sorted(FD_FAMILIES) if FD_FAMILIES else '(none)'}")
-                print(f"  Persistent Cooperators (PC): {sorted(PC_FAMILIES) if PC_FAMILIES else '(none)'}")
-                print(f"  (FD = >50% of instances permanently switch after first betrayal)\n")
+                DP_FAMILIES, CP_FAMILIES = classify_families_from_data(byz_data)
+                print(f"\nDerived DP/CP classification from k=1 data:")
+                print(f"  Defection-Prone (DP):       {sorted(DP_FAMILIES) if DP_FAMILIES else '(none)'}")
+                print(f"  Cooperation-Persistent (CP): {sorted(CP_FAMILIES) if CP_FAMILIES else '(none)'}")
+                print(f"  (DP = >50% of instances permanently switch after first betrayal)\n")
 
             # Run analyses (keep existing behavior)
             if byz_data:
@@ -796,11 +796,11 @@ def main():
                     print("  No excluded rounds.")
                 print()
 
-                FD_FAMILIES, PC_FAMILIES = classify_families_from_data(byz_data)
-                print(f"\nDerived FD/PC classification from k=1 data:")
-                print(f"  Fast Defectors (FD):       {sorted(FD_FAMILIES) if FD_FAMILIES else '(none)'}")
-                print(f"  Persistent Cooperators (PC): {sorted(PC_FAMILIES) if PC_FAMILIES else '(none)'}")
-                print(f"  (FD = >50% of instances permanently switch after first betrayal)\n")
+                DP_FAMILIES, CP_FAMILIES = classify_families_from_data(byz_data)
+                print(f"\nDerived DP/CP classification from k=1 data:")
+                print(f"  Defection-Prone (DP):       {sorted(DP_FAMILIES) if DP_FAMILIES else '(none)'}")
+                print(f"  Cooperation-Persistent (CP): {sorted(CP_FAMILIES) if CP_FAMILIES else '(none)'}")
+                print(f"  (DP = >50% of instances permanently switch after first betrayal)\n")
                 analyze_archetypes(byz_data)
             else:
                 print_separator("Excluded Rounds (action_parsing_failed)")

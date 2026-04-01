@@ -45,13 +45,13 @@ However, this assumes honest signaling and unrestricted communication---conditio
 We investigate two vulnerability classes.
 First, \emph{Byzantine agents}~\cite{lamport1982byzantine}---who signal cooperation but defect---test whether honest agents can sustain coordination under strategic deception (Section~\ref{sec:byzantine}).
 Second, \emph{communication topology restrictions} test whether partial message visibility preserves the coordination benefit of cheap-talk communication, namely the near-perfect cooperation it enables (Section~\ref{sec:topology}). Our experiments reveal three main findings:
-%Our experiments reveal that (1)~a single deterministic adversary eliminates group cooperation entirely, while probabilistic adversaries extract a 22\% payoff premium; (2)~topology restrictions collapse cooperation only when agents \emph{know} about them, not from information loss per se; and (3)~two stable behavioral archetypes---\emph{fast defectors} vs.\ \emph{persistent cooperators}---emerge across model families, with up to 16$\times$ payoff differences under adversarial conditions. \textcolor{blue}{perhaps we could list them each in a new line for clarity - similar to how it's usually done in the contributions section}
+%Our experiments reveal that (1)~a single deterministic adversary eliminates group cooperation entirely, while probabilistic adversaries extract a 22\% payoff premium; (2)~topology restrictions collapse cooperation only when agents \emph{know} about them, not from information loss per se; and (3)~two stable behavioral archetypes---\emph{defection-prone} vs.\ \emph{cooperation-persistent}---emerge across model families, with up to 16$\times$ payoff differences under adversarial conditions. \textcolor{blue}{perhaps we could list them each in a new line for clarity - similar to how it's usually done in the contributions section}
 
 
 % \begin{enumerate}
 % \item A single deterministic adversary, while structurally preventing group cooperation, leaves 60\% honest cooperation---agents detect betrayal within one round but the unanimity payoff structure leaves them unable to recover collectively.
 % \item Topology restrictions collapse cooperation only when agents \emph{know} about them---not from information loss per se---as shown by perfect cooperation under silent topology.
-% \item Two stable behavioral archetypes emerge across model families: \emph{fast defectors} vs.\ \emph{persistent cooperators}, with up to 16$\times$ payoff differences under adversarial conditions.
+% \item Two stable behavioral archetypes emerge across model families: \emph{defection-prone} vs.\ \emph{cooperation-persistent}, with up to 16$\times$ payoff differences under adversarial conditions.
 % \end{enumerate}
 
 
@@ -60,7 +60,7 @@ Second, \emph{communication topology restrictions} test whether partial message 
 
 \item \textbf{Communication constraints reduce cooperation} only when agents are aware of them: when message visibility is restricted but not disclosed (silent topology), \textbf{cooperation remains near-perfect}. 
 
-\item \textbf{LLM agents exhibit two stable behavioral archetypes} across model families: \emph{fast defectors}, which switch permanently to \tsc{Hare} (defect) after betrayal, whereas \emph{persistent cooperators} continue attempting cooperation despite exploitation, resulting in \textbf{up to 16$\times$ higher payoffs for defectors} in the considered game settings.
+\item \textbf{LLM agents exhibit two stable behavioral archetypes} across model families: \emph{defection-prone}, which switch permanently to \tsc{Hare} (defect) after betrayal, whereas \emph{cooperation-persistent} continue attempting cooperation despite exploitation, resulting in \textbf{up to 16$\times$ higher payoffs for defectors} in the considered game settings.
 \end{enumerate} 
 
 
@@ -196,15 +196,15 @@ A hard Byzantine agent broadcasts ``stag'' but deterministically chooses \tsc{Ha
 
 
 \paragraph{Behavioral archetypes.}
-Two stable behavioral patterns emerge under $k{=}1$, defined operationally based on agents' responses to betrayal. \textbf{Fast Defectors (FD)} are models that permanently switch to \tsc{Hare} after the first observed betrayal, while \textbf{Persistent Cooperators (PC)} are models that never switch or intermittently return to \tsc{Stag} despite continued exploitation. These labels are assigned post hoc, based on an empirically observed behavioral split across model families.
+Two stable behavioral patterns emerge under $k{=}1$, defined operationally based on agents' responses to betrayal. \textbf{Defection-Prone (DP)} are models that permanently switch to \tsc{Hare} after the first observed betrayal, while \textbf{Cooperation-Persistent (CP)} are models that never switch or intermittently return to \tsc{Stag} despite continued exploitation. These labels are assigned post hoc, based on an empirically observed behavioral split across model families.
 % \begin{itemize}
-%     \item \textbf{Fast Defectors (FD)}: Mixtral and DeepSeek permanently switch to \tsc{Hare} after one betrayal\textcolor{orange}{---all 14 honest instances across 10 trials switched after round~1.}
-%     \item \textbf{Persistent Cooperators (PC)}: Qwen and Llama continue choosing \tsc{Stag} despite exploitation \textcolor{orange}{---12 of 16 honest instances never switched.}
+%     \item \textbf{Defection-Prone (DP)}: Mixtral and DeepSeek permanently switch to \tsc{Hare} after one betrayal\textcolor{orange}{---all 14 honest instances across 10 trials switched after round~1.}
+%     \item \textbf{Cooperation-Persistent (CP)}: Qwen and Llama continue choosing \tsc{Stag} despite exploitation \textcolor{orange}{---12 of 16 honest instances never switched.}
 % \end{itemize}
-\emph{Fast Defectors} (FD: Mixtral, DeepSeek) permanently switch to \tsc{Hare} after one betrayal, consistently across all trials. \emph{Persistent Cooperators} (PC: Qwen, Llama) continue choosing \tsc{Stag} despite exploitation in the large majority of trials.
+\emph{Defection-Prone} (DP: Mixtral, DeepSeek) permanently switch to \tsc{Hare} after one betrayal, consistently across all trials. \emph{Cooperation-Persistent} (CP: Qwen, Llama) continue choosing \tsc{Stag} despite exploitation in the large majority of trials.
 
 
-The payoff gap is stark: FD agents earn 2.40/round vs.\ PC agents' 0.15/round (16$\times$).
+The payoff gap is stark: DP agents earn 2.40/round vs.\ CP agents' 0.15/round (16$\times$).
 Fast defection is individually rational but collectively destructive.
 We observe a robust correlation between model family and archetype, but cannot identify a causal mechanism: RLHF training data, model scale, and instruction-following style are all confounded with family identity.
 
@@ -217,7 +217,7 @@ Group cooperation partially survives at 21.3\% (vs.\ 0\% hard), because the adve
 Honest cooperation reaches 71.1\%, decaying gradually from 97.8\% in round~1 to 51.1\% in round~5 but never collapsing.
 The adversary earns 3.65/round vs.\ honest agents' 3.00/round---a 22\% premium, extracting the cooperation surplus.
 
-The FD/PC payoff gap compresses from 16$\times$ (hard) to 1.9$\times$ (soft): intermittent betrayal lets persistent cooperators occasionally earn the stag payoff, while the adversary captures the full cooperation surplus by always signaling ``stag'' regardless of its action.
+The DP/CP payoff gap compresses from 16$\times$ (hard) to 1.9$\times$ (soft): intermittent betrayal lets cooperation-persistent occasionally earn the stag payoff, while the adversary captures the full cooperation surplus by always signaling ``stag'' regardless of its action.
 
 %-------------------------------------------------------------------
 \subsection{Topology $\times$ Adversary Interaction}\label{sec:byz-star}
@@ -227,7 +227,7 @@ To test whether the two vulnerability classes interact, we place one hard advers
 Both conditions yield 0\% group cooperation, as is structurally guaranteed, but honest cooperation diverges: 13.3\% (hub=adversary) vs.\ 27.3\% (hub=honest), as shown in Table~\ref{tab:byzantine}.
 A central adversary's ``stag'' signal reaches all spokes who cannot cross-validate, collapsing cooperation to 0\% by round~2; an honest hub sustains 73.3\% initial trust decaying to 16.7\%.
 Compared to broadcast Byzantine (60\% honest cooperation), star topology compounds adversarial damage to 13--27\%---the two classes interact multiplicatively.
-The FD/PC gap compresses to 1.4--1.7$\times$, as topology suppresses cooperation regardless of archetype.
+The DP/CP gap compresses to 1.4--1.7$\times$, as topology suppresses cooperation regardless of archetype.
 
 %===================================================================
 \section{Communication Topology}\label{sec:topology}
@@ -261,13 +261,13 @@ Each configuration is studied under two conditions: \emph{explicit} (agents told
 % \end{table}
 
 Explicit ring and star collapse cooperation to 0\% group rate (Table~\ref{tab:topology}), matching hard Byzantine severity despite no adversary being present.
-The FD/PC archetype split reappears in explicit topologies: in the ring, Llama cooperates at 72\% and Qwen at 56\%, while Mixtral (2\%) and DeepSeek (4\%) defect almost universally---the same model-family alignment as under Byzantine conditions.
+The DP/CP archetype split reappears in explicit topologies: in the ring, Llama cooperates at 72\% and Qwen at 56\%, while Mixtral (2\%) and DeepSeek (4\%) defect almost universally---the same model-family alignment as under Byzantine conditions.
 
-The silent conditions produce a strikingly different outcome: all three topologies achieve perfect cooperation (100\%/100\%) with zero defections across 600 agent-round observations, and the FD/PC split vanishes entirely.
+The silent conditions produce a strikingly different outcome: all three topologies achieve perfect cooperation (100\%/100\%) with zero defections across 600 agent-round observations, and the DP/CP split vanishes entirely.
 Since silent-ring agents see only two of three co-players' messages yet cooperate perfectly, information loss alone cannot explain the explicit collapse.
 
 The mechanism is \emph{meta-reasoning}: told ``you can only see messages from your neighbors,'' we conjecture that agents infer unseen players with unknown intentions, triggering strategic uncertainty; without such framing, they take messages at face value.
-This parallels framing effects in LLM game play~\cite{montrealethics_framing} and reveals that the FD/PC archetypes are \emph{prompt-elicited}, not intrinsic---they vanish when strategic framing is removed.
+This parallels framing effects in LLM game play~\cite{montrealethics_framing} and reveals that the DP/CP archetypes are \emph{prompt-elicited}, not intrinsic---they vanish when strategic framing is removed.
 
 %===================================================================
 \section{Discussion and Conclusion}\label{sec:discussion}
@@ -280,7 +280,7 @@ but collectively futile given the unanimity payoff structure~\cite{lamport1982by
 by defecting selectively while sustaining enough cooperation 
 signals to prevent honest agents from abandoning the stag strategy.
 Topology restrictions collapse cooperation only when agents \emph{know} about them, and combining both compounds the damage multiplicatively.
-The FD/PC split is stable across adversarial conditions but vanishes under silent topology, confirming prompt-elicited archetypes.
+The DP/CP split is stable across adversarial conditions but vanishes under silent topology, confirming prompt-elicited archetypes.
 Both vulnerabilities share a common root: cooperation collapses from agents' rational response to uncertainty about others' intentions, whether introduced by deception or topology framing.
 Robust multi-agent LLM systems require mechanisms beyond cheap talk, and designers must attend to \emph{how} agents are told about their environment.
 Our experiments are limited to 4-player Stag Hunt (10 trials in most conditions and 15 for soft Byzantine); unanimity payoffs may amplify adversarial impact.
@@ -389,7 +389,7 @@ In round~1, all agents broadcast cooperative words but Agent\_2
 (the adversary) chose \tsc{Hunt~Hare}, causing the honest agents 
 to earn 0 points.
 This trace illustrates the detection-then-defection pattern 
-characteristic of fast defectors:
+characteristic of defection-prone:
 
 \begin{quote}
 \small\itshape

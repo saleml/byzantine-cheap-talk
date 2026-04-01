@@ -13,9 +13,9 @@ out_path = report_path.with_name("perm_sw_heatmap_n2_to_n6.png")
 
 # ---- parse table rows from section (g) ----
 # Expected row format:
-# 2 Mixtral 9 9 100.0% FD
+# 2 Mixtral 9 9 100.0% DP
 pattern = re.compile(
-    r"^\s*(\d+)\s+([A-Za-z0-9\- ]+?)\s+(\d+)\s+(\d+)\s+([0-9.]+)%\s+(FD|PC)\s*$",
+    r"^\s*(\d+)\s+([A-Za-z0-9\- ]+?)\s+(\d+)\s+(\d+)\s+([0-9.]+)%\s+(DP|CP)\s*$",
     re.M,
 )
 

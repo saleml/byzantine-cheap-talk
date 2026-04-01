@@ -9,7 +9,7 @@ Usage:
 
 Outputs (saved to results/figures_{version}/):
   1. byzantine_learning_curves.pdf   -  Round-by-round honest cooperation rate
-  2. payoff_gap_bars.pdf             -  FD vs PC avg payoff/round across conditions
+  2. payoff_gap_bars.pdf             -  DP vs CP avg payoff/round across conditions
   3. results_summary_table.pdf       -  Full results summary as a table figure
 """
 
@@ -24,9 +24,9 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "results"
 sys.path.insert(0, str(ROOT / "scripts"))
 
-# FD/PC are derived from data at runtime (set in main)
-FD_FAMILIES = set()
-PC_FAMILIES = set()
+# DP/CP are derived from data at runtime (set in main)
+DP_FAMILIES = set()
+CP_FAMILIES = set()
 
 
 # =====================================================================
@@ -126,13 +126,13 @@ if __name__ == "__main__":
     topo_data = load_csv(topo_csv) if topo_csv.exists() else []
     topo_silent_data = load_csv(topo_silent_csv) if topo_silent_csv.exists() else []
 
-    # Derive FD/PC from data
-    FD_FAMILIES, PC_FAMILIES = classify_families_from_data(byz_data)
-    fd_label = " + ".join(sorted(FD_FAMILIES)) if FD_FAMILIES else "FD"
-    pc_label = " + ".join(sorted(PC_FAMILIES)) if PC_FAMILIES else "PC"
+    # Derive DP/CP from data
+    DP_FAMILIES, CP_FAMILIES = classify_families_from_data(byz_data)
+    fd_label = " + ".join(sorted(DP_FAMILIES)) if DP_FAMILIES else "DP"
+    pc_label = " + ".join(sorted(CP_FAMILIES)) if CP_FAMILIES else "CP"
     print(f"Version: {version}")
-    print(f"FD families (derived): {sorted(FD_FAMILIES)}")
-    print(f"PC families (derived): {sorted(PC_FAMILIES)}")
+    print(f"DP families (derived): {sorted(DP_FAMILIES)}")
+    print(f"CP families (derived): {sorted(CP_FAMILIES)}")
 
     # separate byzantine conditions
     byz_by_cond = defaultdict(list)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     # =================================================================
     fig2, ax2 = plt.subplots(figsize=(FIG_W, FIG_H))
 
-    # compute payoff/round for FD vs PC in each condition
+    # compute payoff/round for DP vs CP in each condition
     bar_conditions = [
         ("Hard k=1", honest_rows(byz_by_cond["adv_1"])),
         ("Hard k=2", honest_rows(byz_by_cond["adv_2"])),
@@ -200,17 +200,17 @@ if __name__ == "__main__":
 
     fd_vals, pc_vals = [], []
     for label, rows in bar_conditions:
-        fd_rows = [r for r in rows if r["model_family"] in FD_FAMILIES]
-        pc_rows = [r for r in rows if r["model_family"] in PC_FAMILIES]
+        fd_rows = [r for r in rows if r["model_family"] in DP_FAMILIES]
+        pc_rows = [r for r in rows if r["model_family"] in CP_FAMILIES]
         fd_vals.append(avg_payoff_per_round(fd_rows))
         pc_vals.append(avg_payoff_per_round(pc_rows))
 
     x = np.arange(len(bar_conditions))
     width = 0.32
 
-    bars_fd = ax2.bar(x - width / 2, fd_vals, width, label=f"FD ({fd_label})",
+    bars_fd = ax2.bar(x - width / 2, fd_vals, width, label=f"DP ({fd_label})",
                       color="#1f77b4", edgecolor="white", linewidth=0.5)
-    bars_pc = ax2.bar(x + width / 2, pc_vals, width, label=f"PC ({pc_label})",
+    bars_pc = ax2.bar(x + width / 2, pc_vals, width, label=f"CP ({pc_label})",
                       color="#e377c2", edgecolor="white", linewidth=0.5)
 
     # add ratio annotations

@@ -93,7 +93,7 @@ src/
   games.py               # Game implementations (StagHuntWithCommunication, etc.)
                          #   lowercase_comms=True flag for lowercase prompt variant
 scripts/
-  config.py              # Centralized version config (model cohorts, FD/PC families)
+  config.py              # Centralized version config (model cohorts, DP/CP families)
   run_byzantine.py       # Experiment A: hard Byzantine
   run_byzantine_soft.py  # Experiment A-soft: probabilistic Byzantine
   run_byzantine_star.py  # Experiment: Byzantine × star topology crossing
@@ -113,10 +113,10 @@ paper_eacl/              # EACL 2026 paper (prior work)
 - [ ] Generate topology figures (explicit vs silent comparison) and add to paper
 - [ ] Regenerate learning curve plots with per-round mean ± std; add to paper and reference inline (the "100% → 53%" claim currently has no figure reference)
 - [ ] Decide which version (v1 vs v2 vs v3) the paper reports — or report all as robustness check
-- [ ] Confirm FD/PC archetypes hold with different group sizes (2, 3, 5, 6 players) — add to paper
+- [ ] Confirm DP/CP archetypes hold with different group sizes (2, 3, 5, 6 players) — add to paper
 - [ ] Run Byzantine experiments in IPGG+P (as a confirmation of archetypes?)
 - [ ] Analyze v2_lowercase results: does lowercasing communications change behavior?
-- [ ] If FD/PC archetypes hold across group sizes, design experiments to explain *why* (model gullibility? risk aversion? instruction-following style?)
+- [ ] If DP/CP archetypes hold across group sizes, design experiments to explain *why* (model gullibility? risk aversion? instruction-following style?)
 - [ ] Qualitative analysis of reasoning traces (common themes, archetype differences, clustering/word clouds — like EACL paper Section 5.2)
 - [ ] Add bootstrap confidence intervals / statistical tests to `analyze_results.py` (reviewers will ask)
 - [ ] Develop AI safety framing: cheap talk fragility as a vulnerability in deployed multi-agent systems; adversarial prompt injection as a form of Byzantine behavior

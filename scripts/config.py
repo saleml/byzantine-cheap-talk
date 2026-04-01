@@ -1,7 +1,7 @@
 """
 Centralized configuration for all experiment scripts.
 
-Defines model cohorts, FD/PC families, and result paths per version.
+Defines model cohorts, DP/CP families, and result paths per version.
 
 Version history:
   v1: Original EACL cohort (Mixtral, Qwen, Llama, DeepSeek)
@@ -74,11 +74,11 @@ ALL_FAMILIES_BY_VERSION = {
     "v3": ["Mixtral", "Qwen", "GPT-4o", "DeepSeek"],
 }
 
-# NOTE: FD/PC (fast defector / persistent cooperator) classification
+# NOTE: DP/CP (defection-prone / cooperation-persistent) classification
 # is NOT hardcoded here. It is derived empirically by analyze_results.py
 # from the archetype analysis of k=1 Byzantine data. A model family is
-# classified as FD if >50% of its honest instances permanently switch
-# to Hunt Hare after the first betrayal, and PC otherwise.
+# classified as DP if >50% of its honest instances permanently switch
+# to Hunt Hare after the first betrayal, and CP otherwise.
 # See analyze_results.py:classify_families_from_data().
 
 # =====================================================================
