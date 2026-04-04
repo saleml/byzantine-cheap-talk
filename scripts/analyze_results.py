@@ -28,8 +28,6 @@ from io import StringIO
 
 ROOT = Path(__file__).resolve().parents[1]
 # Analyze this experiment bundle by default:
-# /Users/aya.elmir/gameth_llm_tmp_netys/results/k1_5_groups/k1_20_trials_5_rounds
-# RESULTS = ROOT / "results"
 RESULTS = ROOT / "results" / "k1_5_groups" / "k1_20_trials_5_rounds"
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -66,7 +64,7 @@ def classify_families_from_data(byz_data):
     permanently switched to Hunt Hare after the first betrayal.
     Otherwise it is CP.
 
-    Returns (fd_set, pc_set).
+    Returns (dp_set, cp_set).
     """
     from collections import defaultdict
 
@@ -114,16 +112,16 @@ def classify_families_from_data(byz_data):
 
             family_total[fam] += 1
 
-    fd = set()
-    pc = set()
+    dp = set()
+    cp = set()
     for fam in family_total:
         rate = family_perm_switch[fam] / family_total[fam] if family_total[fam] else 0
         if rate > 0.5:
-            fd.add(fam)
+            dp.add(fam)
         else:
-            pc.add(fam)
+            cp.add(fam)
 
-    return fd, pc
+    return dp, cp
 
 
 def family_perm_switch_stats(byz_data):
@@ -369,13 +367,13 @@ def analyze_payoff_breakdown(byz_data, soft_data):
                 f"{group:>8} {len(fam_rows):>8}"
             )
         # DP vs CP aggregate
-        fd_rows = [r for r in rows if family_of(r) in DP_FAMILIES]
-        pc_rows = [r for r in rows if family_of(r) in CP_FAMILIES]
-        fd_avg = avg_payoff_per_round(fd_rows)
-        pc_avg = avg_payoff_per_round(pc_rows)
-        ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
-        print(f"  {'':<12} {'DP total':<12} {fd_avg:>12.2f}")
-        print(f"  {'':<12} {'CP total':<12} {pc_avg:>12.2f}")
+        dp_rows = [r for r in rows if family_of(r) in DP_FAMILIES]
+        cp_rows = [r for r in rows if family_of(r) in CP_FAMILIES]
+        dp_avg = avg_payoff_per_round(dp_rows)
+        cp_avg = avg_payoff_per_round(cp_rows)
+        ratio = dp_avg / cp_avg if cp_avg > 0 else float("inf")
+        print(f"  {'':<12} {'DP total':<12} {dp_avg:>12.2f}")
+        print(f"  {'':<12} {'CP total':<12} {cp_avg:>12.2f}")
         print(f"  {'':<12} {'DP/CP ratio':<12} {ratio:>12.1f}x")
         print()
 
@@ -421,15 +419,15 @@ def analyze_soft_by_defections(soft_data, version="v1"):
     print(f"  {'-'*18} {'-'*8} {'-'*12} {'-'*10}")
 
     for split_label, split_rows in [("Low (<=2)", low), ("High (>=3)", high)]:
-        fd = [r for r in split_rows if family_of(r) in DP_FAMILIES]
-        pc = [r for r in split_rows if family_of(r) in CP_FAMILIES]
-        fd_avg = avg_payoff_per_round(fd)
-        pc_avg = avg_payoff_per_round(pc)
-        fd_coop = coop_rate(fd) * 100
-        pc_coop = coop_rate(pc) * 100
-        ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
-        print(f"  {split_label:<18} {'DP':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
-        print(f"  {split_label:<18} {'CP':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
+        dp = [r for r in split_rows if family_of(r) in DP_FAMILIES]
+        cp = [r for r in split_rows if family_of(r) in CP_FAMILIES]
+        dp_avg = avg_payoff_per_round(dp)
+        cp_avg = avg_payoff_per_round(cp)
+        dp_coop = coop_rate(dp) * 100
+        cp_coop = coop_rate(cp) * 100
+        ratio = dp_avg / cp_avg if cp_avg > 0 else float("inf")
+        print(f"  {split_label:<18} {'DP':>8} {dp_avg:>12.2f} {dp_coop:>9.1f}%")
+        print(f"  {split_label:<18} {'CP':>8} {cp_avg:>12.2f} {cp_coop:>9.1f}%")
         print(f"  {split_label:<18} {'ratio':>8} {ratio:>12.1f}x")
         print()
 
@@ -586,15 +584,15 @@ def analyze_byzantine_star(byz_star_data):
 
     for label, cond_key in conditions:
         h_rows = honest_rows(byz_star_by_cond[cond_key])
-        fd = [r for r in h_rows if family_of(r) in DP_FAMILIES]
-        pc = [r for r in h_rows if family_of(r) in CP_FAMILIES]
-        fd_avg = avg_payoff_per_round(fd)
-        pc_avg = avg_payoff_per_round(pc)
-        fd_coop = coop_rate(fd) * 100
-        pc_coop = coop_rate(pc) * 100
-        ratio = fd_avg / pc_avg if pc_avg > 0 else float("inf")
-        print(f"  {label:<22} {'DP':>8} {fd_avg:>12.2f} {fd_coop:>9.1f}%")
-        print(f"  {label:<22} {'CP':>8} {pc_avg:>12.2f} {pc_coop:>9.1f}%")
+        dp = [r for r in h_rows if family_of(r) in DP_FAMILIES]
+        cp = [r for r in h_rows if family_of(r) in CP_FAMILIES]
+        dp_avg = avg_payoff_per_round(dp)
+        cp_avg = avg_payoff_per_round(cp)
+        dp_coop = coop_rate(dp) * 100
+        cp_coop = coop_rate(cp) * 100
+        ratio = dp_avg / cp_avg if cp_avg > 0 else float("inf")
+        print(f"  {label:<22} {'DP':>8} {dp_avg:>12.2f} {dp_coop:>9.1f}%")
+        print(f"  {label:<22} {'CP':>8} {cp_avg:>12.2f} {cp_coop:>9.1f}%")
         print(f"  {label:<22} {'ratio':>8} {ratio:>12.1f}x")
         print()
 
@@ -645,8 +643,8 @@ def analyze_archetypes_across_num_players(byz_by_players):
 
     print("  DP vs CP count by player setting:")
     for n in player_counts:
-        fd, pc = classify_families_from_data(byz_by_players[n])
-        print(f"    n={n}: DP={len(fd)}  CP={len(pc)}")
+        dp, cp = classify_families_from_data(byz_by_players[n])
+        print(f"    n={n}: DP={len(dp)}  CP={len(cp)}")
     print()
 
 

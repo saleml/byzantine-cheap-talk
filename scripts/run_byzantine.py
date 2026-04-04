@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#!/usr/bin/env python3
 """
 Experiment A: Byzantine Cheap Talk in N-Player Stag Hunt
 

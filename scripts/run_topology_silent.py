@@ -13,6 +13,8 @@ Usage:
   python scripts/run_topology_silent.py --version v3 --out results/custom_dir
 """
 
+
+
 import argparse
 import csv
 import json

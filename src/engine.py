@@ -28,24 +28,6 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-### BLOCK removed ###
-# # Configure API client (DeepInfra by default, override with OPENAI_BASE_URL)
-# _base_url = os.environ.get("OPENAI_BASE_URL", "https://api.deepinfra.com/v1/openai")
-# # Choose the right key for the chosen endpoint. Previously we always preferred
-# # OPENAI_API_KEY which sent an OpenAI key to the DeepInfra endpoint and caused
-# # 401/invalid model errors. Now we pick the key that matches the base URL.
-
-
-# if "deepinfra" in _base_url:
-#     _api_key = os.environ.get("DEEPINFRA_API_KEY") or os.environ.get("OPENAI_API_KEY")
-# else:
-#     _api_key = os.environ.get("OPENAI_API_KEY") or os.environ.get("DEEPINFRA_API_KEY")
-
-# client = OpenAI(api_key=_api_key, base_url=_base_url)
-
-### END of BLOCK removed ###
-
-### added - ###
 # Simple multi-provider clients
 
 deepinfra_client = OpenAI(
@@ -74,7 +56,7 @@ _fmt_api_key = os.environ.get("OPENAI_API_KEY")
 _fmt_base = os.environ.get("OPENAI_BASE_URL_FORMATTER", "https://api.openai.com/v1")
 formatter_client = OpenAI(api_key=_fmt_api_key, base_url=_fmt_base) if _fmt_api_key else None
 
-# added - NEW FUNCTION to route to the correct client based on model name prefix
+# FUNCTION to route to the correct client based on model name prefix
 def get_client_and_provider(model: str):
     model_lower = model.lower()
 

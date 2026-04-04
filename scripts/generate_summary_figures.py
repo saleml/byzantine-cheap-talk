@@ -128,8 +128,8 @@ if __name__ == "__main__":
 
     # Derive DP/CP from data
     DP_FAMILIES, CP_FAMILIES = classify_families_from_data(byz_data)
-    fd_label = " + ".join(sorted(DP_FAMILIES)) if DP_FAMILIES else "DP"
-    pc_label = " + ".join(sorted(CP_FAMILIES)) if CP_FAMILIES else "CP"
+    dp_label = " + ".join(sorted(DP_FAMILIES)) if DP_FAMILIES else "DP"
+    cp_label = " + ".join(sorted(CP_FAMILIES)) if CP_FAMILIES else "CP"
     print(f"Version: {version}")
     print(f"DP families (derived): {sorted(DP_FAMILIES)}")
     print(f"CP families (derived): {sorted(CP_FAMILIES)}")
@@ -198,26 +198,26 @@ if __name__ == "__main__":
         ("Soft k=1", soft_honest),
     ]
 
-    fd_vals, pc_vals = [], []
+    dp_vals, cp_vals = [], []
     for label, rows in bar_conditions:
-        fd_rows = [r for r in rows if r["model_family"] in DP_FAMILIES]
-        pc_rows = [r for r in rows if r["model_family"] in CP_FAMILIES]
-        fd_vals.append(avg_payoff_per_round(fd_rows))
-        pc_vals.append(avg_payoff_per_round(pc_rows))
+        dp_rows = [r for r in rows if r["model_family"] in DP_FAMILIES]
+        cp_rows = [r for r in rows if r["model_family"] in CP_FAMILIES]
+        dp_vals.append(avg_payoff_per_round(dp_rows))
+        cp_vals.append(avg_payoff_per_round(cp_rows))
 
     x = np.arange(len(bar_conditions))
     width = 0.32
 
-    bars_fd = ax2.bar(x - width / 2, fd_vals, width, label=f"DP ({fd_label})",
+    bars_dp = ax2.bar(x - width / 2, dp_vals, width, label=f"DP ({dp_label})",
                       color="#1f77b4", edgecolor="white", linewidth=0.5)
-    bars_pc = ax2.bar(x + width / 2, pc_vals, width, label=f"CP ({pc_label})",
+    bars_cp = ax2.bar(x + width / 2, cp_vals, width, label=f"CP ({cp_label})",
                       color="#e377c2", edgecolor="white", linewidth=0.5)
 
     # add ratio annotations
     for i in range(len(bar_conditions)):
-        if pc_vals[i] > 0:
-            ratio = fd_vals[i] / pc_vals[i]
-            y_top = max(fd_vals[i], pc_vals[i])
+        if cp_vals[i] > 0:
+            ratio = dp_vals[i] / cp_vals[i]
+            y_top = max(dp_vals[i], cp_vals[i])
             ax2.annotate(f"{ratio:.0f}x" if ratio >= 2.5 else f"{ratio:.1f}x",
                          xy=(x[i], y_top + 0.15),
                          ha="center", va="bottom", fontsize=7.5, fontweight="bold")
@@ -225,7 +225,7 @@ if __name__ == "__main__":
     ax2.set_ylabel("Avg Payoff / Round")
     ax2.set_xticks(x)
     ax2.set_xticklabels([c[0] for c in bar_conditions])
-    ax2.set_ylim(0, max(fd_vals) * 1.3)
+    ax2.set_ylim(0, max(dp_vals) * 1.3)
     ax2.legend(loc="upper left")
     ax2.spines["top"].set_visible(False)
     ax2.spines["right"].set_visible(False)
