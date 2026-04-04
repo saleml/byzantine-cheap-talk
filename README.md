@@ -1,109 +1,178 @@
 # Byzantine Cheap Talk and Communication Topology in LLM-Mediated Coordination Games
 
-Code and data for the NETYS 2026 submission. We study how adversarial agents (Byzantine cheap talk) and restricted communication topologies affect cooperation in a 4-player Stag Hunt with pre-play communication, using heterogeneous LLM agents.
+Code and data for the NETYS 2026 paper experiments on LLM-mediated coordination in repeated Stag Hunt with communication.
+
+This repository is organized as the **full experimental package reported in the paper** (code + results for all experiment families below).
+
+## LLMs Used (Across Cohorts)
+
+The experiments in this repository use the following model set (configured in `scripts/config.py`):
+
+- `mistralai/Mixtral-8x22B-Instruct-v0.1` (Mixtral)
+- `Qwen/Qwen2.5-72B-Instruct` (Qwen)
+- `meta-llama/Llama-3.3-70B-Instruct` (Llama)
+- `deepseek-ai/DeepSeek-V3` (DeepSeek)
+- `gpt-4o` (GPT-4o)
+- `claude-sonnet-4-6` (Claude Sonnet)
+
+## Paper Scope (Full Experiment Set)
+
+The paper covers the following experiment suite:
+
+1. **Hard Byzantine**
+- `k=0`, `k=1`, `k=2`
+- 20 trials per `k`
+- 4-player setting
+- Additional archetype-stability analysis for `k=1` across `{2,3,5,6}` players (20 trials each)
+
+2. **Soft Byzantine**
+- `k=1`, `p=0.5`
+- 20 trials
+
+3. **Explicit Topology**
+- topologies: `broadcast`, `ring`, `star`
+- 20 trials per topology
+
+4. **Silent Topology**
+- topologies: `broadcast`, `ring`, `star`
+- 20 trials per topology
+
+5. **Byzantine × Star**
+- star topology with one hard Byzantine adversary
+- two conditions: `hub_is_adversary` vs `hub_is_honest`
+
+## Repository Layout
+
+```text
+├── src/
+│   ├── engine.py                 # Game engine + LLM API integration
+│   └── games.py                  
+├── scripts/
+│   ├── config.py                 # Model cohorts and agent pools
+│   ├── run_byzantine.py          # Hard Byzantine (k=0/1/2, supports N-player)
+│   ├── run_byzantine_soft.py     # Soft Byzantine (k=1, probabilistic defect)
+│   ├── run_topology.py           # Explicit topology (broadcast/ring/star)
+│   ├── run_topology_silent.py    # Silent topology variant
+│   ├── run_byzantine_star.py     # Byzantine × star crossing
+│   ├── analyze_results.py        # Main analysis pipeline
+│   ├── analyze_traces.py         # Trace-level analysis helpers
+│   ├── generate_summary_figures.py
+│   ├── heatmap.py
+│   └── check_output_format.py
+├── results/                      # Experiment outputs and analysis artifacts
+├── paper_netys/
+│   └── main.tex                  # NETYS paper source
+├── requirements.txt
+└── README.md
+```
+
+## Code → Result Mapping
+
+Use these scripts for each paper experiment family:
+
+1. `scripts/run_byzantine.py`
+- Hard Byzantine (`k=0/1/2`, 4-player main setting)
+- Also supports the `k=1` multi-group-size analysis (`N in {2,3,4,5,6}` via `--num_players`)
+- Typical outputs example:
+  - `results/byzantine_v1/` (or `v2`/`v3`)
+  - `results/k1_5_groups/` (group-size analysis for k=1 and a group of 5 players)
+
+2. `scripts/run_byzantine_soft.py`
+- Soft Byzantine (`k=1`, `p=0.5`)
+- Typical output: `results/byzantine_soft_v*/`
+
+3. `scripts/run_topology.py`
+- Explicit topology (`broadcast`, `ring`, `star`)
+- Typical output: `results/topology_v*/`
+
+4. `scripts/run_topology_silent.py`
+- Silent topology (`broadcast`, `ring`, `star`)
+- Typical output: `results/topology_silent_v*/`
+
+5. `scripts/run_byzantine_star.py`
+- Byzantine × star (`hub_is_adversary`, `hub_is_honest`)
+- Typical output: `results/byzantine_star_v*/`
+
+6. `scripts/analyze_results.py` and `scripts/generate_summary_figures.py`
+- Consolidated reports/figures from experiment outputs
 
 ## Setup
 
 ```bash
-git clone <repo-url> && cd gameth_llm_tmp
 pip install -r requirements.txt
 ```
 
-Create a `.env` file with your API keys:
+Create `.env` with provider keys (as needed by chosen model cohort):
 
-```
-DEEPINFRA_API_KEY=your_key_here
-OPENAI_API_KEY=your_key_here        # needed for GPT-4o in v2/v3
-ANTHROPIC_API_KEY=your_key_here     # needed for Claude Sonnet in v2
+```bash
+DEEPINFRA_API_KEY=...
+OPENAI_API_KEY=...
+ANTHROPIC_API_KEY=...
 ```
 
+Load env vars before running:
 
-Before running any scripts, load the environment variables into your terminal session:
-```
+```bash
 source .env
 ```
 
-## Model Versions
+## Model Cohorts
 
-All experiment scripts take a `--version` flag that selects the model cohort:
+Cohorts are defined in `scripts/config.py`.
 
-| Version | Models | Notes |
-|---------|--------|-------|
-| `v1` | Mixtral-8x22B, Qwen2.5-72B, Llama-3.3-70B, DeepSeek-V3 | Original cohort (all via DeepInfra). Used for NETYS paper. |
-| `v2` | Mixtral-8x22B, Qwen2.5-72B, GPT-4o, Claude Sonnet | Replaced Llama+DeepSeek. Claude Sonnet had severe output schema bugs (73-97% malformed). |
-| `v3` | Mixtral-8x22B, Qwen2.5-72B, GPT-4o, DeepSeek-V3 | Replaced Claude Sonnet with DeepSeek. Current cohort for ongoing experiments. |
+You can run experiments in two ways:
 
-Model cohorts are defined in `scripts/config.py`.
+1. Use predefined cohort versions with `--version` (`v1`, `v2`, `v3`).
+2. Define a custom player setup by selecting the first `N` models from the master pool with `--num_players N` (up to 6 players/models).
 
-## Experiments
+Predefined `--version` cohorts:
 
-All scripts require `--version v1|v2|v3`. Results go to `results/{experiment}_{version}/`.
+- `v1`: Mixtral-8x22B, Qwen2.5-72B, Llama-3.3-70B, DeepSeek-V3
+- `v2`: Mixtral-8x22B, Qwen2.5-72B, GPT-4o, Claude Sonnet
+- `v3`: Mixtral-8x22B, Qwen2.5-72B, GPT-4o, DeepSeek-V3
 
-| Script | Description | Key flags | Example |
-|--------|-------------|-----------|---------|
-| `run_byzantine.py` | Hard Byzantine (k=0,1,2) | `--version`, `--lowercase`, `--trials`, `--rounds` | `python scripts/run_byzantine.py --version v1 --trials 10` |
-| `run_byzantine_soft.py` | Soft Byzantine | `--version`, `--defect_prob`, `--trials` | `python scripts/run_byzantine_soft.py --version v3 --defect_prob 0.3` |
-| `run_topology.py` | Explicit topology | `--version`, `--lowercase`, `--trials` | `python scripts/run_topology.py --version v1 --trials 10` |
-| `run_topology_silent.py` | Silent topology | `--version`, `--lowercase`, `--trials` | `python scripts/run_topology_silent.py --version v1` |
-| `run_byzantine_star.py` | Byzantine × star | `--version`, `--dry-run`, `--trials` | `python scripts/run_byzantine_star.py --version v1 --dry-run` |
+## Reproducing the Paper Experiment Set
 
-### Analysis
+Example commands (20-trial paper configuration):
 
 ```bash
-python scripts/analyze_results.py --version v1    # analyze v1 results
-python scripts/analyze_results.py --version v3    # analyze v3 results
-python scripts/generate_summary_figures.py        # generate figures
-python scripts/check_output_format.py             # diagnose malformed outputs
+# Hard Byzantine (4 players): k=0,1,2
+python scripts/run_byzantine.py --version v1 --condition_set all --trials 20 --rounds 5
+
+# k=1 archetype stability across N={2,3,4,5,6}
+python scripts/run_byzantine.py --num_players 2 --condition_set k1 --trials 20 --rounds 5
+python scripts/run_byzantine.py --num_players 3 --condition_set k1 --trials 20 --rounds 5
+python scripts/run_byzantine.py --num_players 4 --condition_set k1 --trials 20 --rounds 5
+python scripts/run_byzantine.py --num_players 5 --condition_set k1 --trials 20 --rounds 5
+python scripts/run_byzantine.py --num_players 6 --condition_set k1 --trials 20 --rounds 5
+
+# Soft Byzantine (k=1, p=0.5)
+python scripts/run_byzantine_soft.py --version v1 --trials 20 --defect_prob 0.5 --rounds 5
+
+# Explicit topology
+python scripts/run_topology.py --version v1 --trials 20 --rounds 5
+
+# Silent topology
+python scripts/run_topology_silent.py --version v1 --trials 20 --rounds 5
+
+# Byzantine × star
+python scripts/run_byzantine_star.py --version v1 --trials 20 --rounds 5
 ```
 
-Reports are saved to `results/analysis_report_{version}.txt`.
+## Analysis
 
-## Results Directory
-
-Results are organized as `results/{experiment}_{version}/`:
-
-```
-results/
-  byzantine_v1/          # Hard Byzantine, v1 models (10 trials × 3 conditions)
-  byzantine_v2/          # Hard Byzantine, v2 models
-  byzantine_v3/          # Hard Byzantine, v3 models
-  byzantine_soft_v2/     # Soft Byzantine, v2 models (15 trials)
-  byzantine_soft_v3/     # Soft Byzantine, v3 models
-  byzantine_star_v1/     # Byzantine × star, v1 models (10 trials × 2 conditions)
-  topology_v1/           # Explicit topology, v1 models (10 trials × 3 topologies)
-  topology_v2/           # Explicit topology, v2 models
-  topology_v3/           # Explicit topology, v3 models
-  topology_silent_v1/    # Silent topology, v1 models
-  topology_silent_v2/    # Silent topology, v2 models
-  topology_silent_v3/    # Silent topology, v3 models
-  *_v2_lowercase/        # v2 models with lowercased communication words
-  *_test/                # Quick smoke-test runs (3 trials)
-  figures/               # Generated PDF/PNG figures
+```bash
+python scripts/analyze_results.py --version v1
+python scripts/analyze_results.py --version v2
+python scripts/analyze_results.py --version v3
+python scripts/analyze_results.py --num_of_players 2 3 4 5 6
+python scripts/generate_summary_figures.py
+python scripts/check_output_format.py
 ```
 
-Each experiment directory contains per-trial `results.json` files and an `all_results.csv` summary.
+Outputs include CSV summaries, text reports, and figure assets under `results/`.
 
-**Note on the paper:** The NETYS 2026 paper reports v1 results (Mixtral, Qwen, Llama, DeepSeek). There is no `byzantine_soft_v1/` because soft Byzantine was first run with v2 models.
+## Notes
 
-## Project Structure
-
-```
-src/
-  engine.py              # GameEngine: runs games, handles multi-provider LLM API calls
-  games.py               # Game implementations (StagHuntWithCommunication, etc.)
-                         #   lowercase_comms=True flag for lowercase prompt variant
-scripts/
-  config.py              # Centralized version config (model cohorts, DP/CP families)
-  run_byzantine.py       # Experiment A: hard Byzantine
-  run_byzantine_soft.py  # Experiment A-soft: probabilistic Byzantine
-  run_byzantine_star.py  # Experiment: Byzantine × star topology crossing
-  run_topology.py        # Experiment B: explicit topology
-  run_topology_silent.py # Experiment B-silent: silent topology
-  analyze_results.py     # Comprehensive analysis (--version flag)
-  generate_summary_figures.py  # Publication figures
-  check_output_format.py # Diagnostic for malformed LLM outputs
-paper_netys/             # NETYS 2026 paper (LaTeX)
-paper_eacl/              # EACL 2026 paper (prior work)
-```
-
-
+- Main paper source is in `paper_netys/main.tex`.
+- The repository is structured so experiment scripts, generated artifacts, and paper text remain directly cross-referenced.
