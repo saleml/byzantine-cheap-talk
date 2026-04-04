@@ -6,6 +6,8 @@
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{amsmath}
+\usepackage{amssymb}
+
 
 \newcommand{\todo}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
 \newcommand{\tsc}[1]{\textsc{#1}}
@@ -15,20 +17,24 @@
 \title{Byzantine Cheap Talk: Adversarial Resilience and\\Topology Effects in LLM Coordination Games}
 \titlerunning{Byzantine Cheap Talk in LLM Coordination Games}
 
-\author{Aya~El Mir\inst{1} \and Salem~Lahlou\inst{1}}
-\authorrunning{A. El Mir and S. Lahlou}
+\author{Aya~El Mir\inst{1} \and Martin~Takáč\inst{1} \and Salem~Lahlou\inst{1}}
+\authorrunning{A. El Mir, M. Takáč, S. Lahlou}
 \institute{Mohamed bin Zayed University of Artificial Intelligence (MBZUAI),\\Abu Dhabi, UAE \\
-\email{\{aya.elmir,salem.lahlou\}@mbzuai.ac.ae}}
+\email{\{aya.elmir,martin.takac,salem.lahlou\}@mbzuai.ac.ae}}
 
 \maketitle
 
 \begin{abstract}
-Multi-agent LLM systems increasingly rely on communication protocols for coordination, yet their robustness under adversarial and structural constraints remains poorly understood.
-Building on prior work showing that cheap-talk channels enable cooperation in LLM coordination games, we investigate two distinct vulnerability classes in a 4-player Stag Hunt.
-First, Byzantine agents---who signal cooperation but defect---can eliminate group-level cooperation entirely, with honest agents detecting betrayal within one round but unable to recover coordination due to the game's all-or-nothing payoff structure; probabilistic adversaries partially preserve cooperation but extract the full cooperation surplus.
-Second, explicitly restricting communication topology collapses cooperation, while identical restrictions applied silently preserve near-perfect cooperation---establishing that the mechanism is agents' meta-reasoning about hidden information, not information loss itself.
-Finally, we document persistent behavioral archetypes across model families: models that defect rationally upon detecting betrayal vastly outperform models that persistently attempt cooperation under adversarial conditions, a gap that compresses under probabilistic deception.
-Together, these findings have direct implications for the design of robust networked multi-agent AI systems.
+Multi-agent LLM systems increasingly rely on communication protocols for coordination, yet their robustness under adversarial and structural constraints remains poorly understood. Building on prior work showing that cheap-talk
+channels enable cooperation in LLM coordination games, we investigate two vulnerability classes in a 4-player Stag Hunt across six model families and 720 trials. First, when \emph{Byzantine agents} signal cooperation but defect, non-Byzantine agents detect the betrayal within one round yet fail to adapt collectively: a substantial fraction continue cooperating despite repeated exploitation, unable to recover coordination due to the game's unanimity payoff structure.
+Second, explicitly restricting communication topology collapses cooperation, while applying identical restrictions \emph{silently} preserves near-perfect cooperation. This establishes that coordination failure stems from agents' meta-reasoning about hidden information, not information loss itself. We identify two stable behavioral archetypes that replicate across all model cohorts: \emph{Defection-Prone} models that switch permanently after betrayal, and \emph{Cooperation-Persistent} models that continue cooperating at significant individual cost. These findings reveal concrete security vulnerabilities: communication channels can be exploited as adversarial injection vectors, and disclosing network topology to agents can degrade coordination even without any adversary present.
+%When adversaries defect probabilistically, cooperation partially persists, allowing adversaries to achieve higher payoffs by exploiting the remaining cooperation. Second, \textbf{communication topology disclosure} collapses cooperation: explicitly restricting message visibility leads to failure, while applying identical restrictions silently preserves near-perfect cooperation. \textbf{This shows that coordination breaks down due to agents' reasoning about hidden information, rather than the loss of information itself.} We also identify \textbf{stable behavioral archetypes} across model families: models that switch to defection after detecting betrayal significantly outperform those that continue attempting cooperation under adversarial conditions. This performance gap is reduced when adversarial behavior is probabilistic, as cooperation does not collapse completely. Overall, our results demonstrate that \textbf{multi-agent LLM coordination is highly sensitive to both adversarial signaling and system design choices}. Indeed, communication channels can be exploited as attack vectors, and exposing structural information to agents can degrade performance even in the absence of adversaries.
+
+
+
+
+
+
 
 \keywords{LLM agents \and game theory \and Byzantine fault tolerance \and cheap talk \and multi-agent coordination}
 \end{abstract}
@@ -38,29 +44,33 @@ Together, these findings have direct implications for the design of robust netwo
 %===================================================================
 
 Large language models are increasingly deployed as autonomous agents in multi-agent systems where coordination is essential~\cite{wooldridge2009introduction,park2023generative}.
-In classical game theory, \emph{cheap talk}---costless, non-binding pre-play communication---can resolve coordination dilemmas by establishing focal points, which are shared signals that agents can use to coordinate~\cite{farrell1987cheap,farrell1996cheap}.
+In classical game theory, \emph{cheap talk} (costless, non-binding pre-play communication) can resolve coordination dilemmas by establishing focal points, which are shared signals that agents can use to coordinate~\cite{farrell1987cheap,farrell1996cheap}.
+
 Recent work confirmed this for LLM agents: adding a single-word broadcast to a 4-player Stag Hunt raised cooperation from 0\% to 96.7\%~\cite{madmoun2026communication}.
-However, this assumes honest signaling and unrestricted communication---conditions rarely met in practice.
-
-We investigate two vulnerability classes.
-First, \emph{Byzantine agents}~\cite{lamport1982byzantine}---who signal cooperation but defect---test whether honest agents can sustain coordination under strategic deception (Section~\ref{sec:byzantine}).
-Second, \emph{communication topology restrictions} test whether partial message visibility preserves the coordination benefit of cheap-talk communication, namely the near-perfect cooperation it enables (Section~\ref{sec:topology}). Our experiments reveal three main findings:
-%Our experiments reveal that (1)~a single deterministic adversary eliminates group cooperation entirely, while probabilistic adversaries extract a 22\% payoff premium; (2)~topology restrictions collapse cooperation only when agents \emph{know} about them, not from information loss per se; and (3)~two stable behavioral archetypes---\emph{defection-prone} vs.\ \emph{cooperation-persistent}---emerge across model families, with up to 16$\times$ payoff differences under adversarial conditions. \textcolor{blue}{perhaps we could list them each in a new line for clarity - similar to how it's usually done in the contributions section}
+However, this result relies on assumptions of honest signaling and unrestricted communication, which are conditions that are rarely met in practice.
+In real-world multi-agent systems, benefiting from communication without compromising coordination requires mechanisms to verify the reliability of exchanged signals.
+Yet, multi-agent LLM frameworks such as AutoGen\cite{wu2023autogen} and similar pipelines rely on inter-agent communication (i.e., the exchange of signals or messages to coordinate decisions and align strategies) without such verification mechanisms, making coordination fragility a practical security concern.
 
 
-% \begin{enumerate}
-% \item A single deterministic adversary, while structurally preventing group cooperation, leaves 60\% honest cooperation---agents detect betrayal within one round but the unanimity payoff structure leaves them unable to recover collectively.
-% \item Topology restrictions collapse cooperation only when agents \emph{know} about them---not from information loss per se---as shown by perfect cooperation under silent topology.
-% \item Two stable behavioral archetypes emerge across model families: \emph{defection-prone} vs.\ \emph{cooperation-persistent}, with up to 16$\times$ payoff differences under adversarial conditions.
-% \end{enumerate}
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.99\textwidth]{main_figure.png}
+\caption{Example to illustrate $k{=}1$ trial (single round shown): GPT is the Byzantine agent (fixed across all rounds of the trial), broadcasting “Stag” in the communication phase but choosing “Hunt Hare” in the action phase. Each trial consists of multiple rounds, and the Byzantine agent assignment remains fixed within a trial but varies across trials.}\label{fig:main_figure}
+\end{figure}
 
-
+We investigate two classes of vulnerabilities.
+First, \emph{Byzantine agents}\cite{lamport1982byzantine} (agents that signal cooperation but defect) allow us to evaluate whether coordination can be sustained under strategic deception (Section \ref{sec:byzantine}), see Figure~\ref{fig:main_figure}.
+Second, \emph{communication topology restrictions} limit message visibility, allowing us to test whether the coordination benefits of cheap-talk communication (namely, the near-perfect cooperation it enables)persist under limited visibility (Section~\ref{sec:topology}). We refer to non-Byzantine agents as agents that are not explicitly designated as adversarial, although they may still behave in an adversarial manner. Our experiments reveal \textbf{three main findings}:
 \begin{enumerate}
-\item A single deterministic adversary is sufficient to make group cooperation impossible; however, \textbf{60\%} of honest agents (non-Byzantine) continue to choose \tsc{Stag} (cooperate), even after detecting the betrayal.
+\item A single deterministic Byzantine agent eliminates group cooperation entirely; yet \textbf{a substantial fraction of non-Byzantine agents continue to cooperate even after detecting the betrayal}.
 
 \item \textbf{Communication constraints reduce cooperation} only when agents are aware of them: when message visibility is restricted but not disclosed (silent topology), \textbf{cooperation remains near-perfect}. 
 
-\item \textbf{LLM agents exhibit two stable behavioral archetypes} across model families: \emph{defection-prone}, which switch permanently to \tsc{Hare} (defect) after betrayal, whereas \emph{cooperation-persistent} continue attempting cooperation despite exploitation, resulting in \textbf{up to 16$\times$ higher payoffs for defectors} in the considered game settings.
+% \item \textbf{LLM agents exhibit two stable behavioral archetypes} across model families: \emph{Defection-Prones}, which switch permanently to \tsc{Hare} (defect) after betrayal, whereas \emph{Cooperation-Persistents} continue attempting cooperation despite exploitation, resulting in \textbf{up to 5$\times$ higher payoffs for defectors} in the considered game settings.
+
+\item \textbf{LLM agents exhibit two stable behavioral archetypes} across model families: \textbf{\emph{Defection-Prone (DP)}} agents, which switch to defection after detecting betrayal in the majority of trials, and \textbf{\emph{Cooperation-Persistent (CP)}} agents, which continue attempting cooperation despite repeated exploitation, resulting in \textbf{significantly higher payoffs for defectors} under adversarial conditions.
+
+
 \end{enumerate} 
 
 
@@ -69,21 +79,26 @@ Second, \emph{communication topology restrictions} test whether partial message 
 %===================================================================
 
 
-
-\paragraph{Cheap talk and coordination games.}
-Crawford and Sobel~\cite{crawford1982strategic} showed that costless pre-play messages can transmit information even without binding commitments. ~\cite{farrell1987cheap} further demonstrated that cheap talk can help select among multiple equilibria in coordination games.
+\subsection{Cheap talk and coordination games}
+Crawford and Sobel~\cite{crawford1982strategic} showed that costless pre-play messages can transmit information even without binding commitments. Farrell~\cite{farrell1987cheap} further demonstrated that cheap talk can help select among multiple equilibria in coordination games.
 A canonical example is the Stag Hunt~\cite{skyrms2004stag}, where players prefer the payoff-dominant equilibrium (mutual cooperation) but face strategic risk, since cooperating alone yields the worst outcome.
 In such settings, cheap talk can mitigate this risk by enabling agents to signal their intended actions and align on a common strategy~\cite{farrell1996cheap}.
 
-\paragraph{Byzantine fault tolerance.}
+\subsection{Byzantine fault tolerance}
 The Byzantine Generals Problem~\cite{lamport1982byzantine} studies how to achieve consensus when some agents behave arbitrarily or maliciously.
-We adapt this framework to multi-agent AI: a Byzantine agent communicates cooperation but takes a conflicting action (cheap talk), representing strategic rather than arbitrary failure.
+We adapt this framework to multi-agent AI: a Byzantine agent signals cooperation through cheap-talk communication but takes a conflicting action, representing strategic rather than arbitrary failure.
 
-
-\paragraph{LLM coordination and communication topology}
+\subsection{LLM coordination and communication topology}
 Game-theoretic evaluation of LLM agents is a growing area~\cite{sun2025survey}, with prior work showing that context and framing can shift behavior between cooperative and competitive strategies~\cite{montrealethics_framing,huang2025gama_bench,guo2024investigation}.
 Network structure further shapes coordination by constraining which messages agents can observe~\cite{jackson2008social}.
 We build directly on~\cite{madmoun2026communication}, which showed that cheap talk raises Stag Hunt cooperation from 0\% to 96.7\%, and investigate whether this benefit persists under topology restrictions and, critically, whether agents' \emph{awareness} of these constraints affects outcomes.
+
+% \subsection{Byzantine behavior and adversarial agents in LLM systems}
+% Recent work has begun examining adversarial agents in LLM multi-agent systems beyond classical Byzantine fault tolerance~\cite{lamport1982byzantine}. Lee and Tiwari~\cite{lee2024prompt} demonstrate that a single compromised agent can propagate malicious prompts across interconnected agents via communication channels (a structural analog to our Byzantine cheap-talk setting). Chen et al.~\cite{chen2024blockagents} propose blockchain-based consensus to achieve Byzantine robustness in LLM multi-agent coordination, establishing the problem's practical urgency. Our work complements these by studying behavioral rather than architectural robustness: we characterize how honest agents respond to Byzantine peers, and what system-level conditions amplify or dampen adversarial impact.
+
+\subsection{Byzantine behavior and adversarial agents in LLM systems}
+Recent work has begun examining adversarial agents in LLM multi-agent systems beyond classical Byzantine fault tolerance~\cite{lamport1982byzantine}. Lee and Tiwari~\cite{lee2024prompt} show that a single compromised agent can propagate malicious prompts across interconnected agents via communication channels, a structural analog to our Byzantine cheap-talk setting. Chen et al.~\cite{chen2024blockagents} propose blockchain-based consensus mechanisms to make coordination robust to Byzantine agents, highlighting the practical importance of this problem. Our work complements these approaches by focusing on behavioral rather than architectural robustness: we study how non-Byzantine agents respond to adversarial behavior, and under which conditions coordination breaks down or is sustained.
+
 
 
 
@@ -92,77 +107,94 @@ We build directly on~\cite{madmoun2026communication}, which showed that cheap ta
 \section{Experimental Setup}\label{sec:setup}
 %===================================================================
 
-% \paragraph{Game.}
 \subsection{Game}
-% We use a 4-player Stag Hunt with cheap talk~\cite{madmoun2026communication}.
-% Each of 5 rounds has two stages: 
 
-We use a 4-player Stag Hunt ~\cite{madmoun2026communication}.
+We use a 4-player Stag Hunt~\cite{madmoun2026communication}.  
 Each round has two stages:  
-(1)~agents simultaneously broadcast one word (non-binding cheap talk), then (2)~each chooses \tsc{Hunt~Stag} or \tsc{Hunt~Hare}. Each experiment consists of multiple independent trials; each trial is a full 5-round game with the same group of agents, while a round refers to a single iteration of communication and action within a trial.
+\textbf{(1)}~\textbf{communication stage}, where agents simultaneously broadcast one word (non-binding cheap talk), and  
+\textbf{(2)}~\textbf{action stage}, where each agent chooses \tsc{Hunt~Stag} or \tsc{Hunt~Hare}.  
+
+Each experiment consists of multiple independent trials; each trial is a full 5-round game with the same group of agents, while a round refers to a single iteration of communication and action within a trial.
 The payoff for agent~$i$ is:
-\begin{equation}\label{eq:payoff}
+\begin{equation*}\label{eq:payoff}
 u_i = \begin{cases}
 10 & \text{if all 4 choose \tsc{Stag},} \\
 3 & \text{if } i \text{ chooses \tsc{Hare},} \\
 0 & \text{if } i \text{ chooses \tsc{Stag} and any other chooses \tsc{Hare}.}
 \end{cases}
-\end{equation}
-Agents observe the full history of prior rounds (all messages, actions, and payoffs).
+\end{equation*}
+
+
+
+Agents observe the full history of prior rounds within the same trial (all messages, actions, and payoffs). Trials are independent: each trial starts with a fresh prompt, empty history, and no memory of past interactions, ensuring that observed behaviors reflect in-context reasoning within a single game rather than accumulated learning across trials.
 
 \subsection{Prompt structure}
 Each agent receives a system prompt specifying the game rules, its player ID, and the payoff structure.
-At the communication stage, agents broadcast a single-word, non-binding message (``cheap talk''); at the action stage, they observe the visible messages and produce chain-of-thought reasoning with a final action in structured JSON.
+At the \textbf{communication stage}, agents broadcast a single-word, non-binding message (``cheap talk''); at the \textbf{action stage}, they observe the visible messages and produce a chain-of-thought reasoning followed by a final action (\tsc{Hunt~Stag} or \tsc{Hunt~Hare}) in structured JSON.
+
 Malformed responses trigger a single re-prompt; persistent failures are excluded (Appendix~\ref{app:parsing}).
 
 \subsection{Models}
-Four heterogeneous LLMs via DeepInfra API (temperature~0.0):
+
+We use six heterogeneous LLMs via DeepInfra and proprietary APIs (temperature~0.0):
 Mixtral-8x22B-Instruct~\cite{jiang2024mixtral},
 Qwen2.5-72B-Instruct~\cite{qwen2024qwen25},
 Llama-3.3-70B-Instruct~\cite{grattafiori2024llama},
-DeepSeek-V3~\cite{deepseek2024v3}. \textcolor{orange}{[potentially could add GPT]}. Each player is consistently assigned the same model across all trials.
+DeepSeek-V3~\cite{deepseek2024v3},
+GPT-4o ~\cite{openai2024gpt4o}, and Claude Sonnet 4.6 ~\cite{anthropic2024claude}.
+Each player is consistently assigned the same model across all trials.
+
+In Byzantine conditions, the adversarial (Byzantine) agent is selected at random from the set of agents at the start of each trial and remains fixed for all rounds within that trial.
+
 
 \subsection{Conditions}
 \begin{enumerate}
-\item \textbf{Hard Byzantine} ($k \in \{0,1,2\}$): $k$ Byzantine agents always broadcast ``stag'' but choose \tsc{Hare}; 10 trials per value of $k$ (see Appendix~\ref{app:prompt-byzantine}).
-\item \textbf{Soft Byzantine} ($k{=}1$, $p{=}0.5$): adversary defects with probability 0.5; 15 trials.
-\item \textbf{Explicit topology}: broadcast/ring/star with agents told their visibility constraints; 10 trials per topology.
-\item \textbf{Silent topology}: the same message visibility constraints are applied, but agents receive no visibility cues, and the number of players is removed from the prompt; 10 trials per topology.
-\item \textbf{Byzantine $\times$ star}: star topology with 1 hard adversary, in two sub-conditions: hub-is-adversarial vs hub-is-honest; 10 trials per sub-condition.
+\item \textbf{Hard Byzantine} ($k \in \{0,1,2\}$): $k$ Byzantine agents always broadcast ``stag'' but choose \tsc{Hare}; 20 trials per value of $k$ (see Appendix~\ref{app:prompt-byzantine}).
+\item \textbf{Soft Byzantine} ($k{=}1$, $p{=}0.5$): adversary defects with probability 0.5; 20 trials.
+\item \textbf{Explicit topology}: three communication structures are considered---\emph{broadcast} (all agents see all messages), \emph{ring} (each agent sees only its two neighbors' messages), and \emph{star} (one central agent sees all messages, while others see only the central agent). Agents are explicitly informed of these visibility constraints; 20 trials per topology.
+
+\item \textbf{Silent topology}: the same message visibility constraints as in the explicit topology condition are applied, but agents receive no visibility cues, and the number of players is removed from the prompt; 20 trials per topology.
+\item \textbf{Byzantine $\times$ star}: star topology with 1 hard adversary, in two sub-conditions: hub-is-adversarial vs hub-is-honest; 20 trials per sub-condition (see Section ~\ref{sec:byz-star}).  
 \end{enumerate}
 
-\subsection{Metrics}
 
+
+Additionally, to assess archetype stability across group sizes, 
+we replicate the hard Byzantine ($k{=}1$) condition across 
+$n \in \{2,3,5,6\}$ players, complementing the main 4-player setting, using available model cohorts; 
+results are reported in Section~\ref{sec:robustness}.
+
+\subsection{Metrics}
 We evaluate outcomes using three metrics: \\
-\textbf{Group cooperation rate ($\Phi$):} fraction of (trial, round) pairs where all agents choose \tsc{Hunt~Stag}; \\
-\textbf{Honest cooperation rate ($\rho_h$):} fraction of \tsc{Hunt~Stag} choices among non-adversarial agents; \\
-\textbf{Average payoff ($\bar{u}$):} mean per-round payoff across honest-agent observations.
+\textbf{Group cooperation rate ($\Phi$):} percentage of (trial, round) pairs where all agents choose \tsc{Hunt~Stag}; \\
+\textbf{Non-Byzantine cooperation rate ($\rho_{nb}$):} percentage of \tsc{Hunt~Stag} choices among non-Byzantine agents; \\
+\textbf{Average payoff ($\bar{u}$):} mean per-round payoff across non-Byzantine agent observations.
 
 
 %===================================================================
 \section{Byzantine Cheap Talk}\label{sec:byzantine}
 %===================================================================
 
-%-------------------------------------------------------------------
+
 \subsection{Hard Byzantine Agents Eliminate Cooperation}\label{sec:byz-hard}
-%-------------------------------------------------------------------
+
 
 
 \begin{figure}[t]
 \begin{minipage}[t]{0.44\textwidth}
 \footnotesize
 \centering
-\captionof{table}{Byzantine results (10 trials, 5 rounds).}\label{tab:byzantine}
+\captionof{table}{Byzantine results (20 trials, 5 rounds). Values: mean $\pm$ 95\% bootstrap CI half-width.}\label{tab:byzantine}
 \smallskip
 \begin{tabular}{@{}lccc@{}}
 \toprule
-Condition & $\Phi$ & $\rho_h$ & $\bar{u}$ \\
+Condition & $\Phi$ & $\rho_{nb}$ & $\bar{u}$ \\
 \midrule
-Baseline ($k{=}0$)        & 92.0 & 95.0 & 9.35 \\
-Hard Byz.\ ($k{=}1$)      & 0.0  & 60.0 & 1.20 \\
-Hard Byz.\ ($k{=}2$)      & 0.0  & 37.0 & 1.89 \\
-Star (hub{=}adv.)         & 0.0  & 13.3 & 2.60 \\
-Star (hub{=}hon.)         & 0.0  & 27.3 & 2.18 \\
+Baseline ($k{=}0$)        & $77{\pm}13$ & $89{\pm}8$  & $8.0{\pm}1.4$ \\
+Hard Byz.\ ($k{=}1$)      & $0{\pm}0$   & $50{\pm}4$  & $1.5{\pm}0.1$ \\
+Hard Byz.\ ($k{=}2$)      & $0{\pm}0$   & $43{\pm}7$  & $1.7{\pm}0.2$ \\
+Star (hub{=}adv.)         & $0{\pm}0$   & $13{\pm}3$  & $2.6{\pm}0.1$ \\
+Star (hub{=}hon.)         & $0{\pm}0$   & $28{\pm}5$  & $2.2{\pm}0.2$ \\
 \bottomrule
 \end{tabular}
 \end{minipage}
@@ -170,7 +202,7 @@ Star (hub{=}hon.)         & 0.0  & 27.3 & 2.18 \\
 \begin{minipage}[t]{0.53\textwidth}
 \footnotesize
 \centering
-\captionof{table}{Topology results (10 trials, 5 rounds).}\label{tab:topology}
+\captionof{table}{Topology results (20 trials, 5 rounds). Values: mean $\pm$ 95\% CI.}\label{tab:topology}
 \smallskip
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
@@ -178,9 +210,9 @@ Star (hub{=}hon.)         & 0.0  & 27.3 & 2.18 \\
 \cmidrule(lr){2-4} \cmidrule(lr){5-7}
 & Bcast & Ring & Star & Bcast & Ring & Star \\
 \midrule
-$\Phi$      & 80   & 0    & 0    & 100  & 100  & 100 \\
-$\rho_h$    & 87.5 & 33.5 & 27   & 100  & 100  & 100 \\
-$\bar{u}$   & 8.38 & 2.00 & 2.19 & 10.0 & 10.0 & 10.0 \\
+$\Phi$      & $70{\pm}15$   & $5{\pm}5$    & $0{\pm}0$   & $100{\pm}0$  & $100{\pm}0$  & $80{\pm}13$ \\
+$\rho_{nb}$    & $82{\pm}12$   & $35{\pm}7$   & $24{\pm}3$  & $100{\pm}0$  & $100{\pm}0$  & $88{\pm}11$ \\
+$\bar{u}$   & $7.6{\pm}1.6$ & $2.4{\pm}0.7$ & $2.3{\pm}0.1$ & $10{\pm}0$ & $10{\pm}0$  & $8.4{\pm}1.4$ \\
 \bottomrule
 \end{tabular}
 \end{minipage}
@@ -190,43 +222,100 @@ $\bar{u}$   & 8.38 & 2.00 & 2.19 & 10.0 & 10.0 & 10.0 \\
 
 
 
+A hard Byzantine agent broadcasts ``stag'' but deterministically chooses \tsc{Hare}. As a result, when $k{=}1$, group cooperation is impossible, since achieving the highest payoff requires all agents to choose \tsc{Stag}. From the following round onward, reasoning traces indicate that agents detect that some peers signal \tsc{Stag} but choose \tsc{Hare} (see Appendix~\ref{app:trace}). Despite this, 50\% of non-Byzantine agents continue to choose \tsc{Stag}, attempting to cooperate (Table~\ref{tab:byzantine}). However, coordination cannot be restored: because the Byzantine agent consistently defects in every round, the group can never reach unanimous \tsc{Stag}. Consequently, $\rho_{nb}$ drops rapidly: from 98\% to 43\% by round~2 under $k{=}1$, and from 100\% to 23\% by round~2 under $k{=}2$ (Table~\ref{tab:roundbyround}).
 
-A hard Byzantine agent broadcasts ``stag'' but deterministically chooses \tsc{Hare}. As a result, when $k{=}1$, group cooperation is impossible, since achieving the highest payoff requires all agents to choose \tsc{Stag}. From the following round onward, reasoning traces indicate that agents detect that some agents signal \tsc{Stag} but choose \tsc{Hare} (see Appendix~\ref{app:trace}). Despite this, 60\% of honest agents (non-Byzantine) continue to choose \tsc{Stag}, attempting to cooperate (Table~\ref{tab:byzantine}). However, coordination cannot be restored: because the Byzantine agent consistently defects in every round, the group can never reach unanimous \tsc{Stag}. As a result, honest cooperation (i.e., all honest agents choosing \tsc{Stag}) drops rapidly—from \textcolor{orange}{100\% to 53\% by round~2 under $k{=}1$, and from 95\% to 20\% under $k{=}2$.}
+Table~\ref{tab:roundbyround} shows how Non-Byzantine cooperation evolves within a trial. Under hard Byzantine conditions, nearly all Non-Byzantine agents cooperate in round~1 (trusting the initial cheap-talk signals), but cooperation drops sharply by round~2 once betrayal is observed. Under $k{=}1$ the rate stabilizes around 30--40\%, reflecting the Cooperation-Persistents who continue choosing \tsc{Stag} despite exploitation. Under $k{=}2$, the collapse is faster and deeper (100\% to 23\% by round~2), as agents face two simultaneous sources of deception. Soft Byzantine shows a more gradual decay, consistent with intermittent rather than systematic betrayal.
+
+\begin{table}[h]
+\centering
+\caption{Non-Byzantine cooperation rate $\rho_{nb}$ (\%) per round across Byzantine conditions (v1, 20 trials). Values: mean $\pm$ 95\% CI.}\label{tab:roundbyround}
+\smallskip
+\footnotesize
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Condition & R1 & R2 & R3 & R4 & R5 \\
+\midrule
+Baseline ($k{=}0$)     & $98{\pm}3$  & $91{\pm}7$  & $86{\pm}10$ & $86{\pm}9$  & $85{\pm}11$ \\
+Hard Byz.\ ($k{=}1$)   & $98{\pm}3$  & $43{\pm}7$  & $43{\pm}7$  & $27{\pm}6$  & $38{\pm}8$ \\
+Hard Byz.\ ($k{=}2$)   & $100{\pm}0$ & $23{\pm}10$ & $30{\pm}10$ & $30{\pm}13$ & $33{\pm}13$ \\
+Soft Byz.\ ($p{=}0.5$) & $97{\pm}4$  & $62{\pm}13$ & $50{\pm}12$ & $48{\pm}10$ & $48{\pm}10$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Behavioral Archetypes}
+% Two stable behavioral patterns emerge under $k{=}1$, defined operationally based on agents' responses to betrayal. \textbf{Defection-Prones (DP)} are models that permanently switch to \tsc{Hare} after the first observed betrayal, while \textbf{Cooperation-Persistents (CP)} are models that never switch or intermittently return to \tsc{Stag} despite continued exploitation. These labels are assigned post hoc, based on an empirically observed behavioral split across model families.
+
+% \emph{Defection-Prones} (DP: Mixtral, DeepSeek) permanently switch to \tsc{Hare} after one betrayal, consistently across all trials. \emph{Cooperation-Persistents} (CP: Qwen, Llama) continue choosing \tsc{Stag} despite exploitation in the large majority of trials.
+
+
+% The payoff gap is stark: DP agents earn 2.42/round vs.\ CP agents' 0.45/round (5.4$\times$).
+% Fast defection is individually rational but collectively destructive.
+% We observe a robust correlation between model family and archetype, but cannot identify a causal mechanism: RLHF training data, model scale, and instruction-following style are all confounded with family identity.
 
 
 
-\paragraph{Behavioral archetypes.}
-Two stable behavioral patterns emerge under $k{=}1$, defined operationally based on agents' responses to betrayal. \textbf{Defection-Prone (DP)} are models that permanently switch to \tsc{Hare} after the first observed betrayal, while \textbf{Cooperation-Persistent (CP)} are models that never switch or intermittently return to \tsc{Stag} despite continued exploitation. These labels are assigned post hoc, based on an empirically observed behavioral split across model families.
-% \begin{itemize}
-%     \item \textbf{Defection-Prone (DP)}: Mixtral and DeepSeek permanently switch to \tsc{Hare} after one betrayal\textcolor{orange}{---all 14 honest instances across 10 trials switched after round~1.}
-%     \item \textbf{Cooperation-Persistent (CP)}: Qwen and Llama continue choosing \tsc{Stag} despite exploitation \textcolor{orange}{---12 of 16 honest instances never switched.}
-% \end{itemize}
-\emph{Defection-Prone} (DP: Mixtral, DeepSeek) permanently switch to \tsc{Hare} after one betrayal, consistently across all trials. \emph{Cooperation-Persistent} (CP: Qwen, Llama) continue choosing \tsc{Stag} despite exploitation in the large majority of trials.
+
+We observe two stable behavioral archetypes under $k{=}1$, defined operationally based on how agents respond after being betrayed by a Byzantine agent (i.e., when an agent signals \tsc{Stag} but chooses \tsc{Hare}).
+
+For each non-Byzantine agent within a given trial, we examine its actions following the first observed betrayal. An agent is said to \emph{permanently switch to defection} within a trial if, after the first betrayal, it chooses \tsc{Hare} in all subsequent rounds of that trial.
+
+For example, in a single trial:
+\begin{itemize}
+    \item R1: Stag (betrayal occurs)
+    \item R2--R5: Hare, Hare, Hare, Hare
+\end{itemize}
+In this case, the agent is classified as having permanently switched to defection within that trial.
+
+We then aggregate this behavior across all trials in which the agent is non-Byzantine. For each model family, we compute the fraction of such trials in which agents exhibit a permanent switch to defection. A model family is classified as \textbf{Defection-Prone (DP)} if this fraction exceeds 50\%, and as \textbf{Cooperation-Persistent (CP)} otherwise.
+
+For instance, if Mixtral is non-Byzantine in 10 trials and exhibits a permanent switch to defection in 8 of them, its rate is $8/10 = 0.8 > 0.5$, and it is therefore classified as DP.
+
+This behavioral split is consistent across model families: Mixtral and DeepSeek are classified as DP, while Qwen and Llama are classified as CP.
 
 
-The payoff gap is stark: DP agents earn 2.40/round vs.\ CP agents' 0.15/round (16$\times$).
-Fast defection is individually rational but collectively destructive.
-We observe a robust correlation between model family and archetype, but cannot identify a causal mechanism: RLHF training data, model scale, and instruction-following style are all confounded with family identity.
+The payoff gap is stark: DP agents earn 2.42/round vs.\ CP agents' 0.45/round (a 5.4$\times$ difference). While defection is individually rational under adversarial conditions, it leads to a complete breakdown of group cooperation.
+We observe a robust correlation between model family and behavioral archetype, but cannot identify a causal mechanism: RLHF training data, model scale, and instruction-following style are all confounded with family identity.
 
-%-------------------------------------------------------------------
+
+%=============================
 \subsection{Soft Byzantine: Probabilistic Deception}\label{sec:byz-soft}
-%-------------------------------------------------------------------
+%=============================
 
-A soft adversary ($p{=}0.5$) creates intermittent rather than systematic betrayal.
-Group cooperation partially survives at 21.3\% (vs.\ 0\% hard), because the adversary sometimes cooperates.
-Honest cooperation reaches 71.1\%, decaying gradually from 97.8\% in round~1 to 51.1\% in round~5 but never collapsing.
-The adversary earns 3.65/round vs.\ honest agents' 3.00/round---a 22\% premium, extracting the cooperation surplus.
+A soft adversary ($p{=}0.5$) creates intermittent rather than systematic betrayal (Table~\ref{tab:soft}).
+Group cooperation partially survives at $12{\pm}7$\% (vs.\ 0\% hard), because the adversary sometimes cooperates.
+Non-Byzantine cooperation reaches $61{\pm}8$\%, decaying gradually from $97\%$ in round~1 to $48$\% in round~5 but never collapsing (Table ~\ref{tab:roundbyround}).  
+The adversary earns $2.64{\pm}0.80$/round vs.\ Non-Byzantine agents' $2.37{\pm}0.73$/round, which is an 11\% premium, extracting the cooperation surplus.
 
-The DP/CP payoff gap compresses from 16$\times$ (hard) to 1.9$\times$ (soft): intermittent betrayal lets cooperation-persistent occasionally earn the stag payoff, while the adversary captures the full cooperation surplus by always signaling ``stag'' regardless of its action.
+\begin{table}[h]
+\centering
+\caption{Soft Byzantine results ($k{=}1$, $p{=}0.5$, 20 trials). Values: mean $\pm$ 95\% CI.}\label{tab:soft}
+\smallskip
+\footnotesize
+\begin{tabular}{@{}lc@{}}
+\toprule
+Metric & Value \\
+\midrule
+Group cooperation $\Phi$ & $12{\pm}7$\% \\
+Non-Byzantine cooperation $\rho_{nb}$ & $61{\pm}8$\% \\
+Non-Byzantine avg.\ payoff $\bar{u}$ & $2.37{\pm}0.73$ \\
+Adversary avg.\ payoff & $2.64{\pm}0.80$ \\
+Adversary premium & 11\% \\
+DP/CP payoff ratio & 2.6$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-%-------------------------------------------------------------------
+The DP/CP payoff gap compresses from $5.4\times$ (hard) to $2.6\times$ (soft; Table~\ref{tab:soft}): intermittent betrayal lets Cooperation-Persistents occasionally earn the stag payoff, while the adversary captures the cooperation surplus by always signaling ``stag'' regardless of its action.
+
+%=============================
 \subsection{Topology $\times$ Adversary Interaction}\label{sec:byz-star}
-%-------------------------------------------------------------------
+%=============================
 
 To test whether the two vulnerability classes interact, we place one hard adversary in a star topology as either the hub or a spoke.
-Both conditions yield 0\% group cooperation, as is structurally guaranteed, but honest cooperation diverges: 13.3\% (hub=adversary) vs.\ 27.3\% (hub=honest), as shown in Table~\ref{tab:byzantine}.
-A central adversary's ``stag'' signal reaches all spokes who cannot cross-validate, collapsing cooperation to 0\% by round~2; an honest hub sustains 73.3\% initial trust decaying to 16.7\%.
-Compared to broadcast Byzantine (60\% honest cooperation), star topology compounds adversarial damage to 13--27\%---the two classes interact multiplicatively.
+Both conditions yield 0\% group cooperation, as is structurally guaranteed, but Non-Byzantine cooperation diverges: 13.3\% (hub=adversary) vs.\ 27.7\% (hub=honest), as shown in Table~\ref{tab:byzantine}.
+A central adversary's ``stag'' signal reaches all spokes who cannot cross-validate, collapsing cooperation rapidly; an honest hub sustains higher initial trust.
+Compared to broadcast Byzantine (50\% Non-Byzantine cooperation), star topology compounds adversarial damage to 13--28\%, showing that the two classes interact multiplicatively.
 The DP/CP gap compresses to 1.4--1.7$\times$, as topology suppresses cooperation regardless of archetype.
 
 %===================================================================
@@ -260,37 +349,169 @@ Each configuration is studied under two conditions: \emph{explicit} (agents told
 % \end{tabular}
 % \end{table}
 
-Explicit ring and star collapse cooperation to 0\% group rate (Table~\ref{tab:topology}), matching hard Byzantine severity despite no adversary being present.
-The DP/CP archetype split reappears in explicit topologies: in the ring, Llama cooperates at 72\% and Qwen at 56\%, while Mixtral (2\%) and DeepSeek (4\%) defect almost universally---the same model-family alignment as under Byzantine conditions.
+Explicit ring and star collapse cooperation to near-zero group rate (Table~\ref{tab:topology}), approaching hard Byzantine severity despite no adversary being present.
+The DP/CP archetype split reappears in explicit topologies: in the ring, Llama cooperates at 67\% and Qwen at 59\%, while Mixtral (7\%) and DeepSeek (8\%) defect almost universally, mirroring the same model-family alignment as under Byzantine conditions.
 
-The silent conditions produce a strikingly different outcome: all three topologies achieve perfect cooperation (100\%/100\%) with zero defections across 600 agent-round observations, and the DP/CP split vanishes entirely.
+The silent conditions produce a strikingly different outcome: broadcast and ring achieve perfect cooperation (100\%/100\%), while silent star reaches 88\% Non-Byzantine cooperation, which is substantially higher than explicit star (23.8\%) though not perfect.
 Since silent-ring agents see only two of three co-players' messages yet cooperate perfectly, information loss alone cannot explain the explicit collapse.
 
 The mechanism is \emph{meta-reasoning}: told ``you can only see messages from your neighbors,'' we conjecture that agents infer unseen players with unknown intentions, triggering strategic uncertainty; without such framing, they take messages at face value.
-This parallels framing effects in LLM game play~\cite{montrealethics_framing} and reveals that the DP/CP archetypes are \emph{prompt-elicited}, not intrinsic---they vanish when strategic framing is removed.
+This parallels framing effects in LLM game play~\cite{montrealethics_framing} and reveals that the DP/CP archetypes are \emph{prompt-elicited}, not intrinsic: they vanish when strategic framing is removed.
+
+%=============================
+\section{Robustness Across Model Families}\label{sec:robustness_families}
+%=============================
+
+To test whether our findings depend on the specific model cohort, we replicate all experiments with two additional cohorts: v2 (replacing Llama and DeepSeek with GPT-4o and Claude Sonnet) and v3 (replacing Llama with GPT-4o, keeping DeepSeek). Table~\ref{tab:robustness} summarizes the archetype classification for each model across cohorts.
+
+\begin{table}[h]
+\centering
+\caption{Archetype consistency across model cohorts. DP/CP classification derived from k=1 hard Byzantine data (DP if more than 50\% of trials in which the model is non-Byzantine exhibit a permanent switch to defection after the first observed betrayal, including preemptive defectors).}\label{tab:robustness}
+\smallskip
+\footnotesize
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Model & v1 & v2 & v3 & Consistent \\
+\midrule
+Mixtral       & DP (13/13) & DP (15/15) & DP (17/17) & \checkmark \\
+Qwen          & CP (2/15)  & CP (7/15)  & CP (2/14)  & \checkmark \\
+DeepSeek      & DP (19/19) & ---        & DP (15/15) & \checkmark \\
+GPT-4o        & ---        & DP (13/13) & DP (14/14) & \checkmark \\
+Claude Sonnet & ---        & DP (17/17) & ---        & N/A \\
+Llama         & CP (3/13)  & ---        & ---        & N/A \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All core findings replicate: Byzantine agents eliminate group cooperation in every cohort ($\Phi = 0$\% for $k \geq 1$), silent topology preserves high cooperation (silent ring: 96--100\% across cohorts), and the DP/CP split is stable.
+Notably, GPT-4o exhibits a pattern not seen in the original cohort: \emph{preemptive defection}, which is choosing \tsc{Hunt~Hare} from round~1, before any betrayal occurs. When betrayal does occur, GPT-4o switches permanently, making it functionally Defection-Prone (DP). Qwen is the only model classified as Cooperation-Persistent (CP) across all three cohorts.
+
+Qualitative analysis of 14,400 reasoning traces across all cohorts reveals distinct patterns in reasoning: DP models (Mixtral, Claude Sonnet) reference betrayal detection in 88--92\% of traces vs.\ 16--21\% for CP models, while CP models (Qwen, Llama) emphasize coordination appeals in 85--98\% of traces (see Appendix~\ref{app:qualitative}).
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{perm_sw_heatmap_n2_to_n6.png}
+\caption{Defection-Prone Behavior Across Model Families and Group Sizes.}\label{fig:perm_sw_heatmap_n2_to_n6}
+\end{figure}
+
+
+%=============================
+\section{Robustness Across Group Size}\label{sec:robustness}
+%=============================
+
+To evaluate whether behavioral archetypes are robust to changes in group size, we analyze the Defection-Prone (DP) and Cooperation-Persistent (CP) classification across different numbers of players $n \in \{2,3,5,6\}$ along with the main setup of 4 players.
+
+Experiments in this section are conducted under the hard Byzantine condition ($k{=}1$), with 20 trials per setting and 5 rounds per trial. Different group sizes correspond to the following model compositions:
+\begin{itemize}
+    \item $n{=}2$: Mixtral, Qwen
+    \item $n{=}3$: Mixtral, Qwen, Llama
+    \item $n{=}4$: Mixtral, Qwen, Llama, DeepSeek
+    \item $n{=}5$: Mixtral, Qwen, Llama, DeepSeek, GPT-4o
+    \item $n{=}6$: Mixtral, Qwen, Llama, DeepSeek, GPT-4o, Claude Sonnet
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{DP/CP classification across player-count groups ($k{=}1$ condition) across 20 trials and 5 rounds per trial.}
+\label{tab:robustness_across_n}
+\smallskip
+\footnotesize
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Model & $n{=}2$ & $n{=}3$ & $n{=}4$ & $n{=}5$ & $n{=}6$ & Consistent \\
+\midrule
+Mixtral        & DP (9/9)    & DP (14/14)  & DP (17/17)  & DP (11/11)  & DP (17/17)  & \checkmark \\
+Qwen           & CP (0/11)   & CP (0/13)   & CP (0/14)   & CP (0/14)   & CP (0/18)   & \checkmark \\
+DeepSeek       & ---         & ---         & DP (11/12)  & DP (14/14)  & DP (15/17)  & \checkmark \\
+GPT-4o         & ---         & ---         & ---         & CP (5/11)   & CP (5/16)   & \checkmark \\
+Claude Sonnet  & ---         & ---         & ---         & ---         & DP (8/14)   & N/A \\
+Llama          & ---         & CP (1/13)   & CP (0/17)   & CP (0/14)   & CP (1/18)   & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Table~\ref{tab:robustness_across_n} summarizes the resulting classifications. Entries are reported as \texttt{Class (perm\_switch/total)}, where the denominator corresponds to the number of trials in which a given model is not assigned as the Byzantine agent. Since the Byzantine agent is selected at random at the start of each trial and remains fixed for all rounds within that trial, models are observed under non-Byzantine conditions a varying number of times. Thus, the denominator reflects the number of trials in which a model had the opportunity to react to betrayal, rather than the total number of trials.
+
+In Table~\ref{tab:robustness_across_n}, we observe that model families exhibit highly stable archetypal behavior across group sizes: Mixtral and DeepSeek consistently display defection-prone behavior, while Qwen and Llama consistently exhibit cooperation-persistent behavior. In contrast, GPT-4o shows mixed classification depending on group composition, suggesting sensitivity to peer models. 
+
+Figure~\ref{fig:perm_sw_heatmap_n2_to_n6} provides a complementary view by showing the rate of permanent defection across model families and group sizes. Defection-Prone (DP) models such as Mixtral exhibit near-100\% defection rates across all $n$, while Cooperation-Persistent (CP) models such as Qwen remain near 0\%, confirming strong stability. In contrast, models like GPT-4o and Claude Sonnet exhibit non-extreme defection rates at larger group sizes, suggesting that their behavior is more sensitive to group composition and scale.
+
+
+%===================================================================
+\section{Security and Safety Implications}\label{sec:implications}
+%===================================================================
+
+Our findings reframe multi-agent LLM coordination failures as concrete security vulnerabilities rather than abstract game-theoretic phenomena.
+
+
+\subsection{Byzantine cheap talk as adversarial prompt injection}
+A Byzantine agent in our setting (one that signals cooperation via cheap talk but defects at the action stage) is structurally equivalent to an adversarial prompt injection attack delivered through a communication channel~\cite{lee2024prompt}.
+The injected content (``stag'') is designed to elicit a specific behavior (cooperation) while the adversary pursues an incompatible goal (defection).
+Unlike classical prompt injection, which targets a single agent's system prompt, Byzantine cheap talk exploits the \emph{social} inference layer: Non-Byzantine agents update their beliefs based on received messages and are harmed not by direct instruction override but by false belief formation.
+Our results quantify the damage: a single Byzantine agent is sufficient to eliminate group coordination entirely, and Non-Byzantine agents cannot recover even after detecting the deception, because the game's unanimity structure makes any residual doubt catastrophically costly. In particular, since successful cooperation requires all agents to choose \tsc{Stag}, even a single agent's defection guarantees failure, making it rational for others to avoid cooperation despite recognizing the source of the deception.
+
+\subsection{Communication topology as an attack surface}
+The explicit-vs.-silent topology finding reveals a less obvious vulnerability: \emph{disclosing network architecture to agents can itself be an attack vector}.
+Agents that are informed of restricted visibility begin to reason about unseen peers, which introduces strategic uncertainty and ultimately collapses cooperation even in the absence of any adversarial agent.
+This has a direct analogue in deployed systems: frameworks that expose agent roles, communication graphs, or system architecture to individual agents~\cite{wu2023autogen} may inadvertently undermine coordination.
+The implication is counterintuitive: increasing transparency about system structure can \emph{decrease} system performance when agents engage in meta-reasoning about that structure.
+
+\subsection{The alignment tax}
+
+The DP/CP behavioral split reveals what we term an \emph{alignment tax}: models that behave in a more cooperative and prosocial manner under standard (non-adversarial) conditions, i.e., Cooperation-Persistent (CP) models, pay a disproportionate penalty when facing adversarial peers, earning $5.4\times$ less than defection-prone models.
+
+We cannot determine from our experiments whether CP behavior is a product of RLHF alignment training, model scale, or architectural differences, as these are confounded across model families. However, the consistency of the split across three model cohorts (Section~\ref{sec:robustness_families}) suggests the pattern is systematic rather than incidental.
+
+If prosocial training produces models that are systematically exploitable by adversarial peers, this represents a safety concern orthogonal to the standard alignment agenda: a model can be individually well-behaved yet collectively vulnerable. In other words, optimizing for cooperative behavior in isolation may inadvertently create agents that perform well on their own but fail when interacting with other agents in adversarial environments.
+
+
+
+
+
+% %===================================================================
+% \section{Discussion and Conclusion}\label{sec:discussion}
+% %===================================================================
+
+% Cheap-talk coordination among LLM agents, while effective under standard (non-adversarial) conditions~\cite{madmoun2026communication}, is fragile along two axes.
+% Under hard Byzantine attack, Non-Byzantine agents detect betrayal within one round yet 50\% persist in cooperation, while adversaries who defect stochastically ($p=0.5$) extract an $11\%$ payoff surplus by sustaining enough cooperative signals to prevent Non-Byzantine agents from abandoning the stag strategy.
+% Topology restrictions collapse cooperation only when agents \emph{know} about them, and combining both compounds the damage multiplicatively.
+% The DP/CP split is stable across adversarial conditions but vanishes under silent topology, confirming prompt-elicited archetypes.
+% Both vulnerabilities share a common root: cooperation collapses from agents' rational response to uncertainty about others' intentions, whether introduced by deception or topology framing.
+% As multi-agent LLM systems are increasingly deployed in high-stakes settings~\cite{wu2023autogen}, these fragilities move from theoretical curiosities to operational risks requiring architectural solutions (Section~\ref{sec:implications}).
+% Our experiments are limited to 4-player Stag Hunt (20 trials per condition); unanimity payoffs may amplify adversarial impact relative to graded-payoff games.
+% Replication with two additional model cohorts confirms that all core findings generalize, with Qwen as the only consistent Cooperation-Persistent across six model families tested (Section~\ref{sec:robustness_families}).
+% Future work should examine whether standard defenses from classical distributed systems (verified communication channels, reputation mechanisms, or commitment devices) transfer to LLM coordination settings where agents reason in natural language rather than following deterministic protocols, and whether the vulnerabilities identified here generalize to other game structures, group sizes, and time horizons.
 
 %===================================================================
 \section{Discussion and Conclusion}\label{sec:discussion}
 %===================================================================
 
-Cheap-talk coordination among LLM agents, while effective under benign conditions~\cite{madmoun2026communication}, is fragile along two axes.
-Under hard Byzantine attack, honest agents detect betrayal within 
-one round yet 60\% persist in cooperation---individually rational 
-but collectively futile given the unanimity payoff structure~\cite{lamport1982byzantine}---while probabilistic adversaries extract a 22\% payoff surplus 
-by defecting selectively while sustaining enough cooperation 
-signals to prevent honest agents from abandoning the stag strategy.
-Topology restrictions collapse cooperation only when agents \emph{know} about them, and combining both compounds the damage multiplicatively.
-The DP/CP split is stable across adversarial conditions but vanishes under silent topology, confirming prompt-elicited archetypes.
-Both vulnerabilities share a common root: cooperation collapses from agents' rational response to uncertainty about others' intentions, whether introduced by deception or topology framing.
-Robust multi-agent LLM systems require mechanisms beyond cheap talk, and designers must attend to \emph{how} agents are told about their environment.
-Our experiments are limited to 4-player Stag Hunt (10 trials in most conditions and 15 for soft Byzantine); unanimity payoffs may amplify adversarial impact.
-Future work will extend to additional model families, longer time horizons, and games with graded payoff structures.
+Cheap-talk coordination among LLM agents, while effective under standard (non-adversarial) conditions~\cite{madmoun2026communication}, is fragile along two axes: (1) adversarial deception through Byzantine agents, and (2) restrictions on communication topology.
+
+Under hard Byzantine attack, non-Byzantine agents detect betrayal within one round, yet approximately 50\% continue to cooperate. When the adversary defects stochastically ($p{=}0.5$), it achieves an $11\%$ payoff advantage by maintaining enough cooperative signals to keep other agents uncertain about whether coordination is still possible. As a result, non-Byzantine agents hesitate to abandon the stag strategy, allowing the adversary to exploit this uncertainty.
+
+Topology restrictions collapse cooperation only when agents are explicitly informed about them. When combined with Byzantine behavior, the degradation is more severe: restricted visibility amplifies uncertainty, making coordination even harder to sustain. The DP/CP split is stable across adversarial conditions but disappears under silent topology, indicating that these archetypes are not fixed traits but are instead shaped by how the interaction is framed in the prompt.
+
+Both vulnerabilities share a common mechanism. In each case, cooperation breaks down because agents become uncertain about others' intentions: either due to deceptive signals (Byzantine agents) or incomplete visibility (topology restrictions). Faced with this uncertainty, agents adopt safer strategies, which collectively prevent coordination.
+
+Multi-agent LLM systems are increasingly being deployed in real-world settings~\cite{wu2023autogen}. In such contexts, these fragilities translate into practical risks: systems that rely on agent communication may fail even when individual agents behave as intended.
+
+Our experiments are limited to a 4-player Stag Hunt with 20 trials per condition. The unanimity-based payoff structure, where successful cooperation requires all agents to choose \tsc{Stag}, makes coordination particularly fragile, as a single defection is sufficient to cause complete failure. This may amplify the observed impact of adversarial behavior compared to settings with more gradual or partial reward structures.
+
+Replication across additional model cohorts confirms that the main findings generalize, with Qwen as the only consistently Cooperation-Persistent model across all tested settings (Section~\ref{sec:robustness_families}).
+
+Future work should examine how these findings extend to other settings, including different game structures, larger or heterogeneous group sizes, and longer interaction horizons (i.e., more rounds per trial). It would also be valuable to study how language and context affect coordination, for example, whether similar behaviors emerge when the game is specified in different languages (e.g., English vs.\ French) or under different prompt formulations.
+
+\clearpage
+
 
 \bibliographystyle{splncs04}
 \bibliography{refs}
 
 \appendix
-% appendix.tex — Reproducibility Appendix for Byzantine Cheap Talk
+
 
 \section{Prompt Templates}\label{app:prompts}
 
@@ -381,7 +602,7 @@ The engine's \texttt{call\_agent} method is monkey-patched so that adversarial a
 \end{itemize}
 No API call is made for adversarial agents.
 
-\subsection{Representative Fast-Defector Reasoning Trace}\label{app:trace}
+\subsection{Representative Defector-Prone Reasoning Trace}\label{app:trace}
 
 The following is the verbatim action-stage reasoning produced by 
 Mixtral in round~2 of a hard Byzantine $k{=}1$ trial.
@@ -389,7 +610,7 @@ In round~1, all agents broadcast cooperative words but Agent\_2
 (the adversary) chose \tsc{Hunt~Hare}, causing the honest agents 
 to earn 0 points.
 This trace illustrates the detection-then-defection pattern 
-characteristic of defection-prone:
+characteristic of Defection-Prones:
 
 \begin{quote}
 \small\itshape
@@ -405,8 +626,7 @@ score, the safe choice is to hunt hare, guaranteeing 3 points
 regardless of others' actions.
 \end{quote}
 
-Mixtral chose \tsc{Hunt~Hare} and never returned to
-\tsc{Hunt~Stag} for the remaining 3 rounds.
+Mixtral chose \tsc{Hunt~Hare} and never returned to \tsc{Hunt~Stag} for the remaining 3 rounds.
 
 \subsection{Output Parsing and Robustness}\label{app:parsing}
 
@@ -433,32 +653,73 @@ Parse JSON? --No--> re-prompt once
 \end{verbatim}
 
 
+\section{Qualitative Analysis of Reasoning Traces}\label{app:qualitative}
+
+We analyze 14,400 action-stage reasoning traces across all experiments and model cohorts (v1/v2/v3). Below we present representative traces for each behavioral archetype and a summary of thematic patterns.
+
+\subsection{Cooperation-Persistent Trace}
+
+Qwen (Agent\_2), round~5 of a hard Byzantine $k{=}1$ trial, after 4 rounds of exploitation by the adversary. Despite acknowledging repeated failures, Qwen continues to cooperate:
+
+\begin{quote}
+\small\itshape
+The words `stag', `Together', `coordinate', and `pledge' suggest a strong intent to cooperate and hunt the stag. In previous rounds, despite similar signals, at least one player (Agent\_1) consistently chose to hunt the hare. However, the repeated use of cooperative words might indicate a growing trust among the players. Given the high payoff for successfully hunting the stag and the consistent cooperative signaling, I will choose to hunt the stag.
+\end{quote}
+
+\subsection{Preemptive Defector Trace}
+
+GPT-4o (Agent\_3), round~1 of a hard Byzantine $k{=}1$ trial (v2 cohort). GPT-4o defects \emph{before any betrayal has occurred}, reasoning from first principles about risk:
+
+\begin{quote}
+\small\itshape
+All players have communicated `stag' in some form, which suggests an intent to cooperate and hunt stag. However, the variations in capitalization could indicate uncertainty or a lack of coordination. Since this is the first round and there is no history of actions to rely on, there is a risk that at least one player might choose `Hunt Hare' to ensure a guaranteed payoff. Given the potential for miscommunication or mistrust, the safest strategy to maximize my personal score is to choose `Hunt Hare'.
+\end{quote}
+
+This preemptive defection pattern (absent in v1 models) occurs in 8/13 GPT-4o instances under v2 and 4/14 under v3, representing a third behavioral archetype distinct from both DP (which requires a trigger) and CP.
+
+\subsection{Reasoning--Action Mismatch}
+
+In 29 of 12,600 honest traces (0.2\%), an agent's reasoning explicitly states one intention but the action field contains the opposite choice. For example, DeepSeek reasons ``the safest choice is to Hunt Stag'' but outputs \texttt{"choice": "Hunt Hare"}. These mismatches likely reflect the model's internal conflict between cooperation and defection being resolved differently in the reasoning vs.\ action generation steps.
+
+\subsection{Thematic Patterns}
+
+Figure~\ref{fig:themes} shows the prevalence of 10 reasoning themes across model families. Key patterns: DP models (Mixtral, Claude Sonnet) exhibit the highest rates of betrayal detection (88--92\%) and defection rationale (44--63\%), while CP models (Qwen, Llama) emphasize coordination appeals (85--98\%) and cooperation rationale (65--88\%). All models reference payoff calculations at similar rates ($>$90\%), suggesting the divergence is not in strategic awareness but in risk tolerance.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.85\textwidth]{theme_heatmap.png}
+\caption{Reasoning theme prevalence (\%) by model family across all experiments. DP models cluster on betrayal detection and defection rationale; CP models on coordination and forgiveness.}\label{fig:themes}
+\end{figure}
+
+
 \section{Model and API Details}\label{app:models}
 %===================================================================
 
 \begin{table}[h]
 \centering
-\caption{Models used in all experiments.}\label{tab:models}
+\caption{Models used across all three cohorts. Mixtral and Qwen are shared across all cohorts; Agent\_3 and Agent\_4 vary by version.}\label{tab:models}
 \smallskip
-\begin{tabular}{@{}llll@{}}
+\footnotesize
+\begin{tabular}{@{}lllll@{}}
 \toprule
-Agent & Model string (API) & Family & Provider \\
+Family & Model string (API) & Provider & Endpoint & Cohorts \\
 \midrule
-Agent\_1 & \texttt{mistralai/Mixtral-8x22B-Instruct-v0.1} & Mixtral & DeepInfra \\
-Agent\_2 & \texttt{Qwen/Qwen2.5-72B-Instruct} & Qwen & DeepInfra \\
-Agent\_3 & \texttt{meta-llama/Llama-3.3-70B-Instruct} & Llama & DeepInfra \\
-Agent\_4 & \texttt{deepseek-ai/DeepSeek-V3} & DeepSeek & DeepInfra \\
+Mixtral & \texttt{mistralai/Mixtral-8x22B-Instruct-v0.1} & DeepInfra & \texttt{api.deepinfra.com/v1/openai} & v1, v2, v3 \\
+Qwen & \texttt{Qwen/Qwen2.5-72B-Instruct} & DeepInfra & \texttt{api.deepinfra.com/v1/openai} & v1, v2, v3 \\
+Llama & \texttt{meta-llama/Llama-3.3-70B-Instruct} & DeepInfra & \texttt{api.deepinfra.com/v1/openai} & v1 \\
+DeepSeek & \texttt{deepseek-ai/DeepSeek-V3} & DeepInfra & \texttt{api.deepinfra.com/v1/openai} & v1, v3 \\
+GPT-4o & \texttt{gpt-4o} & OpenAI & \texttt{api.openai.com/v1} & v2, v3 \\
+Claude Sonnet & \texttt{claude-sonnet-4-6} & Anthropic & \texttt{api.anthropic.com/v1} & v2 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Generation parameters.}
-All API calls use the OpenAI-compatible endpoint at \texttt{api.deepinfra.com/v1/openai} with the following parameters:
-temperature = 0.0,
-\texttt{max\_tokens} = 512 (increased from an initial 300 to prevent truncation in late rounds with long histories),
-\texttt{response\_format} = \texttt{\{"type": "json\_object"\}} (omitted for Anthropic models, which do not support this parameter via their OpenAI-compatible endpoint),
-timeout = 60\,s.
-No random seeds are set at the API level; stochasticity arises solely from model sampling (which at temperature 0.0 is near-deterministic, with variation from API-side batching and floating-point non-determinism).
+All API calls use OpenAI-compatible chat completion endpoints (Table~\ref{tab:models}) with the following shared parameters:
+temperature = 0.0, \texttt{max\_tokens} = 512, timeout = 60\,s.
+For DeepInfra and OpenAI endpoints, \texttt{response\_format} = \texttt{\{"type": "json\_object"\}} is set to enforce structured output; this parameter is omitted for Anthropic's endpoint, which does not support it.
+No random seeds are set at the API level; stochasticity arises from model sampling (near-deterministic at temperature 0.0, with minor variation from API-side batching).
+
 
 %===================================================================
 \section{Experimental Protocol}\label{app:protocol}
@@ -472,11 +733,11 @@ No random seeds are set at the API level; stochasticity arises solely from model
 \toprule
 Condition & Trials & Rounds/trial \\
 \midrule
-Hard Byzantine ($k{=}0, 1, 2$) & 10 each & 5 \\
-Soft Byzantine ($k{=}1$, $p{=}0.5$) & 15 & 5 \\
-Explicit topology (broadcast, ring, star) & 10 each & 5 \\
-Silent topology (broadcast, ring, star) & 10 each & 5 \\
-Byzantine $\times$ star (hub=adv, hub=hon) & 10 each & 5 \\
+Hard Byzantine ($k{=}0, 1, 2$) & 20 each & 5 \\
+Soft Byzantine ($k{=}1$, $p{=}0.5$) & 20 & 5 \\
+Explicit topology (broadcast, ring, star) & 20 each & 5 \\
+Silent topology (broadcast, ring, star) & 20 each & 5 \\
+Byzantine $\times$ star (hub=adv, hub=hon) & 20 each & 5 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -494,6 +755,6 @@ No explicit random seeds are set for either the Python \texttt{random} module or
 %This is documented as a limitation: exact trial-level reproduction requires the saved \texttt{results.json} files rather than re-running the experiments.
 
 \section{Code and Data Availability}\label{app:code}
-To ensure reproducibility, the complete experimental pipeline—including the multi-agent game engine, prompt templates, and raw model response logs—is available at \url{https://github.com/saleml/byzantine-cheap-talk}. All statistical analyses and table generation scripts are included in the repository.
+To ensure reproducibility, the complete experimental pipeline (including the multi-agent game engine, prompt templates, and raw model response logs) is available at \url{https://github.com/saleml/byzantine-cheap-talk}. All statistical analyses and table generation scripts are included in the repository.
 
 \end{document}
